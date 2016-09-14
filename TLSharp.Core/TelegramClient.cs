@@ -17,10 +17,10 @@ namespace TLSharp.Core
     {
         private MtProtoSender _sender;
         private AuthKey _key;
-        private TcpTransport _transport;
+        public TcpTransport _transport;
         private string _apiHash = "";
         private int _apiId = 0;
-        private Session _session;
+        public Session _session;
         private List<DcOption> dcOptions;
 
         public enum sms_type { numeric_code_via_sms = 0, numeric_code_via_telegram = 5 }

@@ -7,6 +7,7 @@ using TLSharp.Core;
 using TLSharp.Core.Auth;
 using TLSharp.Core.MTProto;
 using TLSharp.Core.Network;
+using TLSharp.Core.Requests;
 
 namespace TLSharp.Tests
 {
@@ -226,29 +227,32 @@ namespace TLSharp.Tests
             Assert.AreEqual(1, hist.Count);
 
             var message = (MessageConstructor) hist[0];
-            Assert.AreEqual(typeof(MessageMediaPhotoConstructor), message.media.GetType());
+            Assert.AreEqual(typeof (MessageMediaPhotoConstructor), message.media.GetType());
 
             var media = (MessageMediaPhotoConstructor) message.media;
-            Assert.AreEqual(typeof(PhotoConstructor), media.photo.GetType());
+            Assert.AreEqual(typeof (PhotoConstructor), media.photo.GetType());
 
             var photo = (PhotoConstructor) media.photo;
             Assert.AreEqual(3, photo.sizes.Count);
-            Assert.AreEqual(typeof(PhotoSizeConstructor), photo.sizes[2].GetType());
+            Assert.AreEqual(typeof (PhotoSizeConstructor), photo.sizes[2].GetType());
 
             var photoSize = (PhotoSizeConstructor) photo.sizes[2];
-            Assert.AreEqual(typeof(FileLocationConstructor), photoSize.location.GetType());
+            Assert.AreEqual(typeof (FileLocationConstructor), photoSize.location.GetType());
 
             var fileLocation = (FileLocationConstructor) photoSize.location;
-            var file = await client.GetFile(fileLocation.volume_id, fileLocation.local_id, fileLocation.secret, 0, photoSize.size + 1024);
+            var file =
+                await
+                    client.GetFile(fileLocation.volume_id, fileLocation.local_id, fileLocation.secret, 0,
+                        photoSize.size + 1024);
             storage_FileType type = file.Item1;
             byte[] bytes = file.Item2;
 
             string name = "../../data/get_file.";
-            if (type.GetType() == typeof(Storage_fileJpegConstructor))
+            if (type.GetType() == typeof (Storage_fileJpegConstructor))
                 name += "jpg";
-            else if (type.GetType() == typeof(Storage_fileGifConstructor))
+            else if (type.GetType() == typeof (Storage_fileGifConstructor))
                 name += "gif";
-            else if (type.GetType() == typeof(Storage_filePngConstructor))
+            else if (type.GetType() == typeof (Storage_filePngConstructor))
                 name += "png";
 
             using (var fileStream = new FileStream(name, FileMode.Create, FileAccess.Write))
@@ -293,6 +297,52 @@ namespace TLSharp.Tests
             var userFull = await client.GetUserFull(res.Value);
 
             Assert.IsNotNull(userFull);
+        }
+
+        [TestMethod]
+        public async Task UpdatesHandling()
+        {
+            var store = new FileSessionStore();
+            var client = new TelegramClient(store, "session", apiId, apiHash);
+            await client.Connect();
+
+            Assert.IsTrue(client.IsUserAuthorized());
+
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
+
+            var mtProto = new MtProtoConnection(client._transport, client._session);
+
+            var waiter = new UpdatesWaiter(mtProto);
+            var updateTask = waiter.WaitNext();
+
+            var req = new SendMessageRequest(new InputPeerContactConstructor(userId.Value), "bullshit");
+            await mtProto.Send(req);
+
+            var upd = await updateTask;
+        }
+
+        class UpdatesWaiter
+        {
+            private readonly MtProtoConnection connection;
+
+            private TaskCompletionSource<Updates> _current = new TaskCompletionSource<Updates>();
+
+            public UpdatesWaiter(MtProtoConnection connection)
+            {
+                this.connection = connection;
+                connection.UpdateMessage += ConnectionUpdateMessage;
+            }
+
+            private void ConnectionUpdateMessage(object sender, Updates update)
+            {
+                _current.SetResult(update);
+                _current = new TaskCompletionSource<Updates>();
+            }
+
+            public Task<Updates> WaitNext()
+            {
+                return _current.Task;
+            }
         }
     }
 }

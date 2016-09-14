@@ -542,66 +542,44 @@ namespace TLSharp.Core.MTProto
             {0x075cf7a8, typeof (UserForeignConstructor)},
         };
 
-        public static TLObject Parse(BinaryReader reader, uint code)
+        public static T Parse<T>(BinaryReader reader)
         {
-            if (!constructors.ContainsKey(code))
-            {
-                throw new Exception("unknown constructor code");
-            }
-
             uint dataCode = reader.ReadUInt32();
-            if (dataCode != code)
-            {
-                throw new Exception(String.Format("target code {0} != data code {1}", code, dataCode));
-            }
-
-            TLObject obj = (TLObject)Activator.CreateInstance(constructors[code]);
-            obj.Read(reader);
-            return obj;
+            return Parse<T>(reader, dataCode);
         }
 
-        public static T Parse<T>(BinaryReader reader)
+        public static T Parse<T>(BinaryReader reader, uint dataCode)
         {
             if (typeof(TLObject).IsAssignableFrom(typeof(T)))
             {
-                uint dataCode = reader.ReadUInt32();
-
                 if (!constructors.ContainsKey(dataCode))
                 {
-                    throw new Exception(String.Format("invalid constructor code {0}", dataCode.ToString("X")));
+                    throw new Exception($"invalid constructor code {dataCode.ToString("X")}");
                 }
 
                 Type constructorType = constructors[dataCode];
                 if (!typeof(T).IsAssignableFrom(constructorType))
                 {
-                    throw new Exception(String.Format("try to parse {0}, but incompatible type {1}", typeof(T).FullName,
-                        constructorType.FullName));
+                    throw new Exception($"try to parse {typeof (T).FullName}, but incompatible type {constructorType.FullName}");
                 }
 
                 T obj = (T)Activator.CreateInstance(constructorType);
                 ((TLObject)(object)obj).Read(reader);
                 return obj;
             }
-            else if (typeof(T) == typeof(bool))
+
+            if (typeof(T) == typeof(bool))
             {
-                uint code = reader.ReadUInt32();
-                if (code == 0x997275b5)
+                if (dataCode == 0x997275b5)
                 {
                     return (T)(object)true;
                 }
-                else if (code == 0xbc799737)
+                if (dataCode == 0xbc799737)
                 {
                     return (T)(object)false;
                 }
-                else
-                {
-                    throw new Exception("unknown bool value");
-                }
             }
-            else
-            {
-                throw new Exception("unknown return type");
-            }
+            throw new Exception("unknown return type");
         }
 
         //public delegate TLObject InputPeerContactDelegate(InputPeerContactConstructor x);

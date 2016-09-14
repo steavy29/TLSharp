@@ -21,6 +21,7 @@ namespace TLSharp.Core.Requests
         public abstract void OnSend(BinaryWriter writer);
         public abstract void OnResponse(BinaryReader reader);
         public abstract void OnException(Exception exception);
+        public virtual void OnError(int errorCode, string error) {}
         public abstract bool Confirmed { get; }
         public abstract bool Responded { get; }
 
