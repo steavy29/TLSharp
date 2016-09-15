@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -9,14 +8,19 @@ namespace TLSharp.Core.Network
     public class TcpTransport : IDisposable
     {
         private readonly TcpClient _tcpClient;
-        private int sendCounter = 0;
+        private readonly NetworkStream _stream;
+        private int _sendCounter;
 
         public TcpTransport(string address, int port)
         {
-            _tcpClient = new TcpClient();
+            _tcpClient = new TcpClient
+            {
+                LingerState = new LingerOption(true, 1)
+            };
 
             var ipAddress = IPAddress.Parse(address);
             _tcpClient.Connect(ipAddress, port);
+            _stream = _tcpClient.GetStream();
         }
 
         public async Task Send(byte[] packet)
@@ -24,10 +28,10 @@ namespace TLSharp.Core.Network
             if (!_tcpClient.Connected)
                 throw new InvalidOperationException("Client not connected to server.");
 
-            var tcpMessage = new TcpMessage(sendCounter, packet);
+            var tcpMessage = new TcpMessage(_sendCounter, packet);
 
             await _tcpClient.GetStream().WriteAsync(tcpMessage.Encode(), 0, tcpMessage.Encode().Length);
-            sendCounter++;
+            _sendCounter++;
         }
 
         public async Task<TcpMessage> Receieve()
@@ -80,10 +84,81 @@ namespace TLSharp.Core.Network
             return new TcpMessage(seq, body);
         }
 
+        public async Task<TcpMessage> ReceieveFixed()
+        {
+            // packet length
+            var packetLengthBytes = new byte[4];
+            if (!await ReadBuffer(_stream, packetLengthBytes))
+                return null;
+
+            int packetLength = BitConverter.ToInt32(packetLengthBytes, 0);
+
+            // seq
+            var seqBytes = new byte[4];
+            if (!await ReadBuffer(_stream, seqBytes))
+                return null;
+
+            int seq = BitConverter.ToInt32(seqBytes, 0);
+
+            // body
+            var bodyBytes = new byte[packetLength - 12];
+            if (!await ReadBuffer(_stream, bodyBytes))
+                return null;
+
+            // crc
+            var crcBytes = new byte[4];
+            if (!await ReadBuffer(_stream, crcBytes))
+                return null;
+
+            int checksum = BitConverter.ToInt32(crcBytes, 0);
+
+            byte[] rv = new byte[packetLengthBytes.Length + seqBytes.Length + bodyBytes.Length];
+
+            Buffer.BlockCopy(packetLengthBytes, 0, rv, 0, packetLengthBytes.Length);
+            Buffer.BlockCopy(seqBytes, 0, rv, packetLengthBytes.Length, seqBytes.Length);
+            Buffer.BlockCopy(bodyBytes, 0, rv, packetLengthBytes.Length + seqBytes.Length, bodyBytes.Length);
+            var crc32 = new Ionic.Crc.CRC32();
+            crc32.SlurpBlock(rv, 0, rv.Length);
+            var validChecksum = crc32.Crc32Result;
+
+            if (checksum != validChecksum)
+            {
+                throw new InvalidOperationException("invalid checksum! skip");
+            }
+
+            return new TcpMessage(seq, bodyBytes);
+        }
+
+        private async Task<bool> ReadBuffer(NetworkStream stream, byte[] buffer)
+        {
+            var bytesRead = 0;
+
+            do
+            {
+                var availableBytes = await stream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead);
+                if (availableBytes == 0) // read the termination packet
+                    return false;
+
+                bytesRead += availableBytes;
+            }
+            while (bytesRead != buffer.Length);
+
+            return true;
+        }
+
+        public void Disconnect()
+        {
+            _tcpClient.Client.Disconnect(false);
+        }
+
         public void Dispose()
         {
             if (_tcpClient.Connected)
-                _tcpClient.Close();
+            {
+                _stream.Dispose();
+                
+            }
+            _tcpClient.Close();
         }
     }
 }

@@ -7,7 +7,6 @@ using TLSharp.Core;
 using TLSharp.Core.Auth;
 using TLSharp.Core.MTProto;
 using TLSharp.Core.Network;
-using TLSharp.Core.Requests;
 
 namespace TLSharp.Tests
 {
@@ -24,9 +23,9 @@ namespace TLSharp.Tests
 
         private string NumberToGetUserFull { get; set; }
 
-        private string apiHash = "";
+        private string apiHash = "bd557adc23ae98b04cfc37b08f471149";
 
-        private int apiId = 0;
+        private int apiId = 65386;
 
         [TestInitialize]
         public void Init()
@@ -63,12 +62,14 @@ namespace TLSharp.Tests
             await client.Connect();
 
             var hash = await client.SendCodeRequest(NumberToAuthenticate);
-            var code = "93463"; // you can change code in debugger
+            var code = "0"; // you can change code in debugger
 
             var user = await client.MakeAuth(NumberToAuthenticate, hash, code);
 
             Assert.IsNotNull(user);
             Assert.IsTrue(client.IsUserAuthorized());
+
+            await client.Close();
         }
 
         [TestMethod]
@@ -124,12 +125,10 @@ namespace TLSharp.Tests
             var client = new TelegramClient(store, "session", apiId, apiHash);
 
             await client.Connect();
-
             Assert.IsTrue(client.IsUserAuthorized());
 
             var res = await client.ImportByUserName(UserNameToSendMessage);
-
-            Assert.IsNotNull(res);
+            Assert.IsTrue(res.HasValue);
         }
 
         [TestMethod]
@@ -139,12 +138,10 @@ namespace TLSharp.Tests
             var client = new TelegramClient(store, "session", apiId, apiHash);
 
             await client.Connect();
-
             Assert.IsTrue(client.IsUserAuthorized());
 
             var res = await client.ImportByUserName(UserNameToSendMessage);
-
-            Assert.IsNotNull(res);
+            Assert.IsTrue(res.HasValue);
 
             await client.SendMessage(res.Value, "Test message from TelegramClient");
         }
@@ -178,7 +175,7 @@ namespace TLSharp.Tests
 
             var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
-            Assert.IsNotNull(res);
+            Assert.IsTrue(res.HasValue);
 
             var hist = await client.GetMessagesHistoryForContact(res.Value, 0, 5);
 
@@ -196,7 +193,7 @@ namespace TLSharp.Tests
 
             var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
-            Assert.IsNotNull(res);
+            Assert.IsTrue(res.HasValue);
 
             var file = File.ReadAllBytes("../../data/cat.jpg");
 
@@ -267,7 +264,7 @@ namespace TLSharp.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, "", apiId, apiHash);
 
-            Assert.IsTrue(await client.Connect());
+            await client.Connect();
         }
 
         [TestMethod]
@@ -291,15 +288,14 @@ namespace TLSharp.Tests
             Assert.IsTrue(client.IsUserAuthorized());
 
             var res = await client.ImportContactByPhoneNumber(NumberToGetUserFull);
-
-            Assert.IsNotNull(res);
+            Assert.IsTrue(res.HasValue);
 
             var userFull = await client.GetUserFull(res.Value);
 
             Assert.IsNotNull(userFull);
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public async Task UpdatesHandling()
         {
             var store = new FileSessionStore();
@@ -310,27 +306,22 @@ namespace TLSharp.Tests
 
             var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
-            var mtProto = new MtProtoConnection(client._transport, client._session);
-
-            var waiter = new UpdatesWaiter(mtProto);
+            var waiter = new UpdatesWaiter(client);
             var updateTask = waiter.WaitNext();
 
             var req = new SendMessageRequest(new InputPeerContactConstructor(userId.Value), "bullshit");
-            await mtProto.Send(req);
+            await client.Send(req);
 
             var upd = await updateTask;
-        }
+        }*/
 
         class UpdatesWaiter
         {
-            private readonly MtProtoConnection connection;
-
             private TaskCompletionSource<Updates> _current = new TaskCompletionSource<Updates>();
 
-            public UpdatesWaiter(MtProtoConnection connection)
+            public UpdatesWaiter(TelegramClient client)
             {
-                this.connection = connection;
-                connection.UpdateMessage += ConnectionUpdateMessage;
+                client.UpdateMessage += ConnectionUpdateMessage;
             }
 
             private void ConnectionUpdateMessage(object sender, Updates update)

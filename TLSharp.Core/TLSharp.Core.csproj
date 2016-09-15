@@ -58,9 +58,9 @@
     <Compile Include="MTProto\Crypto\Salt.cs" />
     <Compile Include="MTProto\Serializers.cs" />
     <Compile Include="MTProto\TL.cs" />
-    <Compile Include="Network\MtProtoConnection.cs" />
-    <Compile Include="Network\MtProtoPlainSender.cs" />
     <Compile Include="Network\MtProtoSender.cs" />
+    <Compile Include="Network\MtProtoPlainSenderOld.cs" />
+    <Compile Include="Network\MtProtoSenderOld.cs" />
     <Compile Include="Network\TcpMessage.cs" />
     <Compile Include="Network\TcpTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

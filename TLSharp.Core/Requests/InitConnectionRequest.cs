@@ -30,8 +30,8 @@ namespace TLSharp.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            uint code = reader.ReadUInt32();
-            ConfigConstructor config = new ConfigConstructor();
+            uint dataCode = reader.ReadUInt32();
+            var config = new ConfigConstructor();
             config.Read(reader);
 
             ConfigConstructor = config;
