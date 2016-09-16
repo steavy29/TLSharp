@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using TLSharp.Core.MTProto;
@@ -25,7 +23,7 @@ namespace TLSharp.Core.Network
         private TaskCompletionSource<bool> _finishedListening;
         public Task FinishedListeningTask => _finishedListening.Task;
 
-        public event EventHandler<Updates> UpdateMessage; 
+        public event EventHandler<Updates> UpdateMessage;
 
         public MtProtoSender(TcpTransport transport, Session session)
         {
@@ -45,7 +43,7 @@ namespace TLSharp.Core.Network
                     break;
 
                 var decodedMessage = DecodeMessage(message.Body);
-                
+
                 using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
                 using (var messageReader = new BinaryReader(messageStream))
                 {
@@ -78,33 +76,16 @@ namespace TLSharp.Core.Network
                 var messageId = _session.GetNewMessageId();
                 request.MessageId = messageId;
                 Debug.WriteLine($"Send request - {messageId}");
-                
-                if (!_runningRequests.ContainsKey(request.MessageId))
-                {
-                    responseSource = new TaskCompletionSource<bool>();
-                    _runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
-                }
-                else
-                {
-                    // when resending the request
-                    responseSource = _runningRequests[request.MessageId].Item2;
-                }
+
+                responseSource = new TaskCompletionSource<bool>();
+                _runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
 
                 request.OnSend(writer);
                 await Send(memory.ToArray(), request);
             }
-            
+
             await responseSource.Task;
             _runningRequests.Remove(request.MessageId);
-
-            if (request.NeedResend)
-            {
-                await Send(request);
-            }
-            else
-            {
-                _session.Save();
-            }
         }
 
         private async Task Send(byte[] packet, MTProtoRequest request)
@@ -140,7 +121,7 @@ namespace TLSharp.Core.Network
             }
         }
 
-        private bool ProcessMessage(long messageId, int sequence, BinaryReader messageReader)
+        private void ProcessMessage(long messageId, int sequence, BinaryReader messageReader)
         {
             // TODO: check salt
             // TODO: check sessionid
@@ -150,60 +131,59 @@ namespace TLSharp.Core.Network
             _needConfirmation.Add(messageId);
 
             uint code = messageReader.ReadUInt32();
-            //messageReader.BaseStream.Position -= 4; // Whe need to rewind back?
             switch (code)
             {
                 case 0x73f1f8dc: // messages container
                                  //logger.debug("MSG container");
-                    return HandleContainer(messageId, sequence, messageReader);
+                    HandleContainer(messageId, sequence, messageReader);
+                    break;
                 case 0x7abe77ec: // ping
                                  //logger.debug("MSG ping");
-                    return false;
+                    break;
                 case 0x347773c5: // pong
                                  //logger.debug("MSG pong");
-                    return false;
+                    break;
                 case 0xae500895: // future_salts
                                  //logger.debug("MSG future_salts");
-                    return false;
+                    break;
                 case 0x9ec20908: // new_session_created
                                  //logger.debug("MSG new_session_created");
-                    return false;
+                    break;
                 case 0x62d6b459: // msgs_ack
                                  //logger.debug("MSG msds_ack");
-                    return false;
+                    break;
                 case 0xedab447b: // bad_server_salt
                                  //logger.debug("MSG bad_server_salt");
-                    return HandleBadServerSalt(messageId, sequence, messageReader);
+                    HandleBadServerSalt(messageId, sequence, messageReader);
+                    break;
                 case 0xa7eff811: // bad_msg_notification
                                  //logger.debug("MSG bad_msg_notification");
-                    return HandleBadMsgNotification(messageId, sequence, messageReader);
+                    HandleBadMsgNotification(messageId, sequence, messageReader);
+                    break;
                 case 0x276d3ec6: // msg_detailed_info
                                  //logger.debug("MSG msg_detailed_info");
-                    return false;
+                    break;
                 case 0xf35c6d01: // rpc_result
                                  //logger.debug("MSG rpc_result");
-                    return HandleRpcResult(messageReader);
+                    HandleRpcResult(messageReader);
+                    break;
                 case 0x3072cfa1: // gzip_packed
                                  //logger.debug("MSG gzip_packed");
-                    return HandleGzipPacked(messageId, sequence, messageReader);
+                    HandleGzipPacked(messageId, sequence, messageReader);
+                    break;
                 case 0xe317af7e: // updatesTooLong
                 case 0xd3f45784: // updateShortMessage
                 case 0x2b2fbd4e: // updateShortChatMessage
                 case 0x78d4dec1: // updateShort
                 case 0x725b04c3: // updatesCombined
                 case 0x74ae4240: // updates
-                {
-                    if (code == 0xe317af7e)
                     {
-                        
+                        HandleUpdateMessage(messageReader, code);
+                        break;
                     }
-                    Debug.WriteLine($"Update message: {code}");
-                    HandleUpdateMessage(messageReader, code);
-                    return false;
-                }
                 default:
-                    //logger.debug("unknown message: {0}", code);
-                    return false;
+                    Debug.WriteLine($"Unknown error: {code}");
+                    break;
             }
         }
 
@@ -244,61 +224,44 @@ namespace TLSharp.Core.Network
             return confirmed ? _session.Sequence++ * 2 + 1 : _session.Sequence * 2;
         }
 
-        private MemoryStream MakeMemory(int len)
+        private void OnUpdateMessage(Updates update)
+        {
+            UpdateMessage?.Invoke(this, update);
+        }
+
+        public static MemoryStream MakeMemory(int len)
         {
             return new MemoryStream(new byte[len], 0, len, true, true);
         }
 
         #region Message Handlers
-        
-        private bool HandleRpcResult(BinaryReader messageReader)
+
+        private void HandleRpcResult(BinaryReader messageReader)
         {
             long requestId = messageReader.ReadInt64();
             Debug.WriteLine($"HandleRpcResult: requestId - {requestId}");
 
             if (!_runningRequests.ContainsKey(requestId))
             {
-                return false;
+                return;
             }
             var requestInfo = _runningRequests[requestId];
             MTProtoRequest request = requestInfo.Item1;
 
             request.ConfirmReceived = true;
-            
+
             uint innerCode = messageReader.ReadUInt32();
-            if (innerCode == 0x2144ca19)
-            { // rpc_error
+            if (innerCode == 0x2144ca19) // rpc_error
+            {
                 int errorCode = messageReader.ReadInt32();
                 string errorMessage = Serializers.String.read(messageReader);
                 request.OnError(errorCode, errorMessage);
                 requestInfo.Item2.SetResult(true);
-
-                if (errorMessage.StartsWith("FLOOD_WAIT_"))
-                {
-                    var resultString = Regex.Match(errorMessage, @"\d+").Value;
-                    var seconds = int.Parse(resultString);
-                    Debug.WriteLine($"Should wait {seconds} sec.");
-                    Thread.Sleep(1000 * seconds);
-                }
-                else if (errorMessage.StartsWith("PHONE_MIGRATE_"))
-                {
-                    var resultString = Regex.Match(errorMessage, @"\d+").Value;
-                    var dcIdx = int.Parse(resultString);
-                    var exception = new InvalidOperationException($"Your phone number registered to {dcIdx} dc. Please update settings. See https://github.com/sochix/TLSharp#i-get-an-error-migrate_x for details.");
-                    exception.Data.Add("dcId", dcIdx);
-                    throw exception;
-                }
-                else
-                {
-                    throw new InvalidOperationException(errorMessage);
-                }
-
             }
-            else if (innerCode == 0x3072cfa1)
+            else if (innerCode == 0x3072cfa1) // gzip_packed
             {
                 try
                 {
-                    // gzip_packed
                     byte[] packedData = Serializers.Bytes.read(messageReader);
                     using (var ms = new MemoryStream())
                     {
@@ -311,13 +274,12 @@ namespace TLSharp.Core.Network
                         using (var compressedReader = new BinaryReader(ms))
                         {
                             request.OnResponse(compressedReader);
-                            requestInfo.Item2.SetResult(true); //////////////////////////////////////////////////////////////////////
+                            requestInfo.Item2.SetResult(true);
                         }
                     }
                 }
                 catch (ZlibException ex)
                 {
-
                 }
             }
             else
@@ -325,13 +287,11 @@ namespace TLSharp.Core.Network
                 messageReader.BaseStream.Position -= 4;
                 request.OnResponse(messageReader);
 
-                requestInfo.Item2.SetResult(true); //////////////////////////////////////////////////////////////////////
+                requestInfo.Item2.SetResult(true);
             }
-
-            return false;
         }
 
-        private bool HandleContainer(long messageId, int sequence, BinaryReader messageReader)
+        private void HandleContainer(long messageId, int sequence, BinaryReader messageReader)
         {
             int size = messageReader.ReadInt32();
             for (int i = 0; i < size; i++)
@@ -341,24 +301,22 @@ namespace TLSharp.Core.Network
                 int innerSequence = messageReader.ReadInt32();
                 int innerLength = messageReader.ReadInt32();
                 long beginPosition = messageReader.BaseStream.Position;
-                try
-                {
-                    if (!ProcessMessage(innerMessageId, sequence, messageReader))
-                    {
-                        messageReader.BaseStream.Position = beginPosition + innerLength;
-                    }
-                }
-                catch (Exception e)
-                {
-                    //	logger.error("failed to process message in contailer: {0}", e);
-                    messageReader.BaseStream.Position = beginPosition + innerLength;
-                }
-            }
 
-            return false;
+                ProcessMessage(innerMessageId, sequence, messageReader);
+
+                //try
+                //{
+                //    ProcessMessage(innerMessageId, sequence, messageReader);
+                //}
+                //catch (Exception e)
+                //{
+                //    //	logger.error("failed to process message in contailer: {0}", e);
+                //}
+                messageReader.BaseStream.Position = beginPosition + innerLength; // shift to next message
+            }
         }
 
-        private bool HandleBadServerSalt(long messageId, int sequence, BinaryReader messageReader)
+        private void HandleBadServerSalt(long messageId, int sequence, BinaryReader messageReader)
         {
             long badMsgId = messageReader.ReadInt64();
             int badMsgSeqNo = messageReader.ReadInt32();
@@ -368,117 +326,41 @@ namespace TLSharp.Core.Network
             _session.Salt = newSalt;
 
             if (!_runningRequests.ContainsKey(badMsgId))
-                return true;
+                return;
 
-            _runningRequests[badMsgId].Item2.SetResult(false);
-
-            //logger.debug("bad_server_salt: msgid {0}, seq {1}, errorcode {2}, newsalt {3}", badMsgId, badMsgSeqNo, errorCode, newSalt);
-
-            //resend
-            // TODO: should we blindly resend the request or propagate error and let Session handle this with some retry-limit logic?
-            //Send(request);
-
-            return true;
+            _runningRequests[badMsgId].Item1.OnError(errorCode, null);
+            _runningRequests[badMsgId].Item2.SetResult(true);
         }
 
-        private bool HandleBadMsgNotification(long messageId, int sequence, BinaryReader messageReader)
+        private void HandleBadMsgNotification(long messageId, int sequence, BinaryReader messageReader)
         {
             long badRequestId = messageReader.ReadInt64();
             int badRequestSequence = messageReader.ReadInt32();
             int errorCode = messageReader.ReadInt32();
 
-            string message;
-            switch (errorCode)
-            {
-                case 16:
-                    message = "msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the “correct” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)";
-                    break;
-                case 17:
-                    message = "msg_id too high (similar to the previous case, the client time has to be synchronized, and the message re-sent with the correct msg_id)";
-                    break;
-                case 18:
-                    message = "incorrect two lower order msg_id bits (the server expects client message msg_id to be divisible by 4)";
-                    break;
-                case 19:
-                    message = "container msg_id is the same as msg_id of a previously received message (this must never happen)";
-                    break;
-                case 20:
-                    message = "message too old, and it cannot be verified whether the server has received a message with this msg_id or not";
-                    break;
-                case 32:
-                    message = "msg_seqno too low (the server has already received a message with a lower msg_id but with either a higher or an equal and odd seqno)";
-                    break;
-                case 33:
-                    message = " msg_seqno too high (similarly, there is a message with a higher msg_id but with either a lower or an equal and odd seqno)";
-                    break;
-                case 34:
-                    message = "an even msg_seqno expected (irrelevant message), but odd received";
-                    break;
-                case 35:
-                    message = "odd msg_seqno expected (relevant message), but even received";
-                    break;
-                case 48:
-                    message = "incorrect server salt (in this case, the bad_server_salt response is received with the correct salt, and the message is to be re-sent with it)";
-                    break;
-                case 64:
-                    message = "invalid container";
-                    break;
-                default:
-                    message = "unknown error";
-                    break;
-            }
-
-
             if (_runningRequests.ContainsKey(badRequestId))
             {
-                _runningRequests[badRequestId].Item1.OnError(errorCode, message);
-                _runningRequests[badRequestId].Item2.SetResult(false);
+                _runningRequests[badRequestId].Item1.OnError(errorCode, null);
+                _runningRequests[badRequestId].Item2.SetResult(true);
             }
-            
-            /*
-			logger.debug("bad_msg_notification: msgid {0}, seq {1}, errorcode {2}", requestId, requestSequence,
-						 errorCode);
-			*/
-            /*
-			if (!runningRequests.ContainsKey(requestId))
-			{
-				logger.debug("bad msg notification on unknown request");
-				return true;
-			}
-			*/
-
-            //OnBrokenSessionEvent();
-            //MTProtoRequest request = runningRequests[requestId];
-            //request.OnException(new MTProtoBadMessageException(errorCode));
-
-            return true;
         }
 
-        private bool HandleGzipPacked(long messageId, int sequence, BinaryReader messageReader)
+        private void HandleGzipPacked(long messageId, int sequence, BinaryReader messageReader)
         {
-            uint code = messageReader.ReadUInt32();
             byte[] packedData = GZipStream.UncompressBuffer(Serializers.Bytes.read(messageReader));
             using (MemoryStream packedStream = new MemoryStream(packedData, false))
             using (BinaryReader compressedReader = new BinaryReader(packedStream))
             {
                 ProcessMessage(messageId, sequence, compressedReader);
             }
-
-            return true;
         }
 
-        private bool HandleUpdateMessage(BinaryReader messageReader, uint updateDataCode)
+        private void HandleUpdateMessage(BinaryReader messageReader, uint updateDataCode)
         {
             var update = TL.Parse<Updates>(messageReader, updateDataCode);
             OnUpdateMessage(update);
-            return true;
         }
 
         #endregion
-
-        protected virtual void OnUpdateMessage(Updates update)
-        {
-            UpdateMessage?.Invoke(this, update);
-        }
     }
 }

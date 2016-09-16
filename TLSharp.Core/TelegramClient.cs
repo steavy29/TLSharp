@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -61,7 +60,7 @@ namespace TLSharp.Core
             if (!reconnect)
             {
                 var request = new InitConnectionRequest(_apiId);
-                await _protoSender.Send(request);
+                await SendRpcRequest(request);
 
                 _dcOptions = request.ConfigConstructor.dc_options;
             }
@@ -69,7 +68,6 @@ namespace TLSharp.Core
 
         private async Task ReconnectToDc(int dcId)
         {
-            Debug.WriteLine("Switching");
             if (_dcOptions == null || !_dcOptions.Any())
                 throw new InvalidOperationException("Can't reconnect. Establish initial connection first.");
 
@@ -77,15 +75,11 @@ namespace TLSharp.Core
 
             await CloseCurrentTransport();
 
-            //var oldTransport = _transport;
-
             _transport = new TcpTransport(dc.ip_address, dc.port);
             _session.ServerAddress = dc.ip_address;
             _session.Port = dc.port;
 
             await Connect(true);
-            Debug.WriteLine("Switched");
-            //oldTransport?.Dispose();
         }
 
         private async Task CloseCurrentTransport()
@@ -108,8 +102,7 @@ namespace TLSharp.Core
         public async Task<bool> IsPhoneRegistered(string phoneNumber)
         {
             var authCheckPhoneRequest = new AuthCheckPhoneRequest(phoneNumber);
-            await _protoSender.Send(authCheckPhoneRequest);
-            //await _sender.Receive(authCheckPhoneRequest);
+            await SendRpcRequest(authCheckPhoneRequest);
 
             return authCheckPhoneRequest._phoneRegistered;
         }
@@ -125,7 +118,7 @@ namespace TLSharp.Core
                 request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, _apiId, _apiHash, "en");
                 try
                 {
-                    await _protoSender.Send(request);
+                    await SendRpcRequest(request);
 
                     completed = true;
                 }
@@ -148,7 +141,7 @@ namespace TLSharp.Core
         public async Task<User> MakeAuth(string phoneNumber, string phoneCodeHash, string code)
         {
             var request = new AuthSignInRequest(phoneNumber, phoneCodeHash, code);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             OnUserAuthenticated(request.user, request.SessionExpires);
 
@@ -158,7 +151,7 @@ namespace TLSharp.Core
         public async Task<User> SignUp(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
         {
             var request = new AuthSignUpRequest(phoneNumber, phoneCodeHash, code, firstName, lastName);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             OnUserAuthenticated(request.user, request.SessionExpires);
 
@@ -180,9 +173,9 @@ namespace TLSharp.Core
             var fileId = DateTime.Now.Ticks;
 
             var partedData = new Dictionary<int, byte[]>();
-            var parts = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(data.Length) / Convert.ToDouble(partSize)));
+            var partsCount = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(data.Length) / Convert.ToDouble(partSize)));
             var remainBytes = data.Length;
-            for (int i = 0; i < parts; i++)
+            for (int i = 0; i < partsCount; i++)
             {
                 partedData.Add(i, data
                     .Skip(i * partSize)
@@ -192,13 +185,13 @@ namespace TLSharp.Core
                 remainBytes -= partSize;
             }
 
-            for (int i = 0; i < parts; i++)
+            for (int i = 0; i < partsCount; i++)
             {
                 var saveFilePartRequest = new Upload_SaveFilePartRequest(fileId, i, partedData[i]);
-                await _protoSender.Send(saveFilePartRequest);
+                await SendRpcRequest(saveFilePartRequest);
 
                 if (saveFilePartRequest.Done == false)
-                    throw new InvalidOperationException($"File part {i} does not uploaded");
+                    throw new InvalidOperationException($"Failed to upload fine. (failed part: {i}/{partsCount})");
             }
 
             string md5Checksum;
@@ -213,9 +206,7 @@ namespace TLSharp.Core
                 md5Checksum = hashResult.ToString();
             }
 
-            var inputFile = new InputFileConstructor(fileId, parts, name, md5Checksum);
-
-            return inputFile;
+            return new InputFileConstructor(fileId, partsCount, name, md5Checksum);
         }
 
         public async Task<bool> SendMediaMessage(int contactId, InputFile file)
@@ -224,7 +215,7 @@ namespace TLSharp.Core
                 new InputPeerContactConstructor(contactId),
                 new InputMediaUploadedPhotoConstructor(file));
 
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return true;
         }
@@ -235,7 +226,7 @@ namespace TLSharp.Core
                 throw new InvalidOperationException("Invalid phone number. It should be only digit string, from 5 to 20 digits.");
 
             var request = new ImportContactRequest(new InputPhoneContactConstructor(0, phoneNumber, "My Test Name", String.Empty));
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             var importedUser = (ImportedContactConstructor)request.imported.FirstOrDefault();
 
@@ -245,7 +236,7 @@ namespace TLSharp.Core
         public async Task<int?> ImportByUserName(string username)
         {
             var request = new ImportByUserName(username);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.id;
         }
@@ -253,13 +244,13 @@ namespace TLSharp.Core
         public async Task SendMessage(int id, string message)
         {
             var request = new SendMessageRequest(new InputPeerContactConstructor(id), message);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
         }
 
         public async Task<List<Message>> GetMessagesHistoryForContact(int userId, int offset, int limit, int maxId = -1)
         {
             var request = new GetHistoryRequest(new InputPeerContactConstructor(userId), offset, maxId, limit);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.messages;
         }
@@ -267,7 +258,7 @@ namespace TLSharp.Core
         public async Task<Tuple<storage_FileType, byte[]>> GetFile(long volumeId, int localId, long secret, int offset, int limit)
         {
             var request = new GetFileRequest(new InputFileLocationConstructor(volumeId, localId, secret), offset, limit);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return Tuple.Create(request.type, request.bytes);
         }
@@ -275,7 +266,7 @@ namespace TLSharp.Core
         public async Task<MessageDialogs> GetDialogs(int offset, int limit, int maxId = 0)
         {
             var request = new GetDialogsRequest(offset, maxId, limit);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return new MessageDialogs
             {
@@ -289,7 +280,7 @@ namespace TLSharp.Core
         public async Task<UserFull> GetUserFull(int userId)
         {
             var request = new GetUserFullRequest(userId);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request._userFull;
         }
@@ -297,14 +288,13 @@ namespace TLSharp.Core
         private bool validateNumber(string number)
         {
             var regex = new Regex("^\\d{7,20}$");
-
             return regex.IsMatch(number);
         }
 
         public async Task<ContactsContacts> GetContacts(IList<int> contactIds = null)
         {
             var request = new GetContactsRequest(contactIds);
-            await _protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return new ContactsContacts
             {
@@ -321,6 +311,66 @@ namespace TLSharp.Core
         public Task Close()
         {
             return CloseCurrentTransport();
+        }
+
+        private async Task SendRpcRequest(MTProtoRequest request)
+        {
+            await _protoSender.Send(request);
+
+            // error handling order is important
+
+            if (request.Error == RpcRequestError.MigrateDataCenter)
+            {
+                if (request.ErrorMessage.StartsWith("PHONE_MIGRATE_") ||
+                    request.ErrorMessage.StartsWith("NETWORK_MIGRATE_") ||
+                    request.ErrorMessage.StartsWith("USER_MIGRATE_"))
+                {
+                    var dcIdStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
+                    var dcId = int.Parse(dcIdStr);
+
+                    await ReconnectToDc(dcId);
+
+                    // try one more time
+                    request.ResetError();
+                    await _protoSender.Send(request);
+                }
+            }
+
+            if (request.Error == RpcRequestError.Flood)
+            {
+                if (request.ErrorMessage.StartsWith("FLOOD_WAIT_"))
+                {
+                    var secondsToWaitStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
+                    var secondsToWait = int.Parse(secondsToWaitStr);
+
+                    await Task.Delay(TimeSpan.FromSeconds(secondsToWait));
+
+                    // try one more time
+                    request.ResetError();
+                    await _protoSender.Send(request);
+                }
+            }
+
+            // handle errors that can be fixed without user interaction
+            if (request.Error == RpcRequestError.IncorrectServerSalt)
+            {
+                // assuming that salt was already updated by underlying layer
+                request.ResetError();
+                await _protoSender.Send(request);
+            }
+
+            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
+            {
+                // resync updates state
+            }
+
+            // escalate to user
+            if (request.Error != RpcRequestError.None)
+            {
+                throw new Exception($"{request.Error} - {request.ErrorMessage}");
+            }
+
+            _session.Save();
         }
     }
 }

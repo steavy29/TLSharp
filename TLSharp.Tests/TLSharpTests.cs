@@ -61,8 +61,10 @@ namespace TLSharp.Tests
 
             await client.Connect();
 
-            var hash = await client.SendCodeRequest(NumberToAuthenticate);
-            var code = "0"; // you can change code in debugger
+            var dc1Number = "9996610000"; // 99966XYYYY : x-dcId; yyyy-random numbers
+
+            var hash = await client.SendCodeRequest(dc1Number);
+            var code = ""; // you can change code in debugger
 
             var user = await client.MakeAuth(NumberToAuthenticate, hash, code);
 
