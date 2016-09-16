@@ -11,7 +11,7 @@ using TLSharp.Core.Network;
 namespace TLSharp.Tests
 {
     [TestClass]
-    public class TLSharpTests
+    public class TlSharpTests
     {
         private string NumberToSendMessage { get; set; }
 
