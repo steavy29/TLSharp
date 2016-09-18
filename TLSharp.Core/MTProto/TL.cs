@@ -542,66 +542,44 @@ namespace TLSharp.Core.MTProto
             {0x075cf7a8, typeof (UserForeignConstructor)},
         };
 
-        public static TLObject Parse(BinaryReader reader, uint code)
+        public static T Parse<T>(BinaryReader reader)
         {
-            if (!constructors.ContainsKey(code))
-            {
-                throw new Exception("unknown constructor code");
-            }
-
             uint dataCode = reader.ReadUInt32();
-            if (dataCode != code)
-            {
-                throw new Exception(String.Format("target code {0} != data code {1}", code, dataCode));
-            }
-
-            TLObject obj = (TLObject)Activator.CreateInstance(constructors[code]);
-            obj.Read(reader);
-            return obj;
+            return Parse<T>(reader, dataCode);
         }
 
-        public static T Parse<T>(BinaryReader reader)
+        public static T Parse<T>(BinaryReader reader, uint dataCode)
         {
             if (typeof(TLObject).IsAssignableFrom(typeof(T)))
             {
-                uint dataCode = reader.ReadUInt32();
-
                 if (!constructors.ContainsKey(dataCode))
                 {
-                    throw new Exception(String.Format("invalid constructor code {0}", dataCode.ToString("X")));
+                    throw new Exception($"invalid constructor code {dataCode.ToString("X")}");
                 }
 
                 Type constructorType = constructors[dataCode];
                 if (!typeof(T).IsAssignableFrom(constructorType))
                 {
-                    throw new Exception(String.Format("try to parse {0}, but incompatible type {1}", typeof(T).FullName,
-                        constructorType.FullName));
+                    throw new Exception($"try to parse {typeof (T).FullName}, but incompatible type {constructorType.FullName}");
                 }
 
                 T obj = (T)Activator.CreateInstance(constructorType);
                 ((TLObject)(object)obj).Read(reader);
                 return obj;
             }
-            else if (typeof(T) == typeof(bool))
+
+            if (typeof(T) == typeof(bool))
             {
-                uint code = reader.ReadUInt32();
-                if (code == 0x997275b5)
+                if (dataCode == 0x997275b5)
                 {
                     return (T)(object)true;
                 }
-                else if (code == 0xbc799737)
+                if (dataCode == 0xbc799737)
                 {
                     return (T)(object)false;
                 }
-                else
-                {
-                    throw new Exception("unknown bool value");
-                }
             }
-            else
-            {
-                throw new Exception("unknown return type");
-            }
+            throw new Exception("unknown return type");
         }
 
         //public delegate TLObject InputPeerContactDelegate(InputPeerContactConstructor x);
@@ -14860,5 +14838,36 @@ namespace TLSharp.Core.MTProto
                     "(document id:{0} access_hash:{1} user_id:{2} date:{3} file_name:'{4}' mime_type:'{5}' size:{6} thumb:{7} dc_id:{8})",
                     id, access_hash, user_id, date, file_name, mime_type, size, thumb, dc_id);
         }
+    }
+    
+    public enum RpcRequestError
+    {
+        None = 0,
+
+        // Message level errors
+
+        MessageIdTooLow = 16,           // msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the “correct” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)
+        MessageIdTooHigh,               // msg_id too high (similar to the previous case, the client time has to be synchronized, and the message re-sent with the correct msg_id)
+        CorruptedMessageId,             // incorrect two lower order msg_id bits (the server expects client message msg_id to be divisible by 4)
+        DuplicateOfMessageContainerId,  // container msg_id is the same as msg_id of a previously received message (this must never happen)
+        MessageTooOld,                  // message too old, and it cannot be verified whether the server has received a message with this msg_id or not
+
+        MessageSeqNoTooLow = 32,        // msg_seqno too low (the server has already received a message with a lower msg_id but with either a higher or an equal and odd seqno)
+        MessageSeqNoTooHigh,            // msg_seqno too high (similarly, there is a message with a higher msg_id but with either a lower or an equal and odd seqno)
+        EvenSeqNoExpected,              // an even msg_seqno expected (irrelevant message), but odd received
+        OddSeqNoExpected,               // odd msg_seqno expected (relevant message), but even received
+
+        IncorrectServerSalt = 48,       // incorrect server salt (in this case, the bad_server_salt response is received with the correct salt, and the message is to be re-sent with it)
+        InvalidContainer = 64,           // invalid container
+
+        // Api-request level errors
+
+        MigrateDataCenter = 303,
+        BadRequest = 400,
+        Unauthorized = 401,
+        Forbidden = 403,
+        NotFound = 404,
+        Flood = 420,
+        InternalServer = 500
     }
 }

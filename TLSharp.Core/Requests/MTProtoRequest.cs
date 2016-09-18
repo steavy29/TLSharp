@@ -1,14 +1,18 @@
 ﻿using System;
 using System.IO;
+using TLSharp.Core.MTProto;
 
 namespace TLSharp.Core.Requests
 {
     public abstract class MTProtoRequest
     {
-        public MTProtoRequest()
+        protected MTProtoRequest()
         {
             Sended = false;
         }
+
+        public RpcRequestError Error { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         public long MessageId { get; set; }
         public int Sequence { get; set; }
@@ -21,6 +25,11 @@ namespace TLSharp.Core.Requests
         public abstract void OnSend(BinaryWriter writer);
         public abstract void OnResponse(BinaryReader reader);
         public abstract void OnException(Exception exception);
+        public virtual void OnError(int errorCode, string errorMessage)
+        {
+            Error = (RpcRequestError)errorCode;
+            ErrorMessage = errorMessage;
+        }
         public abstract bool Confirmed { get; }
         public abstract bool Responded { get; }
 
@@ -35,12 +44,12 @@ namespace TLSharp.Core.Requests
             ConfirmReceived = true;
         }
 
-        public bool NeedResend
+        public bool NeedResend => Dirty || (Confirmed && !ConfirmReceived && DateTime.Now - SendTime > TimeSpan.FromSeconds(3));
+
+        public void ResetError()
         {
-            get
-            {
-                return Dirty || (Confirmed && !ConfirmReceived && DateTime.Now - SendTime > TimeSpan.FromSeconds(3));
-            }
+            Error = RpcRequestError.None;
+            ErrorMessage = null;
         }
     }
 }
