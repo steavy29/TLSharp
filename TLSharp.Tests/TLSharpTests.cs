@@ -1,6 +1,9 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TLSharp.Core;
@@ -22,6 +25,8 @@ namespace TLSharp.Tests
         private string UserNameToSendMessage { get; set; }
 
         private string NumberToGetUserFull { get; set; }
+
+        private string NumberToAddToChat { get; set; }
 
         private string apiHash = "bd557adc23ae98b04cfc37b08f471149";
 
@@ -51,6 +56,9 @@ namespace TLSharp.Tests
             if (string.IsNullOrEmpty(NumberToGetUserFull))
                 Debug.WriteLine("NumberToGetUserFull not configured in app.config! Some tests may fail.");
 
+            NumberToAddToChat = ConfigurationManager.AppSettings[nameof(NumberToAddToChat)];
+            if (string.IsNullOrEmpty(NumberToAddToChat))
+                Debug.WriteLine("NumberToAddToChat not configured in app.config! Some tests may fail.");
         }
 
         [TestMethod]
@@ -295,6 +303,123 @@ namespace TLSharp.Tests
             var userFull = await client.GetUserFull(res.Value);
 
             Assert.IsNotNull(userFull);
+        }
+
+        [TestMethod]
+        public async Task CreateChatRequest()
+        {
+            var client = await InitializeClient();
+
+            var chatName = Guid.NewGuid().ToString();
+            var statedMessage = await client.CreateChat(chatName, new List<string> {NumberToSendMessage});
+
+            var createdChat = GetChatFromStatedMessage(statedMessage);
+
+            Assert.AreEqual(chatName, createdChat.title);
+            Assert.AreEqual(2, createdChat.participants_count);
+        }
+
+        [TestMethod]
+        public async Task AddChatUserRequest()
+        {
+            var client = await InitializeClient();
+
+            var chatName = Guid.NewGuid().ToString();
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<string> { NumberToSendMessage });
+
+            var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
+
+            var addUserId = await client.ImportContactByPhoneNumber(NumberToAddToChat);
+
+            var statedMessageAfterAddUser = await client.AddChatUser(createdChat.id, addUserId.Value);
+            var modifiedChat = GetChatFromStatedMessage(statedMessageAfterAddUser);
+
+            Assert.AreEqual(createdChat.id, modifiedChat.id);
+            Assert.AreEqual(3, modifiedChat.participants_count);
+        }
+
+        [TestMethod]
+        public async Task LeaveChatRequest()
+        {
+            var client = await InitializeClient();
+
+            var chatName = Guid.NewGuid().ToString();
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<string> { NumberToSendMessage });
+
+            var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
+            
+            var statedMessageAfterLeave = await client.LeaveChat(createdChat.id);
+            var modifiedChat = GetChatFromStatedMessage(statedMessageAfterLeave);
+
+            Assert.AreEqual(createdChat.id, modifiedChat.id);
+            Assert.AreEqual(1, modifiedChat.participants_count);
+        }
+
+        private ChatConstructor GetChatFromStatedMessage(Messages_statedMessageConstructor message)
+        {
+            var serviceMessage = message.message as MessageServiceConstructor;
+            var peerChat = serviceMessage.to_id as PeerChatConstructor;
+
+            var createdChatId = peerChat.chat_id;
+            return message.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
+        }
+
+        private async Task<TelegramClient> InitializeClient()
+        {
+            var store = new FileSessionStore();
+            var client = new TelegramClient(store, "session", apiId, apiHash);
+            await client.Connect();
+
+            if (!client.IsUserAuthorized())
+            {
+                var hash = await client.SendCodeRequest(NumberToAuthenticate);
+
+                var code = ""; // you can change code in debugger
+                Debugger.Break();
+
+                await client.MakeAuth(NumberToAuthenticate, hash, code);
+            }
+
+            Assert.IsTrue(client.IsUserAuthorized());
+
+            return client;
+        }
+
+        [TestMethod]
+        public async Task GetUpdates()
+        {
+            var store = new FileSessionStore();
+            var client = new TelegramClient(store, "session", apiId, apiHash);
+            await client.Connect();
+
+            Assert.IsTrue(client.IsUserAuthorized());
+
+            var updatesState = await client.GetUpdatesState();
+            var initialState = updatesState as Updates_stateConstructor;
+
+            Assert.IsNotNull(initialState);
+
+            var difference = await client.GetUpdatesDifference(initialState.pts, initialState.date, initialState.qts);
+            Assert.IsNotNull(difference);
+            Assert.AreEqual(difference.Constructor, Constructor.updates_differenceEmpty);
+
+            var userIdToSendMessage = await client.ImportContactByPhoneNumber(NumberToSendMessage);
+
+            await client.SendMessage(userIdToSendMessage.Value, "test");
+
+            var differenceAfterMessage = await client.GetUpdatesDifference(initialState.pts, initialState.date, initialState.qts);
+
+            Assert.IsNotNull(differenceAfterMessage);
+            Assert.AreEqual(differenceAfterMessage.Constructor, Constructor.updates_difference);
+
+            var differenceUpdate = differenceAfterMessage as Updates_differenceConstructor;
+            Assert.IsNotNull(differenceUpdate);
+            Assert.AreEqual(1, differenceUpdate.new_messages.Count);
+
+            var messageUpdate = differenceUpdate.new_messages[0] as MessageConstructor;
+            Assert.IsNotNull(messageUpdate);
+
+            Assert.AreEqual("test", messageUpdate.message);
         }
 
         /*[TestMethod]
