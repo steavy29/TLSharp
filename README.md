@@ -383,12 +383,6 @@ Create an issue in project bug tracker.
 * Your code that runs in to this exception
 
 Without information listen above your issue will be closed. 
-# Donations
-Thanks for donations! It's highly appreciated. 
-Bitcoin wallet: **3K1ocweFgaHnAibJ3n6hX7RNZWFTFcJjUe**
-
-List of donators:
-* [mtbitcoin](https://github.com/mtbitcoin)
 
 # License
 
