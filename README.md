@@ -1,18 +1,16 @@
-#TLSharp
+#Telegram.Net
 
-[![Build status](https://ci.appveyor.com/api/projects/status/95rl618ch5c4h2fa?svg=true)](https://ci.appveyor.com/project/sochix/tlsharp)
+[![Build status](https://ci.appveyor.com/api/projects/status/e2eo2ltjc5pygvtp?svg=true)](https://ci.appveyor.com/project/steavy29/telegram-net)
 
-Telegram (http://telegram.org) client library implemented in C#. Only basic functionality is currently implemented. **Consider donation to speed up development process.** Bitcoin wallet: **3K1ocweFgaHnAibJ3n6hX7RNZWFTFcJjUe**
+Telegram (http://telegram.org) client library implemented in C#. Only basic functionality is currently implemented.
 
 It's a perfect fit for any developer who would like to send data directly to Telegram users.
-
-:star: If you :heart: library, please star it! :star:
 
 :exclamation: **Please, don't use it for SPAM!**
 
 [How-To: Send messages to Telegram from C#](http://www.sochix.ru/how-to-send-messages-to-telegram-from-c/)
 
-:ru: Russian description you can find [here](https://habrahabr.ru/post/277079/)
+Russian description you can find [here](https://habrahabr.ru/post/277079/)
 
 #Table of contents?
 
