@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DotNetZip, Version=1.10.1.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotNetZip.1.10.1\lib\net20\DotNetZip.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Ionic.ZLib, Version=2.0.0.14, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MarkerMetro.Unity.Ionic.Zlib.2.0.0.14\lib\net35\Ionic.ZLib.dll</HintPath>
       <Private>True</Private>
