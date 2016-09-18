@@ -15,13 +15,13 @@ namespace TLSharp.Core
 {
     public class TelegramClient
     {
-        private MtProtoSender _protoSender;
-        private AuthKey _key;
-        private TcpTransport _transport;
-        private readonly string _apiHash;
-        private readonly int _apiId;
-        private readonly Session _session;
-        private List<DcOption> _dcOptions;
+        private MtProtoSender protoSender;
+        private AuthKey key;
+        private TcpTransport transport;
+        private readonly string apiHash;
+        private readonly int apiId;
+        private readonly Session session;
+        private List<DcOption> dcOptions;
 
         public event EventHandler<Updates> UpdateMessage;
 
@@ -39,64 +39,64 @@ namespace TLSharp.Core
             if (string.IsNullOrEmpty(apiHash))
                 throw new InvalidOperationException("Your API_ID is invalid. Do a configuration first https://github.com/sochix/TLSharp#quick-configuration");
 
-            _apiHash = apiHash;
-            _apiId = apiId;
-            _session = Session.TryLoadOrCreateNew(store, sessionUserId);
-            _transport = new TcpTransport(_session.ServerAddress, _session.Port);
+            this.apiHash = apiHash;
+            this.apiId = apiId;
+            session = Session.TryLoadOrCreateNew(store, sessionUserId);
+            transport = new TcpTransport(session.ServerAddress, session.Port);
         }
 
         public async Task Connect(bool reconnect = false)
         {
-            if (_session.AuthKey == null || reconnect)
+            if (session.AuthKey == null || reconnect)
             {
-                var result = await Authenticator.DoAuthentication(_transport);
-                _session.AuthKey = result.AuthKey;
-                _session.TimeOffset = result.TimeOffset;
+                var result = await Authenticator.DoAuthentication(transport);
+                session.AuthKey = result.AuthKey;
+                session.TimeOffset = result.TimeOffset;
             }
 
-            _protoSender = new MtProtoSender(_transport, _session);
-            _protoSender.UpdateMessage += OnUpdateMessage;
+            protoSender = new MtProtoSender(transport, session);
+            protoSender.UpdateMessage += OnUpdateMessage;
 
             if (!reconnect)
             {
-                var request = new InitConnectionRequest(_apiId);
+                var request = new InitConnectionRequest(apiId);
                 await SendRpcRequest(request);
 
-                _dcOptions = request.ConfigConstructor.dc_options;
+                dcOptions = request.ConfigConstructor.dc_options;
             }
         }
 
         private async Task ReconnectToDc(int dcId)
         {
-            if (_dcOptions == null || !_dcOptions.Any())
+            if (dcOptions == null || !dcOptions.Any())
                 throw new InvalidOperationException("Can't reconnect. Establish initial connection first.");
 
-            var dc = _dcOptions.Cast<DcOptionConstructor>().First(d => d.id == dcId);
+            var dc = dcOptions.Cast<DcOptionConstructor>().First(d => d.id == dcId);
 
             await CloseCurrentTransport();
 
-            _transport = new TcpTransport(dc.ip_address, dc.port);
-            _session.ServerAddress = dc.ip_address;
-            _session.Port = dc.port;
+            transport = new TcpTransport(dc.ip_address, dc.port);
+            session.ServerAddress = dc.ip_address;
+            session.Port = dc.port;
 
             await Connect(true);
         }
 
         private async Task CloseCurrentTransport()
         {
-            _transport.Disconnect();
+            transport.Disconnect();
 
-            await _protoSender.FinishedListeningTask;
-            _protoSender.UpdateMessage -= OnUpdateMessage;
+            await protoSender.FinishedListeningTask;
+            protoSender.UpdateMessage -= OnUpdateMessage;
 
-            _transport.Dispose();
+            transport.Dispose();
 
-            _transport = null;
+            transport = null;
         }
 
         public bool IsUserAuthorized()
         {
-            return _session.User != null;
+            return session.User != null;
         }
 
         public async Task<bool> IsPhoneRegistered(string phoneNumber)
@@ -115,7 +115,7 @@ namespace TLSharp.Core
 
             while (!completed)
             {
-                request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, _apiId, _apiHash, "en");
+                request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
                 try
                 {
                     await SendRpcRequest(request);
@@ -148,9 +148,10 @@ namespace TLSharp.Core
             return request.user;
         }
 
-        public async Task<User> SignUp(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
+        public async Task<User> SignUp(string phoneCodeHash, string code, string firstName, string lastName)
         {
-            var request = new AuthSignUpRequest(phoneNumber, phoneCodeHash, code, firstName, lastName);
+            var user = session.User as UserSelfConstructor;
+            var request = new AuthSignUpRequest(user.phone, phoneCodeHash, code, firstName, lastName);
             await SendRpcRequest(request);
 
             OnUserAuthenticated(request.user, request.SessionExpires);
@@ -160,10 +161,10 @@ namespace TLSharp.Core
 
         private void OnUserAuthenticated(User user, int sessionExpiration)
         {
-            _session.User = user;
-            _session.SessionExpires = sessionExpiration;
+            session.User = user;
+            session.SessionExpires = sessionExpiration;
 
-            _session.Save();
+            session.Save();
         }
 
         public async Task<InputFile> UploadFile(string name, byte[] data)
@@ -321,7 +322,7 @@ namespace TLSharp.Core
         public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<int> userIdsToInvite)
         {
             var request = new CreateChatRequest(userIdsToInvite.Select(uid => new InputUserContactConstructor(uid)).ToList(), title);
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             return request.message;
         }
@@ -329,7 +330,7 @@ namespace TLSharp.Core
         public async Task<Messages_statedMessageConstructor> AddChatUser(int chatId, int userId)
         {
             var request = new AddChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             return request.message;
         }
@@ -337,20 +338,20 @@ namespace TLSharp.Core
         public async Task<Messages_statedMessageConstructor> DeleteChatUser(int chatId, int userId)
         {
             var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             return request.message;
         }
 
         public async Task<Messages_statedMessageConstructor> LeaveChat(int chatId)
         {
-            return await DeleteChatUser(chatId, ((UserSelfConstructor) _session.User).id);
+            return await DeleteChatUser(chatId, ((UserSelfConstructor) session.User).id);
         }
 
         public async Task<updates_State> GetUpdatesState()
         {
             var request = new GetUpdatesStateRequest();
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             return request.updates;
         }
@@ -358,7 +359,7 @@ namespace TLSharp.Core
         public async Task<updates_Difference> GetUpdatesDifference(int lastPts, int lastDate, int lastQts)
         {
             var request = new GetUpdatesDifferenceRequest(lastPts, lastDate, lastQts);
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             return request.updatesDifference;
         }
@@ -374,7 +375,7 @@ namespace TLSharp.Core
 
         private async Task SendRpcRequest(MTProtoRequest request)
         {
-            await _protoSender.Send(request);
+            await protoSender.Send(request);
 
             // error handling order is important
 
@@ -391,7 +392,7 @@ namespace TLSharp.Core
 
                     // try one more time
                     request.ResetError();
-                    await _protoSender.Send(request);
+                    await protoSender.Send(request);
                 }
             }
 
@@ -406,7 +407,7 @@ namespace TLSharp.Core
 
                     // try one more time
                     request.ResetError();
-                    await _protoSender.Send(request);
+                    await protoSender.Send(request);
                 }
             }
 
@@ -415,7 +416,7 @@ namespace TLSharp.Core
             {
                 // assuming that salt was already updated by underlying layer
                 request.ResetError();
-                await _protoSender.Send(request);
+                await protoSender.Send(request);
             }
 
             if (request.Error == RpcRequestError.MessageSeqNoTooLow)
@@ -429,7 +430,7 @@ namespace TLSharp.Core
                 throw new Exception($"{request.Error} - {request.ErrorMessage}");
             }
 
-            _session.Save();
+            session.Save();
         }
     }
 }

@@ -16,6 +16,10 @@ namespace TLSharp.Tests
     [TestClass]
     public class TlSharpTests
     {
+        private int ApiId { get; set; }
+
+        private string ApiHash { get; set; }
+
         private string NumberToSendMessage { get; set; }
 
         private string NumberToAuthenticate { get; set; }
@@ -27,15 +31,17 @@ namespace TLSharp.Tests
         private string NumberToGetUserFull { get; set; }
 
         private string NumberToAddToChat { get; set; }
-
-        private string apiHash = "bd557adc23ae98b04cfc37b08f471149";
-
-        private int apiId = 65386;
-
+        
         [TestInitialize]
         public void Init()
         {
-            // Setup your phone numbers in app.config
+            // Setup your api info and phone numbers in app.config
+
+            ApiId = int.Parse(ConfigurationManager.AppSettings[nameof(ApiId)]);
+            ApiHash = ConfigurationManager.AppSettings[nameof(ApiHash)];
+            if (string.IsNullOrEmpty(ApiHash))
+                Debug.WriteLine("ApiHash not configured in app.config! Some tests may fail.");
+            
             NumberToAuthenticate = ConfigurationManager.AppSettings[nameof(NumberToAuthenticate)];
             if (string.IsNullOrEmpty(NumberToAuthenticate))
                 Debug.WriteLine("NumberToAuthenticate not configured in app.config! Some tests may fail.");
@@ -65,13 +71,11 @@ namespace TLSharp.Tests
         public async Task AuthUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
 
             await client.Connect();
 
-            var dc1Number = "9996610000"; // 99966XYYYY : x-dcId; yyyy-random numbers
-
-            var hash = await client.SendCodeRequest(dc1Number);
+            var hash = await client.SendCodeRequest(NumberToSendMessage);
             var code = ""; // you can change code in debugger
 
             var user = await client.MakeAuth(NumberToAuthenticate, hash, code);
@@ -86,13 +90,13 @@ namespace TLSharp.Tests
         public async Task SignUpNewUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
             await client.Connect();
 
             var hash = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
             var code = "";
 
-            var registeredUser = await client.SignUp(NotRegisteredNumberToSignUp, hash, code, "TLSharp", "User");
+            var registeredUser = await client.SignUp(hash, code, "TLSharp", "User");
             Assert.IsNotNull(registeredUser);
             Assert.IsTrue(client.IsUserAuthorized());
 
@@ -104,7 +108,7 @@ namespace TLSharp.Tests
         public async Task CheckPhones()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
             await client.Connect();
 
             var result = await client.IsPhoneRegistered(NumberToAuthenticate);
@@ -114,80 +118,49 @@ namespace TLSharp.Tests
         [TestMethod]
         public async Task ImportContactByPhoneNumber()
         {
-            // User should be already authenticated!
+            var client = await InitializeClient();
 
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-
-            await client.Connect();
-
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
-
-            Assert.IsNotNull(res);
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
+            Assert.IsTrue(userId.HasValue);
         }
 
         [TestMethod]
         public async Task ImportByUserName()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = await InitializeClient();
 
-            await client.Connect();
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportByUserName(UserNameToSendMessage);
-            Assert.IsTrue(res.HasValue);
+            var userId = await client.ImportByUserName(UserNameToSendMessage);
+            Assert.IsTrue(userId.HasValue);
         }
 
         [TestMethod]
         public async Task ImportByUserNameAndSendMessage()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = await InitializeClient();
 
-            await client.Connect();
-            Assert.IsTrue(client.IsUserAuthorized());
+            var userId = await client.ImportByUserName(UserNameToSendMessage);
+            Assert.IsTrue(userId.HasValue);
 
-            var res = await client.ImportByUserName(UserNameToSendMessage);
-            Assert.IsTrue(res.HasValue);
-
-            await client.SendMessage(res.Value, "Test message from TelegramClient");
+            await client.SendMessage(userId.Value, "Test message from TelegramClient");
         }
 
         [TestMethod]
         public async Task ImportContactByPhoneNumberAndSendMessage()
         {
-            // User should be already authenticated!
+            var client = await InitializeClient();
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
-
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
-
-            Assert.IsNotNull(res);
-
-            await client.SendMessage(res.Value, "Test message from TelegramClient");
+            Assert.IsTrue(userId.HasValue);
+            await client.SendMessage(userId.Value, "Test message from TelegramClient");
         }
 
         [TestMethod]
         public async Task GetHistory()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
+            var client = await InitializeClient();
 
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
-
-            Assert.IsTrue(res.HasValue);
-
-            var hist = await client.GetMessagesHistoryForContact(res.Value, 0, 5);
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
+            var hist = await client.GetMessagesHistoryForContact(userId.Value, 0, 5);
 
             Assert.IsNotNull(hist);
         }
@@ -195,24 +168,14 @@ namespace TLSharp.Tests
         [TestMethod]
         public async Task UploadAndSendMedia()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
-
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
-
-            Assert.IsTrue(res.HasValue);
+            var client = await InitializeClient();
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
             var file = File.ReadAllBytes("../../data/cat.jpg");
-
             var mediaFile = await client.UploadFile("test_file.jpg", file);
-
             Assert.IsNotNull(mediaFile);
 
-            var state = await client.SendMediaMessage(res.Value, mediaFile);
-
+            var state = await client.SendMediaMessage(userId.Value, mediaFile);
             Assert.IsTrue(state);
         }
 
@@ -221,16 +184,11 @@ namespace TLSharp.Tests
         {
             // Get uploaded file from last message (ie: cat.jpg)
 
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToSendMessage);
-            Assert.IsNotNull(res);
+            var client = await InitializeClient();
+            var userId = await client.ImportContactByPhoneNumber(NumberToSendMessage);
 
             // Get last message
-            var hist = await client.GetMessagesHistoryForContact(res.Value, 0, 1);
+            var hist = await client.GetMessagesHistoryForContact(userId.Value, 0, 1);
             Assert.AreEqual(1, hist.Count);
 
             var message = (MessageConstructor) hist[0];
@@ -247,10 +205,8 @@ namespace TLSharp.Tests
             Assert.AreEqual(typeof (FileLocationConstructor), photoSize.location.GetType());
 
             var fileLocation = (FileLocationConstructor) photoSize.location;
-            var file =
-                await
-                    client.GetFile(fileLocation.volume_id, fileLocation.local_id, fileLocation.secret, 0,
-                        photoSize.size + 1024);
+            var file = await client.GetFile(fileLocation.volume_id, fileLocation.local_id, fileLocation.secret, 0, photoSize.size + 1024);
+
             storage_FileType type = file.Item1;
             byte[] bytes = file.Item2;
 
@@ -272,7 +228,7 @@ namespace TLSharp.Tests
         public async Task TestConnection()
         {
             var store = new FakeSessionStore();
-            var client = new TelegramClient(store, "", apiId, apiHash);
+            var client = new TelegramClient(store, "", ApiId, ApiHash);
 
             await client.Connect();
         }
@@ -291,16 +247,10 @@ namespace TLSharp.Tests
         [TestMethod]
         public async Task GetUserFullRequest()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
+            var client = await InitializeClient();
 
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            var res = await client.ImportContactByPhoneNumber(NumberToGetUserFull);
-            Assert.IsTrue(res.HasValue);
-
-            var userFull = await client.GetUserFull(res.Value);
+            var userId = await client.ImportContactByPhoneNumber(NumberToGetUserFull);
+            var userFull = await client.GetUserFull(userId.Value);
 
             Assert.IsNotNull(userFull);
         }
@@ -358,41 +308,19 @@ namespace TLSharp.Tests
         private ChatConstructor GetChatFromStatedMessage(Messages_statedMessageConstructor message)
         {
             var serviceMessage = message.message as MessageServiceConstructor;
+            Assert.IsNotNull(serviceMessage);
+
             var peerChat = serviceMessage.to_id as PeerChatConstructor;
+            Assert.IsNotNull(peerChat);
 
             var createdChatId = peerChat.chat_id;
             return message.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
         }
 
-        private async Task<TelegramClient> InitializeClient()
-        {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
-
-            if (!client.IsUserAuthorized())
-            {
-                var hash = await client.SendCodeRequest(NumberToAuthenticate);
-
-                var code = ""; // you can change code in debugger
-                Debugger.Break();
-
-                await client.MakeAuth(NumberToAuthenticate, hash, code);
-            }
-
-            Assert.IsTrue(client.IsUserAuthorized());
-
-            return client;
-        }
-
         [TestMethod]
         public async Task GetUpdates()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
-            await client.Connect();
-
-            Assert.IsTrue(client.IsUserAuthorized());
+            var client = await InitializeClient();
 
             var updatesState = await client.GetUpdatesState();
             var initialState = updatesState as Updates_stateConstructor;
@@ -426,7 +354,7 @@ namespace TLSharp.Tests
         public async Task UpdatesHandling()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", apiId, apiHash);
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
             await client.Connect();
 
             Assert.IsTrue(client.IsUserAuthorized());
@@ -442,9 +370,35 @@ namespace TLSharp.Tests
             var upd = await updateTask;
         }*/
 
+        private async Task<TelegramClient> InitializeClient()
+        {
+            var store = new FileSessionStore();
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            await client.Connect();
+
+            if (!client.IsUserAuthorized())
+            {
+                var hash = await client.SendCodeRequest(NumberToAuthenticate);
+
+                var code = ""; // you can change code in debugger
+                Debugger.Break();
+
+                await client.MakeAuth(NumberToAuthenticate, hash, code);
+            }
+
+            Assert.IsTrue(client.IsUserAuthorized());
+
+            return client;
+        }
+
+        private string GetTestPhoneOfDc(int dcNumber)
+        {
+            return $"99966{dcNumber}0000"; // 99966XYYYY : x-dcId; yyyy-random numbers
+        }
+
         class UpdatesWaiter
         {
-            private TaskCompletionSource<Updates> _current = new TaskCompletionSource<Updates>();
+            private TaskCompletionSource<Updates> current = new TaskCompletionSource<Updates>();
 
             public UpdatesWaiter(TelegramClient client)
             {
@@ -453,13 +407,13 @@ namespace TLSharp.Tests
 
             private void ConnectionUpdateMessage(object sender, Updates update)
             {
-                _current.SetResult(update);
-                _current = new TaskCompletionSource<Updates>();
+                current.SetResult(update);
+                current = new TaskCompletionSource<Updates>();
             }
 
             public Task<Updates> WaitNext()
             {
-                return _current.Task;
+                return current.Task;
             }
         }
     }
