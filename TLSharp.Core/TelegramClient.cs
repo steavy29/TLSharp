@@ -109,31 +109,8 @@ namespace TLSharp.Core
 
         public async Task<string> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
         {
-            var completed = false;
-
-            AuthSendCodeRequest request = null;
-
-            while (!completed)
-            {
-                request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
-                try
-                {
-                    await SendRpcRequest(request);
-
-                    completed = true;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    if (ex.Message.StartsWith("Your phone number registered to") && ex.Data["dcId"] != null)
-                    {
-                        await ReconnectToDc((int)ex.Data["dcId"]);
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
+            var request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
+            await SendRpcRequest(request);
 
             return request._phoneCodeHash;
         }
@@ -326,7 +303,7 @@ namespace TLSharp.Core
 
             return request.message;
         }
-        
+
         public async Task<Messages_statedMessageConstructor> AddChatUser(int chatId, int userId)
         {
             var request = new AddChatUserRequest(chatId, new InputUserContactConstructor(userId));
@@ -345,7 +322,7 @@ namespace TLSharp.Core
 
         public async Task<Messages_statedMessageConstructor> LeaveChat(int chatId)
         {
-            return await DeleteChatUser(chatId, ((UserSelfConstructor) session.User).id);
+            return await DeleteChatUser(chatId, ((UserSelfConstructor)session.User).id);
         }
 
         public async Task<updates_State> GetUpdatesState()

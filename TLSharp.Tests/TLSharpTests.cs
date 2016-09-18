@@ -305,18 +305,6 @@ namespace TLSharp.Tests
             Assert.AreEqual(1, modifiedChat.participants_count);
         }
 
-        private ChatConstructor GetChatFromStatedMessage(Messages_statedMessageConstructor message)
-        {
-            var serviceMessage = message.message as MessageServiceConstructor;
-            Assert.IsNotNull(serviceMessage);
-
-            var peerChat = serviceMessage.to_id as PeerChatConstructor;
-            Assert.IsNotNull(peerChat);
-
-            var createdChatId = peerChat.chat_id;
-            return message.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
-        }
-
         [TestMethod]
         public async Task GetUpdates()
         {
@@ -350,6 +338,19 @@ namespace TLSharp.Tests
             Assert.AreEqual("test", messageUpdate.message);
         }
 
+        [TestMethod]
+        public async Task DataCenterMigrationErrorHandling()
+        {
+            var phoneForDc5 = GetTestPhoneOfDc(5);
+
+            var store = new FakeSessionStore();
+            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            await client.Connect();
+
+            var hash = await client.SendCodeRequest(phoneForDc5);
+            Assert.IsFalse(string.IsNullOrEmpty(hash));
+        }
+
         /*[TestMethod]
         public async Task UpdatesHandling()
         {
@@ -369,6 +370,18 @@ namespace TLSharp.Tests
 
             var upd = await updateTask;
         }*/
+
+        private ChatConstructor GetChatFromStatedMessage(Messages_statedMessageConstructor message)
+        {
+            var serviceMessage = message.message as MessageServiceConstructor;
+            Assert.IsNotNull(serviceMessage);
+
+            var peerChat = serviceMessage.to_id as PeerChatConstructor;
+            Assert.IsNotNull(peerChat);
+
+            var createdChatId = peerChat.chat_id;
+            return message.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
+        }
 
         private async Task<TelegramClient> InitializeClient()
         {

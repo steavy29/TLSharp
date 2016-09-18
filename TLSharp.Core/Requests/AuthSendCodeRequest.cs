@@ -37,10 +37,19 @@ namespace TLSharp.Core.Requests
         {
             var boolTrue = 0x997275b5;
             var dataCode = reader.ReadUInt32(); // 0x2215bcbd
-            _phoneRegistered = reader.ReadUInt32() == boolTrue;
+
+            var phoneRegisteredValue = reader.ReadUInt32();
+            _phoneRegistered = phoneRegisteredValue == boolTrue;
+
             _phoneCodeHash = Serializers.String.read(reader);
-            var sendCodeTimeout = reader.ReadInt32();
-            var isPassword = reader.ReadUInt32() == boolTrue;
+
+            if (_phoneRegistered)
+            {
+                var sendCodeTimeout = reader.ReadInt32();
+
+                var isPasswordValue = reader.ReadUInt32();
+                var isPassword = isPasswordValue == boolTrue;
+            }
         }
 
         public override void OnException(Exception exception)
