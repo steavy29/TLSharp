@@ -96,7 +96,7 @@ namespace Telegram.Net.Tests
             var hash = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
             var code = "";
 
-            var registeredUser = await client.SignUp(hash, code, "TLSharp", "User");
+            var registeredUser = await client.SignUp(NotRegisteredNumberToSignUp, hash, code, "TLSharp", "User");
             Assert.IsNotNull(registeredUser);
             Assert.IsTrue(client.IsUserAuthorized());
 

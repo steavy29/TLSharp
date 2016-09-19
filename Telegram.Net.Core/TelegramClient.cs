@@ -125,10 +125,9 @@ namespace Telegram.Net.Core
             return request.user;
         }
 
-        public async Task<User> SignUp(string phoneCodeHash, string code, string firstName, string lastName)
+        public async Task<User> SignUp(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
         {
-            var user = session.User as UserSelfConstructor;
-            var request = new AuthSignUpRequest(user.phone, phoneCodeHash, code, firstName, lastName);
+            var request = new AuthSignUpRequest(phoneNumber, phoneCodeHash, code, firstName, lastName);
             await SendRpcRequest(request);
 
             OnUserAuthenticated(request.user, request.SessionExpires);
