@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using Telegram.Net.Core.MTProto.Crypto;
+#pragma warning disable 675
 
 namespace Telegram.Net.Core.Utils
 {

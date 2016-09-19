@@ -278,7 +278,7 @@ namespace Telegram.Net.Core.Network
                         }
                     }
                 }
-                catch (ZlibException ex)
+                catch (ZlibException)
                 {
                 }
             }

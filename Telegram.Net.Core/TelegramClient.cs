@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
-using Telegram.Net.Core.MTProto.Crypto;
 using Telegram.Net.Core.Network;
 using Telegram.Net.Core.Requests;
 using MD5 = System.Security.Cryptography.MD5;
@@ -16,7 +15,7 @@ namespace Telegram.Net.Core
     public class TelegramClient
     {
         private MtProtoSender protoSender;
-        private AuthKey key;
+        //private AuthKey key;
         private TcpTransport transport;
         private readonly string apiHash;
         private readonly int apiId;

@@ -78,7 +78,6 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
         public override bool Confirmed { get { return true; } }
-        private readonly bool _responded;
-        public override bool Responded { get { return _responded; } }
+        public override bool Responded { get; }
     }
 }

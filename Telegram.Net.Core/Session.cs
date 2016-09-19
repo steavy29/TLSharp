@@ -2,6 +2,7 @@
 using System.IO;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.MTProto.Crypto;
+#pragma warning disable 675
 
 namespace Telegram.Net.Core
 {

@@ -10,9 +10,10 @@ namespace Telegram.Net.Core.Requests
         private readonly InputUserContactConstructor user;
 
         public Messages_statedMessageConstructor message;
-        public AddChatUserRequest(int chatID, InputUserContactConstructor user)
+
+        public AddChatUserRequest(int chatId, InputUserContactConstructor user)
         {
-            chatId = chatID;
+            this.chatId = chatId;
             this.user = user;
         }
 

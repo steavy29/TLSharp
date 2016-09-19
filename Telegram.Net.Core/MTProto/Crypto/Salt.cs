@@ -39,7 +39,7 @@ namespace Telegram.Net.Core.MTProto.Crypto
 
     public class SaltCollection
     {
-        private SortedSet<Salt> salts;
+        private SortedSet<Salt> salts = new SortedSet<Salt>();
 
         public void Add(Salt salt)
         {
@@ -60,7 +60,7 @@ namespace Telegram.Net.Core.MTProto.Crypto
     {
         private ulong requestId;
         private int now;
-        private SaltCollection salts;
+        private SaltCollection salts = new SaltCollection();
 
         public GetFutureSaltsResponse(ulong requestId, int now)
         {

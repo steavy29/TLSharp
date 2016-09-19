@@ -1,21 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+#pragma warning disable 675
 
 namespace Telegram.Net.Core.Network
 {
     public class MtProtoPlainSender
     {
-        private int sequence = 0;
-        private int _timeOffset;
-        private long _lastMessageId;
-        private readonly Random _random;
-        private readonly TcpTransport _transport;
+        //private int sequence = 0;
+#pragma warning disable 649 // TODO: check if we can remove it
+        private int timeOffset;
+#pragma warning restore 649
+        private long lastMessageId;
+        private readonly Random random;
+        private readonly TcpTransport transport;
 
         public MtProtoPlainSender(TcpTransport transport)
         {
-            _transport = transport;
-            _random = new Random();
+            this.transport = transport;
+            random = new Random();
         }
 
         public async Task Send(byte[] data)
@@ -31,14 +34,14 @@ namespace Telegram.Net.Core.Network
 
                     byte[] packet = memoryStream.ToArray();
 
-                    await _transport.Send(packet);
+                    await transport.Send(packet);
                 }
             }
         }
 
         public async Task<byte[]> Receive()
         {
-            var result = await _transport.Receieve();
+            var result = await transport.Receieve();
 
             using (var memoryStream = new MemoryStream(result.Body))
             {
@@ -58,17 +61,17 @@ namespace Telegram.Net.Core.Network
         private long GetNewMessageId()
         {
             long time = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
-            long newMessageId = ((time / 1000 + _timeOffset) << 32) |
+            long newMessageId = ((time / 1000 + timeOffset) << 32) |
                                 ((time % 1000) << 22) |
-                                (_random.Next(524288) << 2); // 2^19
+                                (random.Next(524288) << 2); // 2^19
                                                             // [ unix timestamp : 32 bit] [ milliseconds : 10 bit ] [ buffer space : 1 bit ] [ random : 19 bit ] [ msg_id type : 2 bit ] = [ msg_id : 64 bit ]
 
-            if (_lastMessageId >= newMessageId)
+            if (lastMessageId >= newMessageId)
             {
-                newMessageId = _lastMessageId + 4;
+                newMessageId = lastMessageId + 4;
             }
 
-            _lastMessageId = newMessageId;
+            lastMessageId = newMessageId;
             return newMessageId;
         }
 
