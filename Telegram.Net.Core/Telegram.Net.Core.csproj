@@ -61,7 +61,6 @@
     <Compile Include="MTProto\TL.cs" />
     <Compile Include="Network\MtProtoSender.cs" />
     <Compile Include="Network\MtProtoPlainSender.cs" />
-    <Compile Include="Network\MtProtoSenderOld.cs" />
     <Compile Include="Network\TcpMessage.cs" />
     <Compile Include="Network\TcpTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

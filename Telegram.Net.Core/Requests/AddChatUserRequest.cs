@@ -6,24 +6,21 @@ namespace Telegram.Net.Core.Requests
 {
     class AddChatUserRequest : MTProtoRequest
     {
-        private int _chatID;
-
-        private InputUserContactConstructor _user;
-        private string _title;
-
+        private readonly int chatId;
+        private readonly InputUserContactConstructor user;
 
         public Messages_statedMessageConstructor message;
         public AddChatUserRequest(int chatID, InputUserContactConstructor user)
         {
-            _chatID = chatID;
-            _user = user;
+            chatId = chatID;
+            this.user = user;
         }
 
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0x2ee9ee9e);
-            writer.Write(_chatID);
-            _user.Write(writer);
+            writer.Write(chatId);
+            user.Write(writer);
             writer.Write(1);
         }
 
@@ -38,7 +35,6 @@ namespace Telegram.Net.Core.Requests
         }
 
         public override bool Confirmed { get { return true; } }
-        private readonly bool responded;
-        public override bool Responded { get { return responded; } }
+        public override bool Responded { get; }
     }
 }
