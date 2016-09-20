@@ -254,6 +254,11 @@ namespace Telegram.Net.Core.MTProto
         updateChatParticipantAdd,
         updateChatParticipantDelete,
         updateDcOptions,
+        updateUserBlocked,
+        updateNotifySettings,
+        updateServiceNotification,
+        updatePrivacy,
+        updateUserPhone,
         inputMediaUploadedAudio,
         inputMediaAudio,
         inputMediaUploadedDocument,
@@ -435,11 +440,11 @@ namespace Telegram.Net.Core.MTProto
             {0xc6649e31, typeof (UpdateReadMessagesConstructor)},
             {0xa92bfe26, typeof (UpdateDeleteMessagesConstructor)},
             {0xd15de04d, typeof (UpdateRestoreMessagesConstructor)},
-            {0x6baa8508, typeof (UpdateUserTypingConstructor)},
-            {0x3c46cfe6, typeof (UpdateChatUserTypingConstructor)},
+            {0x5c486927, typeof (UpdateUserTypingConstructor)},
+            {0x9a65ea1f, typeof (UpdateChatUserTypingConstructor)},
             {0x07761198, typeof (UpdateChatParticipantsConstructor)},
             {0x1bfbd823, typeof (UpdateUserStatusConstructor)},
-            {0xda22d9ad, typeof (UpdateUserNameConstructor)},
+            {0xa7332b73, typeof (UpdateUserNameConstructor)},
             {0x95313b0c, typeof (UpdateUserPhotoConstructor)},
             {0x2575bbb9, typeof (UpdateContactRegisteredConstructor)},
             {0x51a48a9a, typeof (UpdateContactLinkConstructor)},
@@ -518,6 +523,11 @@ namespace Telegram.Net.Core.MTProto
             {0x3a0eeb22, typeof (UpdateChatParticipantAddConstructor)},
             {0x6e5f8c22, typeof (UpdateChatParticipantDeleteConstructor)},
             {0x8e5e9873, typeof (UpdateDcOptionsConstructor)},
+            {0x80ece81a, typeof (UpdateUserBlockedConstructor)},
+            {0xbec268ef, typeof (UpdateNotifySettingsConstructor)},
+            {0x382dd3e4, typeof (UpdateServiceNotificationConstructor)},
+            {0xee3b272a, typeof (UpdatePrivacyConstructor)},
+            {0x12b9417b, typeof (UpdateUserPhoneConstructor)},
             {0x61a6d436, typeof (InputMediaUploadedAudioConstructor)},
             {0x89938781, typeof (InputMediaAudioConstructor)},
             {0x34e794bd, typeof (InputMediaUploadedDocumentConstructor)},
@@ -9485,7 +9495,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x6baa8508);
+            writer.Write(0x5c486927);
             writer.Write(this.user_id);
         }
 
@@ -9525,7 +9535,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x3c46cfe6);
+            writer.Write(0x9a65ea1f);
             writer.Write(this.chat_id);
             writer.Write(this.user_id);
         }
@@ -9649,7 +9659,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0xda22d9ad);
+            writer.Write(0xa7332b73);
             writer.Write(this.user_id);
             Serializers.String.write(writer, this.first_name);
             Serializers.String.write(writer, this.last_name);
@@ -13982,6 +13992,135 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
+    public class UpdateUserBlockedConstructor : Update
+    {
+        public int userId;
+        public bool blocked;
+
+        public override Constructor Constructor
+        {
+            get { return Constructor.updateUserBlocked; }
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            throw new NotSupportedException("Write not supported");
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            userId = reader.ReadInt32();
+            blocked = reader.ReadBoolean();
+        }
+
+        public override string ToString()
+        {
+            return String.Format("(updateUserBlocked userId:{0}, blocked:{1})", userId, blocked);
+        }
+    }
+
+    public class UpdateNotifySettingsConstructor : Update
+    {
+        public InputNotifyPeer peer;
+        public PeerNotifySettings notifySettings;
+
+        public override Constructor Constructor
+        {
+            get { return Constructor.updateNotifySettings; }
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            throw new NotSupportedException("Write not supported");
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            peer = TL.Parse<InputNotifyPeer>(reader);
+            notifySettings = TL.Parse<PeerNotifySettings>(reader);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("(updateNotifySettings peer:{0}, notifySettings:{1})", peer, notifySettings);
+        }
+    }
+
+    public class UpdateServiceNotificationConstructor : Update
+    {
+        public string type;
+        public string message;
+        public MessageMedia media;
+        public bool popup;
+
+        public override Constructor Constructor
+        {
+            get { return Constructor.updateServiceNotification; }
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            throw new NotSupportedException("Write not supported");
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            type = reader.ReadString();
+            message = reader.ReadString();
+            media = TL.Parse<MessageMedia>(reader);
+            popup = reader.ReadBoolean();
+        }
+
+        public override string ToString()
+        {
+            return String.Format("(updateServiceNotification type:{0}, message:{1}, media:{2}, popup:{3})", type, message, media, popup);
+        }
+    }
+
+    public class UpdatePrivacyConstructor : Update
+    {
+        public override Constructor Constructor
+        {
+            get { return Constructor.updatePrivacy; }
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            throw new NotSupportedException("Write not supported");
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            throw new Exception("No description in TLSchema for this type. Its broken :(");
+        }
+    }
+
+    public class UpdateUserPhoneConstructor : Update
+    {
+        public int userId;
+        public string phone;
+
+        public override Constructor Constructor
+        {
+            get { return Constructor.updateUserPhone; }
+        }
+
+        public override void Write(BinaryWriter writer)
+        {
+            throw new NotSupportedException("Write not supported");
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            userId = reader.ReadInt32();
+            phone = reader.ReadString();
+        }
+
+        public override string ToString()
+        {
+            return String.Format("(updateUserPhone userId:{0}, phone:{1})", userId, phone);
+        }
+    }
 
     public class InputMediaUploadedAudioConstructor : InputMedia
     {
