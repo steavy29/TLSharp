@@ -14,6 +14,9 @@ namespace Telegram.Net.Core
 {
     public class TelegramClient
     {
+        private static readonly string defaultServerAddress = "149.154.167.50";
+        private static readonly int defaultServerPort = 443;
+
         private MtProtoSender protoSender;
         //private AuthKey key;
         private TcpTransport transport;
@@ -30,7 +33,7 @@ namespace Telegram.Net.Core
             NumericCodeViaTelegram = 5
         }
 
-        public TelegramClient(ISessionStore store, string sessionUserId, int apiId, string apiHash)
+        public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
         {
             if (apiId == 0)
                 throw new InvalidOperationException("Your API_ID is invalid. Do a configuration first https://github.com/sochix/TLSharp#quick-configuration");
@@ -40,7 +43,10 @@ namespace Telegram.Net.Core
 
             this.apiHash = apiHash;
             this.apiId = apiId;
-            session = Session.TryLoadOrCreateNew(store, sessionUserId);
+
+            serverAddress = serverAddress ?? defaultServerAddress;
+
+            session = Session.TryLoadOrCreateNew(store, serverAddress, defaultServerPort);
             transport = new TcpTransport(session.ServerAddress, session.Port);
         }
 

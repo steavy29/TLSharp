@@ -71,7 +71,7 @@ namespace Telegram.Net.Tests
         public async Task AuthUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
 
             await client.Connect();
 
@@ -90,7 +90,7 @@ namespace Telegram.Net.Tests
         public async Task SignUpNewUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
             var hash = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
@@ -108,7 +108,7 @@ namespace Telegram.Net.Tests
         public async Task CheckPhones()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
             var result = await client.IsPhoneRegistered(NumberToAuthenticate);
@@ -228,7 +228,7 @@ namespace Telegram.Net.Tests
         public async Task TestConnection()
         {
             var store = new FakeSessionStore();
-            var client = new TelegramClient(store, "", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
 
             await client.Connect();
         }
@@ -344,7 +344,7 @@ namespace Telegram.Net.Tests
             var phoneForDc5 = GetTestPhoneOfDc(5);
 
             var store = new FakeSessionStore();
-            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
             var hash = await client.SendCodeRequest(phoneForDc5);
@@ -386,7 +386,7 @@ namespace Telegram.Net.Tests
         private async Task<TelegramClient> InitializeClient()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, "session", ApiId, ApiHash);
+            var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
             if (!client.IsUserAuthorized())

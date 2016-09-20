@@ -9,23 +9,29 @@ namespace Telegram.Net.Core
     public interface ISessionStore
     {
         void Save(Session session);
-        Session Load(string sessionUserId);
+        Session Load();
     }
 
     public class FileSessionStore : ISessionStore
     {
+        private readonly string sessionFileName;
+
+        public FileSessionStore(string sessionFileName = "session.dat")
+        {
+            this.sessionFileName = sessionFileName;
+        }
+
         public void Save(Session session)
         {
-            using (var stream = new FileStream($"{session.SessionUserId}.dat", FileMode.OpenOrCreate))
+            using (var stream = new FileStream(sessionFileName, FileMode.OpenOrCreate))
             {
                 var result = session.ToBytes();
                 stream.Write(result, 0, result.Length);
             }
         }
 
-        public Session Load(string sessionUserId)
+        public Session Load()
         {
-            var sessionFileName = $"{sessionUserId}.dat";
             if (!File.Exists(sessionFileName))
                 return null;
 
@@ -34,7 +40,7 @@ namespace Telegram.Net.Core
                 var buffer = new byte[2048];
                 stream.Read(buffer, 0, 2048);
 
-                return Session.FromBytes(buffer, this, sessionUserId);
+                return Session.FromBytes(buffer, this);
             }
         }
     }
@@ -46,7 +52,7 @@ namespace Telegram.Net.Core
 
         }
 
-        public Session Load(string sessionUserId)
+        public Session Load()
         {
             return null;
         }
@@ -54,10 +60,6 @@ namespace Telegram.Net.Core
 
     public class Session
     {
-        private const string defaultConnectionAddress = "149.154.167.50";
-        private const int defaultConnectionPort = 443;
-
-        public string SessionUserId { get; set; }
         public string ServerAddress { get; set; }
         public int Port { get; set; }
         public AuthKey AuthKey { get; set; }
@@ -68,14 +70,14 @@ namespace Telegram.Net.Core
         public long LastMessageId { get; set; }
         public int SessionExpires { get; set; }
         public User User { get; set; }
-        private Random random;
+        private readonly Random random;
 
-        private ISessionStore _store;
+        private readonly ISessionStore store;
 
         private Session(ISessionStore store)
         {
             random = new Random();
-            _store = store;
+            this.store = store;
         }
 
         public byte[] ToBytes()
@@ -108,7 +110,7 @@ namespace Telegram.Net.Core
             }
         }
 
-        public static Session FromBytes(byte[] buffer, ISessionStore store, string sessionUserId)
+        public static Session FromBytes(byte[] buffer, ISessionStore store)
         {
             using (var stream = new MemoryStream(buffer))
             using (var reader = new BinaryReader(stream))
@@ -142,7 +144,6 @@ namespace Telegram.Net.Core
                     TimeOffset = timeOffset,
                     SessionExpires = sessionExpires,
                     User = user,
-                    SessionUserId = sessionUserId,
                     ServerAddress = serverAddress,
                     Port = port
                 };
@@ -151,17 +152,16 @@ namespace Telegram.Net.Core
 
         public void Save()
         {
-            _store.Save(this);
+            store.Save(this);
         }
 
-        public static Session TryLoadOrCreateNew(ISessionStore store, string sessionUserId)
+        public static Session TryLoadOrCreateNew(ISessionStore store, string serverAddress, int port)
         {
-            return store.Load(sessionUserId) ?? new Session(store)
+            return store.Load() ?? new Session(store)
             {
                 Id = GenerateRandomUlong(),
-                SessionUserId = sessionUserId,
-                ServerAddress = defaultConnectionAddress,
-                Port = defaultConnectionPort
+                ServerAddress = serverAddress,
+                Port = port
             };
         }
 
