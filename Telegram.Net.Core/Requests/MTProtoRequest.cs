@@ -51,5 +51,13 @@ namespace Telegram.Net.Core.Requests
             Error = RpcRequestError.None;
             ErrorMessage = null;
         }
+
+        public void ThrowIfHasError()
+        {
+            if (Error != RpcRequestError.None)
+            {
+                throw new TelegramReqestException(Error, ErrorMessage);
+            }
+        }
     }
 }

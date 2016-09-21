@@ -88,6 +88,7 @@
     <Compile Include="Requests\Upload_SaveFilePartRequest.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="TelegramClient.cs" />
+    <Compile Include="TelegramReqestException.cs" />
     <Compile Include="Utils\Helpers.cs" />
   </ItemGroup>
   <ItemGroup>

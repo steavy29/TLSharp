@@ -406,10 +406,7 @@ namespace Telegram.Net.Core
             }
 
             // escalate to user
-            if (request.Error != RpcRequestError.None)
-            {
-                throw new Exception($"{request.Error} - {request.ErrorMessage}");
-            }
+            request.ThrowIfHasError();
 
             session.Save();
         }
