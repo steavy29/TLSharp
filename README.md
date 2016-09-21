@@ -2,6 +2,13 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/e2eo2ltjc5pygvtp?svg=true)](https://ci.appveyor.com/project/steavy29/telegram-net)
 
+**Upcoming features:**
+* Better support for updates handling
+* TL Schema generator (so that there will be no more `Constructor not found` errors)
+* Redesign of Session storing approach
+* Factor out core to PCL library so that one can use it on mobile platforms.
+* Rewrite Readme to have better explanations on main concepts and remove trivial call-function samples.
+
 Telegram (http://telegram.org) client library implemented in C#. Only basic functionality is currently implemented.
 
 It's a perfect fit for any developer who would like to send data directly to Telegram users.
@@ -371,7 +378,7 @@ It's Telegram restrictions. See [this](https://core.telegram.org/api/errors#420-
 
 #### Why does TLSharp lacks feature XXXX?
 
-Now TLSharp is basic realization of Telegram protocol, you can be a contributor or a sponsor to speed-up developemnt of any feature.
+You can request the feature you need it in Issues section. I will try to 
 
 #### Nothing helps
 Create an issue in project bug tracker.
