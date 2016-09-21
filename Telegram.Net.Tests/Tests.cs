@@ -77,6 +77,7 @@ namespace Telegram.Net.Tests
 
             var hash = await client.SendCodeRequest(NumberToAuthenticate);
             var code = ""; // you can change code in debugger
+            Debugger.Break();
 
             var user = await client.MakeAuth(NumberToAuthenticate, hash, code);
 

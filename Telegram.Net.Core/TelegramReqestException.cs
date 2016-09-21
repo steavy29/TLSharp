@@ -8,7 +8,7 @@ namespace Telegram.Net.Core
         public readonly RpcRequestError Error;
         public readonly string ErrorMessage;
 
-        public TelegramReqestException(RpcRequestError error, string errorMessage)
+        public TelegramReqestException(RpcRequestError error, string errorMessage) : base($"{error} - {errorMessage}")
         {
             Error = error;
             ErrorMessage = errorMessage;

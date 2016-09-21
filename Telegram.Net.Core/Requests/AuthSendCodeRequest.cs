@@ -43,13 +43,13 @@ namespace Telegram.Net.Core.Requests
 
             _phoneCodeHash = Serializers.String.read(reader);
 
-            if (_phoneRegistered)
-            {
-                var sendCodeTimeout = reader.ReadInt32();
-
-                var isPasswordValue = reader.ReadUInt32();
-                var isPassword = isPasswordValue == boolTrue;
-            }
+            //if (dataCode != obsoleteDataCode)
+            //{
+            //    var sendCodeTimeout = reader.ReadInt32();
+            //
+            //    var isPasswordValue = reader.ReadUInt32();
+            //    var isPassword = isPasswordValue == boolTrue;
+            //}
         }
 
         public override void OnException(Exception exception)
