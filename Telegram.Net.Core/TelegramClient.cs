@@ -62,13 +62,10 @@ namespace Telegram.Net.Core
             protoSender = new MtProtoSender(transport, session);
             protoSender.UpdateMessage += OnUpdateMessage;
 
-            if (!reconnect)
-            {
-                var request = new InitConnectionRequest(apiId);
-                await SendRpcRequest(request);
+            var request = new InitConnectionRequest(apiId);
+            await SendRpcRequest(request);
 
-                dcOptions = request.ConfigConstructor.dc_options;
-            }
+            dcOptions = request.ConfigConstructor.dc_options;
         }
 
         private async Task ReconnectToDc(int dcId)
