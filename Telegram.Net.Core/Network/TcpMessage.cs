@@ -6,16 +6,16 @@ namespace Telegram.Net.Core.Network
 {
     public class TcpMessage
     {
-        public int SequneceNumber { get; private set; }
-        public byte[] Body { get; private set; }
+        public readonly int sequneceNumber;
+        public readonly byte[] body;
 
-        public TcpMessage(int seqNumber, byte[] body)
+        public TcpMessage(int sequneceNumber, byte[] body)
         {
             if (body == null)
                 throw new ArgumentNullException(nameof(body));
 
-            SequneceNumber = seqNumber;
-            Body = body;
+            this.sequneceNumber = sequneceNumber;
+            this.body = body;
         }
 
         public byte[] Encode()
@@ -32,11 +32,11 @@ namespace Telegram.Net.Core.Network
                         (the first packet sent is numbered 0, the next one 1, etc.),
                         and 4 CRC32 bytes at the end (length, sequence number, and payload together).
                     */
-                    binaryWriter.Write(Body.Length + 12);
-                    binaryWriter.Write(SequneceNumber);
-                    binaryWriter.Write(Body);
+                    binaryWriter.Write(body.Length + 12);
+                    binaryWriter.Write(sequneceNumber);
+                    binaryWriter.Write(body);
                     var crc32 = new CRC32();
-                    crc32.SlurpBlock(memoryStream.GetBuffer(), 0, 8 + Body.Length);
+                    crc32.SlurpBlock(memoryStream.GetBuffer(), 0, 8 + body.Length);
                     binaryWriter.Write(crc32.Crc32Result);
 
                     var transportPacket = memoryStream.ToArray();
@@ -63,11 +63,11 @@ namespace Telegram.Net.Core.Network
                     var packetLength = binaryReader.ReadInt32();
 
                     if (packetLength < 12)
-                        throw new InvalidOperationException(string.Format("invalid packet length: {0}", packetLength));
+                        throw new InvalidOperationException($"invalid packet length: {packetLength}");
 
                     var seq = binaryReader.ReadInt32();
                     byte[] packet = binaryReader.ReadBytes(packetLength - 12);
-                    var checksum = (int)binaryReader.ReadInt32();
+                    var checksum = binaryReader.ReadInt32();
 
                     var crc32 = new CRC32();
                     crc32.SlurpBlock(body, 0, packetLength - 4);

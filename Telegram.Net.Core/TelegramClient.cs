@@ -199,30 +199,37 @@ namespace Telegram.Net.Core
             return true;
         }
 
-        public async Task<int?> ImportContactByPhoneNumber(string phoneNumber)
+        public async Task<ImportedContactConstructor> ImportContactByPhoneNumber(string phoneNumber, string firstName, string lastName, bool replace = true)
         {
-            if (!validateNumber(phoneNumber))
-                throw new InvalidOperationException("Invalid phone number. It should be only digit string, from 5 to 20 digits.");
-
-            var request = new ImportContactRequest(new InputPhoneContactConstructor(0, phoneNumber, "My Test Name", String.Empty));
+            var request = new ImportContactRequest(new InputPhoneContactConstructor(0, phoneNumber, firstName, lastName), replace);
             await SendRpcRequest(request);
 
-            var importedUser = (ImportedContactConstructor)request.imported.FirstOrDefault();
-
-            return importedUser?.user_id;
+            return (ImportedContactConstructor)request.imported.FirstOrDefault();
         }
 
-        public async Task<int?> ImportByUserName(string username)
+        public async Task<User> ResolveUsername(string username)
         {
-            var request = new ImportByUserName(username);
+            var request = new ResolveUsernameRequest(username);
             await SendRpcRequest(request);
 
-            return request.id;
+            return request.User;
         }
 
-        public async Task SendMessage(int id, string message)
+        public async Task SendDirectMessage(int userId, string message)
         {
-            var request = new SendMessageRequest(new InputPeerContactConstructor(id), message);
+            var request = new SendMessageRequest(new InputPeerContactConstructor(userId), message);
+            await SendRpcRequest(request);
+        }
+
+        public async Task SendChatMessage(int chatId, string message)
+        {
+            var request = new SendMessageRequest(new InputPeerChatConstructor(chatId), message);
+            await SendRpcRequest(request);
+        }
+
+        public async Task SendMessageToForeignContact(int id, long accessHash, string message)
+        {
+            var request = new SendMessageRequest(new InputPeerForeignConstructor(id, accessHash), message);
             await SendRpcRequest(request);
         }
 
@@ -264,7 +271,7 @@ namespace Telegram.Net.Core
             return request._userFull;
         }
 
-        private bool validateNumber(string number)
+        private bool ValidateNumber(string number)
         {
             var regex = new Regex("^\\d{7,20}$");
             return regex.IsMatch(number);
@@ -282,25 +289,10 @@ namespace Telegram.Net.Core
             };
         }
 
-        public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<string> userPhonesToInvite)
-        {
-            var userIdsToInvite = new List<int>();
-            foreach (var userPhone in userPhonesToInvite)
-            {
-                var uid = await ImportContactByPhoneNumber(userPhone);
-                if (!uid.HasValue)
-                    throw new InvalidOperationException($"Failed to retrieve contact {userPhone}");
-
-                userIdsToInvite.Add(uid.Value);
-            }
-
-            return await CreateChat(title, userIdsToInvite);
-        }
-
         public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<int> userIdsToInvite)
         {
             var request = new CreateChatRequest(userIdsToInvite.Select(uid => new InputUserContactConstructor(uid)).ToList(), title);
-            await protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.message;
         }
@@ -308,7 +300,7 @@ namespace Telegram.Net.Core
         public async Task<Messages_statedMessageConstructor> AddChatUser(int chatId, int userId)
         {
             var request = new AddChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.message;
         }
@@ -316,7 +308,7 @@ namespace Telegram.Net.Core
         public async Task<Messages_statedMessageConstructor> DeleteChatUser(int chatId, int userId)
         {
             var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.message;
         }
@@ -329,7 +321,7 @@ namespace Telegram.Net.Core
         public async Task<updates_State> GetUpdatesState()
         {
             var request = new GetUpdatesStateRequest();
-            await protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.updates;
         }
@@ -337,7 +329,7 @@ namespace Telegram.Net.Core
         public async Task<updates_Difference> GetUpdatesDifference(int lastPts, int lastDate, int lastQts)
         {
             var request = new GetUpdatesDifferenceRequest(lastPts, lastDate, lastQts);
-            await protoSender.Send(request);
+            await SendRpcRequest(request);
 
             return request.updatesDifference;
         }

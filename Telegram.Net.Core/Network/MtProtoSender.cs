@@ -24,6 +24,7 @@ namespace Telegram.Net.Core.Network
         public Task FinishedListeningTask => _finishedListening.Task;
 
         public event EventHandler<Updates> UpdateMessage;
+        private event EventHandler Invalidated; // todo
 
         public MtProtoSender(TcpTransport transport, Session session)
         {
@@ -38,11 +39,11 @@ namespace Telegram.Net.Core.Network
             _finishedListening = new TaskCompletionSource<bool>();
             while (true)
             {
-                var message = await _transport.ReceieveFixed().ConfigureAwait(false);
+                var message = await _transport.Receieve().ConfigureAwait(false);
                 if (message == null)
                     break;
 
-                var decodedMessage = DecodeMessage(message.Body);
+                var decodedMessage = DecodeMessage(message.body);
 
                 using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
                 using (var messageReader = new BinaryReader(messageStream))
@@ -148,6 +149,7 @@ namespace Telegram.Net.Core.Network
                     break;
                 case 0x9ec20908: // new_session_created
                                  //logger.debug("MSG new_session_created");
+                    HandleNewSessionCreated(messageReader);
                     break;
                 case 0x62d6b459: // msgs_ack
                                  //logger.debug("MSG msds_ack");
@@ -208,8 +210,8 @@ namespace Telegram.Net.Core.Network
                 using (MemoryStream plaintextStream = new MemoryStream(plaintext))
                 using (BinaryReader plaintextReader = new BinaryReader(plaintextStream))
                 {
-                    var remoteSalt = plaintextReader.ReadUInt64();
-                    var remoteSessionId = plaintextReader.ReadUInt64();
+                    plaintextReader.ReadUInt64(); // remoteSalt
+                    plaintextReader.ReadUInt64(); // remoteSessionId
                     remoteMessageId = plaintextReader.ReadInt64();
                     remoteSequence = plaintextReader.ReadInt32();
                     int msgLen = plaintextReader.ReadInt32();
@@ -227,6 +229,11 @@ namespace Telegram.Net.Core.Network
         private void OnUpdateMessage(Updates update)
         {
             UpdateMessage?.Invoke(this, update);
+        }
+
+        private void OnInvalidated()
+        {
+            Invalidated?.Invoke(this, EventArgs.Empty);
         }
 
         public static MemoryStream MakeMemory(int len)
@@ -298,20 +305,11 @@ namespace Telegram.Net.Core.Network
             {
                 long innerMessageId = messageReader.ReadInt64(); // TODO: Remove this reading and call ProcessMessage directly(remove appropriate params in ProcMsg)
                 Debug.WriteLine($"Container innerMessageId: {innerMessageId}");
-                int innerSequence = messageReader.ReadInt32();
+                messageReader.ReadInt32(); // innerSequence
                 int innerLength = messageReader.ReadInt32();
                 long beginPosition = messageReader.BaseStream.Position;
 
                 ProcessMessage(innerMessageId, sequence, messageReader);
-
-                //try
-                //{
-                //    ProcessMessage(innerMessageId, sequence, messageReader);
-                //}
-                //catch (Exception e)
-                //{
-                //    //	logger.error("failed to process message in contailer: {0}", e);
-                //}
                 messageReader.BaseStream.Position = beginPosition + innerLength; // shift to next message
             }
         }
@@ -335,7 +333,7 @@ namespace Telegram.Net.Core.Network
         private void HandleBadMsgNotification(long messageId, int sequence, BinaryReader messageReader)
         {
             long badRequestId = messageReader.ReadInt64();
-            int badRequestSequence = messageReader.ReadInt32();
+            messageReader.ReadInt32(); // badRequestSequence
             int errorCode = messageReader.ReadInt32();
 
             if (_runningRequests.ContainsKey(badRequestId))
@@ -359,6 +357,16 @@ namespace Telegram.Net.Core.Network
         {
             var update = TL.Parse<Updates>(messageReader, updateDataCode);
             OnUpdateMessage(update);
+        }
+
+        private void HandleNewSessionCreated(BinaryReader messageReader)
+        {
+            var firstMsgId = messageReader.ReadUInt64();
+            var uniqueId = messageReader.ReadUInt64();
+            var serverSalt = messageReader.ReadUInt64();
+
+            _session.Salt = serverSalt;
+            _session.Id = uniqueId;
         }
 
         #endregion

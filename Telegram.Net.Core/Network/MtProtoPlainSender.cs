@@ -43,12 +43,12 @@ namespace Telegram.Net.Core.Network
         {
             var result = await transport.Receieve();
 
-            using (var memoryStream = new MemoryStream(result.Body))
+            using (var memoryStream = new MemoryStream(result.body))
             {
                 using (BinaryReader binaryReader = new BinaryReader(memoryStream))
                 {
-                    long authKeyid = binaryReader.ReadInt64();
-                    long messageId = binaryReader.ReadInt64();
+                    binaryReader.ReadInt64(); // authKeyid
+                    binaryReader.ReadInt64(); // messageId
                     int messageLength = binaryReader.ReadInt32();
 
                     byte[] response = binaryReader.ReadBytes(messageLength);
@@ -74,7 +74,5 @@ namespace Telegram.Net.Core.Network
             lastMessageId = newMessageId;
             return newMessageId;
         }
-
-
     }
 }

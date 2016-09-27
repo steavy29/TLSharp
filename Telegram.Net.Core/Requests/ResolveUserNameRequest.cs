@@ -4,25 +4,25 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class ImportByUserName : MTProtoRequest
+    public class ResolveUsernameRequest : MTProtoRequest
     {
-        private readonly string _userName;
-        public int id { get; private set; }
-        public ImportByUserName(string userName)
+        private readonly string userName;
+        public User User { get; private set; }
+
+        public ResolveUsernameRequest(string userName)
         {
-            _userName = userName;
+            this.userName = userName;
         }
 
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0xBF0131C);
-            Serializers.String.write(writer, _userName);
+            Serializers.String.write(writer, userName);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var code = reader.ReadUInt32();
-            id = reader.ReadInt32();
+            User = TL.Parse<User>(reader);
         }
 
         public override void OnException(Exception exception)
