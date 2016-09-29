@@ -75,7 +75,8 @@ namespace Telegram.Net.Tests
 
             await client.Connect();
 
-            var hash = await client.SendCodeRequest(NumberToAuthenticate);
+            var codeRequest = await client.SendCodeRequest(NumberToAuthenticate);
+            var hash = codeRequest.phoneCodeHash;
             var code = ""; // you can change code in debugger
             Debugger.Break();
 
@@ -94,7 +95,8 @@ namespace Telegram.Net.Tests
             var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
-            var hash = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
+            var codeRequest = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
+            var hash = codeRequest.phoneCodeHash;
             var code = "";
 
             var registeredUser = await client.SignUp(NotRegisteredNumberToSignUp, hash, code, "Telegram.Net", "User");
@@ -351,8 +353,8 @@ namespace Telegram.Net.Tests
             var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
-            var hash = await client.SendCodeRequest(phoneForDc5);
-            Assert.IsFalse(string.IsNullOrEmpty(hash));
+            var codeRequest = await client.SendCodeRequest(phoneForDc5);
+            Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
         }
 
         /*[TestMethod]
@@ -395,7 +397,8 @@ namespace Telegram.Net.Tests
 
             if (!client.IsUserAuthorized())
             {
-                var hash = await client.SendCodeRequest(NumberToAuthenticate);
+                var codeRequest = await client.SendCodeRequest(NumberToAuthenticate);
+                var hash = codeRequest.phoneCodeHash;
 
                 var code = ""; // you can change code in debugger
                 Debugger.Break();

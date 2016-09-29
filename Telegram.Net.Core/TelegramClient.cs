@@ -111,12 +111,12 @@ namespace Telegram.Net.Core
             return authCheckPhoneRequest._phoneRegistered;
         }
 
-        public async Task<string> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
+        public async Task<AuthSendCodeRequest> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
         {
             var request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
             await SendRpcRequest(request);
 
-            return request._phoneCodeHash;
+            return request;
         }
 
         public async Task<User> MakeAuth(string phoneNumber, string phoneCodeHash, string code)

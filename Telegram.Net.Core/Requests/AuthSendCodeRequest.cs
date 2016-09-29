@@ -6,31 +6,31 @@ namespace Telegram.Net.Core.Requests
 {
     public class AuthSendCodeRequest : MTProtoRequest
     {
-        private readonly string _phoneNumber;
-        private readonly int _smsType;
-        private readonly int _apiId;
-        private readonly string _apiHash;
-        private readonly string _langCode;
-        public bool _phoneRegistered;
-        public string _phoneCodeHash;
+        private readonly string phoneNumber;
+        private readonly int smsType;
+        private readonly int apiId;
+        private readonly string apiHash;
+        private readonly string langCode;
+        public bool phoneRegistered;
+        public string phoneCodeHash;
 
         public AuthSendCodeRequest(string phoneNumber, int smsType, int apiId, string apiHash, string langCode)
         {
-            _phoneNumber = phoneNumber;
-            _smsType = smsType;
-            _apiId = apiId;
-            _apiHash = apiHash;
-            _langCode = langCode;
+            this.phoneNumber = phoneNumber;
+            this.smsType = smsType;
+            this.apiId = apiId;
+            this.apiHash = apiHash;
+            this.langCode = langCode;
         }
 
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0x768d5f4d);
-            Serializers.String.write(writer, _phoneNumber);
-            writer.Write(_smsType);
-            writer.Write(_apiId);
-            Serializers.String.write(writer, _apiHash);
-            Serializers.String.write(writer, _langCode);
+            Serializers.String.write(writer, phoneNumber);
+            writer.Write(smsType);
+            writer.Write(apiId);
+            Serializers.String.write(writer, apiHash);
+            Serializers.String.write(writer, langCode);
         }
 
         public override void OnResponse(BinaryReader reader)
@@ -39,9 +39,9 @@ namespace Telegram.Net.Core.Requests
             var dataCode = reader.ReadUInt32();
 
             var phoneRegisteredValue = reader.ReadUInt32();
-            _phoneRegistered = phoneRegisteredValue == boolTrue;
+            phoneRegistered = phoneRegisteredValue == boolTrue;
 
-            _phoneCodeHash = Serializers.String.read(reader);
+            phoneCodeHash = Serializers.String.read(reader);
 
             var sendCodeTimeout = reader.ReadInt32();
             var isPasswordValue = reader.ReadUInt32();
