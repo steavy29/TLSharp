@@ -25,6 +25,8 @@ namespace Telegram.Net.Core
         private readonly Session session;
         private List<DcOption> dcOptions;
 
+        public int? authenticatedUserId => (session.User as UserSelfConstructor)?.id;
+
         public event EventHandler<Updates> UpdateMessage;
 
         public enum VerificationCodeDeliveryType
@@ -241,6 +243,14 @@ namespace Telegram.Net.Core
             return request.messages;
         }
 
+        public async Task<List<Message>> GetMessagesHistoryForForeignContact(int userId, long accessHash, int offset, int limit, int maxId = -1)
+        {
+            var request = new GetHistoryRequest(new InputPeerForeignConstructor(userId, accessHash), offset, maxId, limit);
+            await SendRpcRequest(request);
+
+            return request.messages;
+        }
+
         public async Task<Tuple<storage_FileType, byte[]>> GetFile(long volumeId, int localId, long secret, int offset, int limit)
         {
             var request = new GetFileRequest(new InputFileLocationConstructor(volumeId, localId, secret), offset, limit);
@@ -333,6 +343,7 @@ namespace Telegram.Net.Core
 
             return request.updatesDifference;
         }
+
         protected virtual void OnUpdateMessage(object sender, Updates e)
         {
             UpdateMessage?.Invoke(this, e);
