@@ -382,7 +382,7 @@ namespace Telegram.Net.Tests
             var serviceMessage = message.message as MessageServiceConstructor;
             Assert.IsNotNull(serviceMessage);
 
-            var peerChat = serviceMessage.to_id as PeerChatConstructor;
+            var peerChat = serviceMessage.toId as PeerChatConstructor;
             Assert.IsNotNull(peerChat);
 
             var createdChatId = peerChat.chat_id;
