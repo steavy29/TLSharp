@@ -954,22 +954,19 @@ namespace Telegram.Net.Core.MTProto
             return new MessageEmptyConstructor(id);
         }
 
-        public static Message message(int id, int from_id, int to_id, bool output, bool unread, int date, string message,
-            MessageMedia media)
+        public static Message message(int flags, int id, int fromId, Peer toId, int date, string message, MessageMedia media)
         {
-            return new MessageConstructor(id, from_id, to_id, output, unread, date, message, media);
+            return new MessageConstructor(flags, id, fromId, toId, date, message, media);
         }
 
-        public static Message messageForwarded(int id, int fwd_from_id, int fwd_date, int from_id, int to_id, bool output,
-            bool unread, int date, string message, MessageMedia media)
+        public static Message messageForwarded(int flags, int id, int fwdFromId, int fwdDate, int fromId, Peer toId, int date, string message, MessageMedia media)
         {
-            return new MessageForwardedConstructor(id, fwd_from_id, fwd_date, from_id, to_id, output, unread, date, message,
-                media);
+            return new MessageForwardedConstructor(flags, id, fwdFromId, fwdDate, fromId, toId, date, message, media);
         }
 
-        public static Message messageService(int flags, int id, int from_id, Peer to_id, int date, MessageAction action)
+        public static Message messageService(int flags, int id, int fromId, Peer toId, int date, MessageAction action)
         {
-            return new MessageServiceConstructor(flags, id, from_id, to_id, date, action);
+            return new MessageServiceConstructor(flags, id, fromId, toId, date, action);
         }
 
         public static MessageMedia messageMediaEmpty()
@@ -5277,33 +5274,32 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageConstructor : Message
     {
+        public int flags;
         public int id;
-        public int from_id;
-        public int to_id;
-        public bool output;
-        public bool unread;
+        public int fromId;
+        public Peer toId;
         public int date;
         public string message;
         public MessageMedia media;
+
+        public bool Unread => (flags & 0x1) > 0;
+        public bool SentByCurrentUser => (flags & 0x2) > 0;
 
         public MessageConstructor()
         {
 
         }
 
-        public MessageConstructor(int id, int from_id, int to_id, bool output, bool unread, int date, string message,
-            MessageMedia media)
+        public MessageConstructor(int flags, int id, int fromId, Peer toId, int date, string message, MessageMedia media)
         {
+            this.flags = flags;
             this.id = id;
-            this.from_id = from_id;
-            this.to_id = to_id;
-            this.output = output;
-            this.unread = unread;
+            this.fromId = fromId;
+            this.toId = toId;
             this.date = date;
             this.message = message;
             this.media = media;
         }
-
 
         public override Constructor Constructor
         {
@@ -5312,24 +5308,23 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x22eb6aba);
+            writer.Write(0x567699b3);
+            writer.Write(this.flags);
             writer.Write(this.id);
-            writer.Write(this.from_id);
-            writer.Write(this.to_id);
-            writer.Write(this.output ? 0x997275b5 : 0xbc799737);
-            writer.Write(this.unread ? 0x997275b5 : 0xbc799737);
+            writer.Write(this.fromId);
+            toId.Write(writer);
             writer.Write(this.date);
             Serializers.String.write(writer, this.message);
-            this.media.Write(writer);
+            media.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
+
+            this.flags = reader.ReadInt32();
             this.id = reader.ReadInt32();
-            this.from_id = reader.ReadInt32();
-            this.to_id = reader.ReadInt32();
-            this.output = reader.ReadUInt32() == 0x997275b5;
-            this.unread = reader.ReadUInt32() == 0x997275b5;
+            this.fromId = reader.ReadInt32();
+            this.toId = TL.Parse<Peer>(reader);
             this.date = reader.ReadInt32();
             this.message = Serializers.String.read(reader);
             this.media = TL.Parse<MessageMedia>(reader);
@@ -5337,45 +5332,42 @@ namespace Telegram.Net.Core.MTProto
 
         public override string ToString()
         {
-            return String.Format("(message id:{0} from_id:{1} to_id:{2} out:{3} unread:{4} date:{5} message:'{6}' media:{7})", id,
-                from_id, to_id, output, unread, date, message, media);
+            return $"(message) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
         }
     }
 
-
-    public class MessageForwardedConstructor : Message
+    public class MessageForwardedConstructor : Message //messageForwarded#a367e716 flags:int id:int fwd_from_id:int fwd_date:int from_id:int to_id:Peer date:int message:string media:MessageMedia = Message;
     {
+        public int flags;
         public int id;
-        public int fwd_from_id;
-        public int fwd_date;
-        public int from_id;
-        public int to_id;
-        public bool output;
-        public bool unread;
+        public int fwdFromId;
+        public int fwdDate;
+        public int fromId;
+        public Peer toId;
         public int date;
         public string message;
         public MessageMedia media;
+
+        public bool Unread => (flags & 0x1) > 0;
+        public bool SentByCurrentUser => (flags & 0x2) > 0;
 
         public MessageForwardedConstructor()
         {
 
         }
 
-        public MessageForwardedConstructor(int id, int fwd_from_id, int fwd_date, int from_id, int to_id, bool output,
-            bool unread, int date, string message, MessageMedia media)
+        public MessageForwardedConstructor(int flags, int id, int fwdFromId, int fwdDate, int fromId, Peer toId, int date, string message, MessageMedia media)
         {
+            this.flags = flags;
             this.id = id;
-            this.fwd_from_id = fwd_from_id;
-            this.fwd_date = fwd_date;
-            this.from_id = from_id;
-            this.to_id = to_id;
-            this.output = output;
-            this.unread = unread;
+            this.fwdFromId = fwdFromId;
+            this.fwdDate = fwdDate;
+            this.fromId = fromId;
+            this.toId = toId;
             this.date = date;
             this.message = message;
             this.media = media;
         }
-
 
         public override Constructor Constructor
         {
@@ -5384,39 +5376,34 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x05f46804);
-            writer.Write(this.id);
-            writer.Write(this.fwd_from_id);
-            writer.Write(this.fwd_date);
-            writer.Write(this.from_id);
-            writer.Write(this.to_id);
-            writer.Write(this.output ? 0x997275b5 : 0xbc799737);
-            writer.Write(this.unread ? 0x997275b5 : 0xbc799737);
-            writer.Write(this.date);
-            Serializers.String.write(writer, this.message);
-            this.media.Write(writer);
+            writer.Write(0xa367e716);
+            writer.Write(flags);
+            writer.Write(id);
+            writer.Write(fwdFromId);
+            writer.Write(fwdDate);
+            writer.Write(fromId);
+            toId.Write(writer);
+            writer.Write(date);
+            Serializers.String.write(writer, message);
+            media.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.id = reader.ReadInt32();
-            this.fwd_from_id = reader.ReadInt32();
-            this.fwd_date = reader.ReadInt32();
-            this.from_id = reader.ReadInt32();
-            this.to_id = reader.ReadInt32();
-            this.output = reader.ReadUInt32() == 0x997275b5;
-            this.unread = reader.ReadUInt32() == 0x997275b5;
-            this.date = reader.ReadInt32();
-            this.message = Serializers.String.read(reader);
-            this.media = TL.Parse<MessageMedia>(reader);
+            flags = reader.ReadInt32();
+            id = reader.ReadInt32();
+            fwdFromId = reader.ReadInt32();
+            fwdDate = reader.ReadInt32();
+            fromId = reader.ReadInt32();
+            toId = TL.Parse<Peer>(reader);
+            date = reader.ReadInt32();
+            message = Serializers.String.read(reader);
+            media = TL.Parse<MessageMedia>(reader);
         }
 
         public override string ToString()
         {
-            return
-                String.Format(
-                    "(messageForwarded id:{0} fwd_from_id:{1} fwd_date:{2} from_id:{3} to_id:{4} out:{5} unread:{6} date:{7} message:'{8}' media:{9})",
-                    id, fwd_from_id, fwd_date, from_id, to_id, output, unread, date, message, media);
+            return $"(messageForwarded) Flags: {flags}, Id: {id}, FwdFromId: {fwdFromId}, FwdDate: {fwdDate}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
         }
     }
 
@@ -5425,19 +5412,22 @@ namespace Telegram.Net.Core.MTProto
     {
         public int flags;
         public int id;
-        public int from_id;
-        public Peer to_id;
+        public int fromId;
+        public Peer toId;
         public int date;
         public MessageAction action;
 
+        public bool Unread => (flags & 0x1) > 0;
+        public bool SentByCurrentUser => (flags & 0x2) > 0;
+
         public MessageServiceConstructor() { }
 
-        public MessageServiceConstructor(int flags, int id, int from_id, Peer to_id, int date, MessageAction action)
+        public MessageServiceConstructor(int flags, int id, int fromId, Peer toId, int date, MessageAction action)
         {
             this.flags = flags;
             this.id = id;
-            this.from_id = from_id;
-            this.to_id = to_id;
+            this.fromId = fromId;
+            this.toId = toId;
             this.date = date;
             this.action = action;
         }
@@ -5452,8 +5442,8 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x1d86f70e);
             writer.Write(this.flags);
             writer.Write(this.id);
-            writer.Write(this.from_id);
-            this.to_id.Write(writer);
+            writer.Write(this.fromId);
+            this.toId.Write(writer);
             writer.Write(this.date);
             this.action.Write(writer);
         }
@@ -5462,16 +5452,15 @@ namespace Telegram.Net.Core.MTProto
         {
             this.flags = reader.ReadInt32();
             this.id = reader.ReadInt32();
-            this.from_id = reader.ReadInt32();
-            this.to_id = TL.Parse<Peer>(reader);
+            this.fromId = reader.ReadInt32();
+            this.toId = TL.Parse<Peer>(reader);
             this.date = reader.ReadInt32();
             this.action = TL.Parse<MessageAction>(reader);
         }
 
         public override string ToString()
         {
-            return String.Format("(messageService flags:{0} id:{1} from_id:{2} to_id:{3} date:{4} action:{5})", 
-                flags, id, from_id, to_id, date, action);
+            return $"(messageService) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Action: {action}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
         }
     }
 
@@ -15024,7 +15013,7 @@ namespace Telegram.Net.Core.MTProto
             // but there should be nothing after 'attributes' according to the spec.
             // we've got all the data we need for this document, so keep reading
             // until we locate the next constructor
-            while (reader.PeekChar() == 0)
+            while (reader.BaseStream.Length != reader.BaseStream.Position && reader.PeekChar() == 0)
             {
                 reader.ReadChar();
             }
