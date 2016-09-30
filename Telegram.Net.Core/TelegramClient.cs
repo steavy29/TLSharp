@@ -384,11 +384,16 @@ namespace Telegram.Net.Core
                     var secondsToWaitStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
                     var secondsToWait = int.Parse(secondsToWaitStr);
 
-                    await Task.Delay(TimeSpan.FromSeconds(secondsToWait));
+                    if (secondsToWait <= 2)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(secondsToWait));
 
-                    // try one more time
-                    request.ResetError();
-                    await protoSender.Send(request);
+                        // try one more time
+                        request.ResetError();
+                        await protoSender.Send(request);
+                    }
+                    
+                    // otherwise error and exception
                 }
             }
 
