@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    class AddChatUserRequest : MTProtoRequest
+    public class AddChatUserRequest : MTProtoRequest
     {
         private readonly int chatId;
         private readonly InputUserContactConstructor user;

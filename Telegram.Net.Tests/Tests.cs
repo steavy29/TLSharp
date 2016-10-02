@@ -10,6 +10,7 @@ using Telegram.Net.Core;
 using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.Network;
+using Telegram.Net.Core.Requests;
 
 namespace Telegram.Net.Tests
 {
@@ -132,19 +133,21 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var user = await client.ResolveUsername(UserNameToSendMessage);
-            Assert.IsNotNull(user);
+            var resolveUsernameRequest = new ResolveUsernameRequest(UserNameToSendMessage);
+            await client.SendRpcRequest(resolveUsernameRequest);
+
+            Assert.IsNotNull(resolveUsernameRequest.User);
         }
 
         [TestMethod]
         public async Task ImportByUserNameAndSendMessage()
         {
             var client = await InitializeClient();
-
-            var user = await client.ResolveUsername(UserNameToSendMessage);
-            Assert.IsNotNull(user);
-
-            var contactUser = user as UserContactConstructor;
+            
+            var resolveUsernameRequest = new ResolveUsernameRequest(UserNameToSendMessage);
+            await client.SendRpcRequest(resolveUsernameRequest);
+            
+            var contactUser = resolveUsernameRequest.User as UserContactConstructor;
             Assert.IsNotNull(contactUser);
 
             await client.SendDirectMessage(contactUser.id, "Test message from TelegramClient");
@@ -254,9 +257,11 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var userId = await ImportAndGetUserId(client, NumberToSendMessage);
-            var userFull = await client.GetUserFull(userId);
+            
+            var getUserFullRequest = new GetUserFullRequest(userId);
+            await client.SendRpcRequest(getUserFullRequest);
 
-            Assert.IsNotNull(userFull);
+            Assert.IsNotNull(getUserFullRequest._userFull);
         }
 
         [TestMethod]
@@ -287,7 +292,9 @@ namespace Telegram.Net.Tests
 
             var userIdToAdd = await ImportAndGetUserId(client, NumberToSendMessage);
 
-            var statedMessageAfterAddUser = await client.AddChatUser(createdChat.id, userIdToAdd);
+            var request = new AddChatUserRequest(createdChat.id, new InputUserContactConstructor(userIdToAdd));
+            await client.SendRpcRequest(request);
+            var statedMessageAfterAddUser = request.message;
             var modifiedChat = GetChatFromStatedMessage(statedMessageAfterAddUser);
 
             Assert.AreEqual(createdChat.id, modifiedChat.id);
@@ -317,24 +324,27 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var updatesState = await client.GetUpdatesState();
-            var initialState = updatesState as Updates_stateConstructor;
+            var updatesStateRequest = new GetUpdatesStateRequest();
+            await client.SendRpcRequest(updatesStateRequest);
+            var initialState = updatesStateRequest.updates as Updates_stateConstructor;
 
             Assert.IsNotNull(initialState);
 
-            var difference = await client.GetUpdatesDifference(initialState.pts, initialState.date, initialState.qts);
-            Assert.IsNotNull(difference);
-            Assert.AreEqual(difference.Constructor, Constructor.updates_differenceEmpty);
+            var request = new GetUpdatesDifferenceRequest(initialState.pts, initialState.date, initialState.qts);
+            await client.SendRpcRequest(request);
+            Assert.IsNotNull(request.updatesDifference);
+            Assert.AreEqual(request.updatesDifference.Constructor, Constructor.updates_differenceEmpty);
 
             var userIdToSendMessage = await ImportAndGetUserId(client, NumberToSendMessage);
             await client.SendDirectMessage(userIdToSendMessage, "test");
 
-            var differenceAfterMessage = await client.GetUpdatesDifference(initialState.pts, initialState.date, initialState.qts);
+            var differenceRequestAfterMessage = new GetUpdatesDifferenceRequest(initialState.pts, initialState.date, initialState.qts);
+            await client.SendRpcRequest(differenceRequestAfterMessage);
 
-            Assert.IsNotNull(differenceAfterMessage);
-            Assert.AreEqual(differenceAfterMessage.Constructor, Constructor.updates_difference);
+            Assert.IsNotNull(differenceRequestAfterMessage.updatesDifference);
+            Assert.AreEqual(differenceRequestAfterMessage.updatesDifference.Constructor, Constructor.updates_difference);
 
-            var differenceUpdate = differenceAfterMessage as Updates_differenceConstructor;
+            var differenceUpdate = differenceRequestAfterMessage.updatesDifference as Updates_differenceConstructor;
             Assert.IsNotNull(differenceUpdate);
             Assert.AreEqual(1, differenceUpdate.new_messages.Count);
 

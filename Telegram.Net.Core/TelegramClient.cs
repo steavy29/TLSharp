@@ -209,14 +209,6 @@ namespace Telegram.Net.Core
             return (ImportedContactConstructor)request.imported.FirstOrDefault();
         }
 
-        public async Task<User> ResolveUsername(string username)
-        {
-            var request = new ResolveUsernameRequest(username);
-            await SendRpcRequest(request);
-
-            return request.User;
-        }
-
         public async Task SendDirectMessage(int userId, string message)
         {
             var request = new SendMessageRequest(new InputPeerContactConstructor(userId), message);
@@ -273,30 +265,10 @@ namespace Telegram.Net.Core
             };
         }
 
-        public async Task<UserFull> GetUserFull(int userId)
-        {
-            var request = new GetUserFullRequest(userId);
-            await SendRpcRequest(request);
-
-            return request._userFull;
-        }
-
         private bool ValidateNumber(string number)
         {
             var regex = new Regex("^\\d{7,20}$");
             return regex.IsMatch(number);
-        }
-
-        public async Task<ContactsContacts> GetContacts(IList<int> contactIds = null)
-        {
-            var request = new GetContactsRequest(contactIds);
-            await SendRpcRequest(request);
-
-            return new ContactsContacts
-            {
-                Contacts = request.Contacts,
-                Users = request.Users
-            };
         }
 
         public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<int> userIdsToInvite)
@@ -307,41 +279,12 @@ namespace Telegram.Net.Core
             return request.message;
         }
 
-        public async Task<Messages_statedMessageConstructor> AddChatUser(int chatId, int userId)
-        {
-            var request = new AddChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await SendRpcRequest(request);
-
-            return request.message;
-        }
-
-        public async Task<Messages_statedMessageConstructor> DeleteChatUser(int chatId, int userId)
-        {
-            var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(userId));
-            await SendRpcRequest(request);
-
-            return request.message;
-        }
-
         public async Task<Messages_statedMessageConstructor> LeaveChat(int chatId)
         {
-            return await DeleteChatUser(chatId, ((UserSelfConstructor)session.User).id);
-        }
-
-        public async Task<updates_State> GetUpdatesState()
-        {
-            var request = new GetUpdatesStateRequest();
+            var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(authenticatedUserId.Value));
             await SendRpcRequest(request);
 
-            return request.updates;
-        }
-
-        public async Task<updates_Difference> GetUpdatesDifference(int lastPts, int lastDate, int lastQts)
-        {
-            var request = new GetUpdatesDifferenceRequest(lastPts, lastDate, lastQts);
-            await SendRpcRequest(request);
-
-            return request.updatesDifference;
+            return request.message;
         }
 
         protected virtual void OnUpdateMessage(object sender, Updates e)
@@ -354,7 +297,7 @@ namespace Telegram.Net.Core
             return CloseCurrentTransport();
         }
 
-        private async Task SendRpcRequest(MTProtoRequest request)
+        public async Task SendRpcRequest(MTProtoRequest request)
         {
             await protoSender.Send(request);
 
