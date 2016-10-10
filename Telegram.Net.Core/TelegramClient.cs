@@ -103,12 +103,12 @@ namespace Telegram.Net.Core
             return session.User != null;
         }
 
-        public async Task<bool> IsPhoneRegistered(string phoneNumber)
+        public async Task<auth_CheckedPhone> CheckPhone(string phoneNumber)
         {
             var authCheckPhoneRequest = new AuthCheckPhoneRequest(phoneNumber);
             await SendRpcRequest(authCheckPhoneRequest);
 
-            return authCheckPhoneRequest._phoneRegistered;
+            return authCheckPhoneRequest.checkedPhone;
         }
 
         public async Task<AuthSendCodeRequest> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
@@ -265,15 +265,9 @@ namespace Telegram.Net.Core
             };
         }
 
-        private bool ValidateNumber(string number)
+        public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<InputUser> usersToInvite)
         {
-            var regex = new Regex("^\\d{7,20}$");
-            return regex.IsMatch(number);
-        }
-
-        public async Task<Messages_statedMessageConstructor> CreateChat(string title, List<int> userIdsToInvite)
-        {
-            var request = new CreateChatRequest(userIdsToInvite.Select(uid => new InputUserContactConstructor(uid)).ToList(), title);
+            var request = new CreateChatRequest(usersToInvite, title);
             await SendRpcRequest(request);
 
             return request.message;

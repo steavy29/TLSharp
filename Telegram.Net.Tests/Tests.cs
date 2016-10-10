@@ -115,8 +115,10 @@ namespace Telegram.Net.Tests
             var client = new TelegramClient(store, ApiId, ApiHash);
             await client.Connect();
 
-            var result = await client.IsPhoneRegistered(NumberToAuthenticate);
-            Assert.IsTrue(result);
+            var result = await client.CheckPhone(NumberToAuthenticate) as Auth_checkedPhoneConstructor;
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.phone_registered);
         }
 
         [TestMethod]
@@ -271,7 +273,7 @@ namespace Telegram.Net.Tests
 
             var chatName = Guid.NewGuid().ToString();
             var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessage = await client.CreateChat(chatName, new List<int> { userIdToInvite });
+            var statedMessage = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userIdToInvite) });
 
             var createdChat = GetChatFromStatedMessage(statedMessage);
 
@@ -286,7 +288,7 @@ namespace Telegram.Net.Tests
 
             var chatName = Guid.NewGuid().ToString();
             var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<int> { userIdToInvite });
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userIdToInvite) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
 
@@ -308,7 +310,7 @@ namespace Telegram.Net.Tests
 
             var chatName = Guid.NewGuid().ToString();
             var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<int> { userIdToInvite });
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> {new InputUserContactConstructor(userIdToInvite) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
             

@@ -7,13 +7,13 @@ namespace Telegram.Net.Core.Requests
 {
     class CreateChatRequest : MTProtoRequest
     {
-        private readonly List<InputUserContactConstructor> userIds;
+        private readonly List<InputUser> inputUsers;
         private readonly string title;
 
         public Messages_statedMessageConstructor message;
-        public CreateChatRequest(List<InputUserContactConstructor> userIds, string title)
+        public CreateChatRequest(List<InputUser> inputUsers, string title)
         {
-            this.userIds = userIds;
+            this.inputUsers = inputUsers;
             this.title = title;
         }
 
@@ -21,8 +21,8 @@ namespace Telegram.Net.Core.Requests
         {
             writer.Write(0x419d9aee);
             writer.Write(0x1cb5c415); // vector#1cb5c415
-            writer.Write(userIds.Count); // vector length
-            foreach (var id in userIds)
+            writer.Write(inputUsers.Count); // vector length
+            foreach (var id in inputUsers)
                 id.Write(writer);
             Serializers.String.write(writer, title);
         }

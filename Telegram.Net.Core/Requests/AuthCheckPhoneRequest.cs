@@ -6,26 +6,23 @@ namespace Telegram.Net.Core.Requests
 {
     public class AuthCheckPhoneRequest : MTProtoRequest
     {
-        private string _phoneNumber;
-        public bool _phoneRegistered;
-        private bool _phoneInvited;
+        private readonly string phoneNumber;
+        public auth_CheckedPhone checkedPhone;
 
         public AuthCheckPhoneRequest(string phoneNumber)
         {
-            _phoneNumber = phoneNumber;
+            this.phoneNumber = phoneNumber;
         }
 
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0x6fe51dfb);
-            Serializers.String.write(writer, _phoneNumber);
+            Serializers.String.write(writer, phoneNumber);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var dataCode = reader.ReadUInt32(); // #e300cc3b 
-            this._phoneRegistered = reader.ReadUInt32() == 0x997275b5;
-            this._phoneInvited = reader.ReadUInt32() == 0x997275b5;
+            checkedPhone = TL.Parse<auth_CheckedPhone>(reader);
         }
 
         public override void OnException(Exception exception)
