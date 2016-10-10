@@ -126,8 +126,11 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var contact = await client.ImportContactByPhoneNumber(NumberToSendMessage, "Contact", "Contact");
-            Assert.IsNotNull(contact);
+            var importedConacts = await client.ImportContactByPhoneNumber(NumberToSendMessage, "Contact", "Contact");
+
+            Assert.IsNotNull(importedConacts);
+            Assert.AreEqual(1, importedConacts.importedContacts.Count);
+            Assert.AreEqual(1, importedConacts.users.Count);
         }
 
         [TestMethod]
@@ -192,12 +195,12 @@ namespace Telegram.Net.Tests
         public async Task GetFile()
         {
             // Get uploaded file from last message (ie: cat.jpg)
-
             var client = await InitializeClient();
-            var user = await client.ImportContactByPhoneNumber(NumberToSendMessage, "Contact", "Contact");
+
+            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
 
             // Get last message
-            var hist = await client.GetMessagesHistoryForContact(user.user_id, 0, 1);
+            var hist = await client.GetMessagesHistoryForContact(userId, 0, 1);
             Assert.AreEqual(1, hist.Count);
 
             var message = (MessageConstructor) hist[0];
@@ -425,10 +428,15 @@ namespace Telegram.Net.Tests
 
         private async Task<int> ImportAndGetUserId(TelegramClient client, string phoneNumber)
         {
-            var user = await client.ImportContactByPhoneNumber(phoneNumber, phoneNumber, "Contact");
-            Assert.IsNotNull(user);
+            var contacts = await client.ImportContactByPhoneNumber(phoneNumber, phoneNumber, "Contact");
 
-            return user.user_id;
+            Assert.IsNotNull(contacts);
+            Assert.AreEqual(1, contacts.importedContacts.Count);
+
+            var importedContact = contacts.importedContacts[0] as ImportedContactConstructor;
+            Assert.IsNotNull(importedContact);
+
+            return importedContact.user_id;
         }
 
         private string GetTestPhoneOfDc(int dcNumber)

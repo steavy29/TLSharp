@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
@@ -7,16 +6,15 @@ namespace Telegram.Net.Core.Requests
 {
     public class ImportContactRequest : MTProtoRequest
     {
-        private InputContact Contact { get; set; }
-        private bool Replace { get; set; }
+        private readonly InputContact contact;
+        private readonly bool replace;
 
-        public List<ImportedContact> imported;
-        public List<User> users;
+        public contacts_ImportedContacts importedContacts;
 
-        public ImportContactRequest(InputContact contact, bool shouldReplace = true)
+        public ImportContactRequest(InputContact contact, bool replace = true)
         {
-            Contact = contact;
-            Replace = shouldReplace;
+            this.contact = contact;
+            this.replace = replace;
         }
 
         public override void OnSend(BinaryWriter writer)
@@ -24,31 +22,13 @@ namespace Telegram.Net.Core.Requests
             writer.Write(0xda30b32d);
             writer.Write(0x1cb5c415);
             writer.Write(1);
-            Contact.Write(writer);
-            writer.Write(Replace ? 0x997275b5 : 0xbc799737);
+            contact.Write(writer);
+            writer.Write(replace ? 0x997275b5 : 0xbc799737);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var code = reader.ReadUInt32();
-            var result = reader.ReadInt32(); // vector code
-            int imported_len = reader.ReadInt32();
-            this.imported = new List<ImportedContact>(imported_len);
-            for (int imported_index = 0; imported_index < imported_len; imported_index++)
-            {
-                ImportedContact imported_element;
-                imported_element = TL.Parse<ImportedContact>(reader);
-                this.imported.Add(imported_element);
-            }
-            reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            this.users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
-            {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                this.users.Add(users_element);
-            }
+            importedContacts = TL.Parse<contacts_ImportedContacts>(reader);
         }
 
         public override void OnException(Exception exception)

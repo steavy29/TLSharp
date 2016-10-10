@@ -417,9 +417,9 @@ namespace Telegram.Net.Core.MTProto
             {0x6c69efee, typeof (Contacts_myLinkRequestedConstructor)},
             {0xc240ebd9, typeof (Contacts_myLinkContactConstructor)},
             {0xeccea3f5, typeof (Contacts_linkConstructor)},
-            {0x6f8b8cb2, typeof (Contacts_contactsConstructor)},
             {0xb74ba9d2, typeof (Contacts_contactsNotModifiedConstructor)},
-            {0xd1cd0a4c, typeof (Contacts_importedContactsConstructor)},
+            {0x6f8b8cb2, typeof (Contacts_contactsConstructor)},
+            {0xad524315, typeof (ContactsImportedContactsConstructor)},
             {0x1c138d15, typeof (Contacts_blockedConstructor)},
             {0x900802a1, typeof (Contacts_blockedSliceConstructor)},
             {0x0566000e, typeof (Contacts_foundConstructor)},
@@ -602,6 +602,26 @@ namespace Telegram.Net.Core.MTProto
                 }
             }
             throw new Exception("unknown return type");
+        }
+
+        public static List<T> ParseVector<T>(BinaryReader reader, bool readDataCode = false) where T: TLObject
+        {
+            return ParseVector(reader, () => Parse<T>(reader), readDataCode);
+        }
+
+        public static List<T> ParseVector<T>(BinaryReader reader, Func<T> readNextFunc, bool readDataCode = false)
+        {
+            if (readDataCode)
+                reader.ReadInt32(); // vector code
+
+            int count = reader.ReadInt32();
+            var result = new List<T>(count);
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(readNextFunc());
+            }
+
+            return result;
         }
 
         //public delegate TLObject InputPeerContactDelegate(InputPeerContactConstructor x);
@@ -1192,16 +1212,7 @@ namespace Telegram.Net.Core.MTProto
         {
             return new ContactFoundConstructor(user_id);
         }
-
-        public static ContactSuggested contactSuggested(int user_id, int mutual_contacts)
-        {
-            return new ContactSuggestedConstructor(user_id, mutual_contacts);
-        }
-
-        public static ContactStatus contactStatus(int user_id, int expires)
-        {
-            return new ContactStatusConstructor(user_id, expires);
-        }
+        
 
         public static ChatLocated chatLocated(int chat_id, int distance)
         {
@@ -1252,12 +1263,7 @@ namespace Telegram.Net.Core.MTProto
         {
             return new Contacts_contactsNotModifiedConstructor();
         }
-
-        public static contacts_ImportedContacts contacts_importedContacts(List<ImportedContact> imported, List<User> users)
-        {
-            return new Contacts_importedContactsConstructor(imported, users);
-        }
-
+        
         public static contacts_Blocked contacts_blocked(List<ContactBlocked> blocked, List<User> users)
         {
             return new Contacts_blockedConstructor(blocked, users);
@@ -7817,23 +7823,12 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_importedContactsConstructor : contacts_ImportedContacts
+    public class ContactsImportedContactsConstructor : contacts_ImportedContacts
     {
-        public List<ImportedContact> imported;
+        public List<ImportedContact> importedContacts;
+        public List<long> retryContacts;
         public List<User> users;
-
-        public Contacts_importedContactsConstructor()
-        {
-
-        }
-
-        public Contacts_importedContactsConstructor(List<ImportedContact> imported, List<User> users)
-        {
-            this.imported = imported;
-            this.users = users;
-        }
-
-
+        
         public override Constructor Constructor
         {
             get { return Constructor.contacts_importedContacts; }
@@ -7841,47 +7836,19 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0xd1cd0a4c);
-            writer.Write(0x1cb5c415);
-            writer.Write(this.imported.Count);
-            foreach (ImportedContact imported_element in this.imported)
-            {
-                imported_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(this.users.Count);
-            foreach (User users_element in this.users)
-            {
-                users_element.Write(writer);
-            }
+            throw new NotImplementedException();
         }
 
         public override void Read(BinaryReader reader)
         {
-            reader.ReadInt32(); // vector code
-            int imported_len = reader.ReadInt32();
-            this.imported = new List<ImportedContact>(imported_len);
-            for (int imported_index = 0; imported_index < imported_len; imported_index++)
-            {
-                ImportedContact imported_element;
-                imported_element = TL.Parse<ImportedContact>(reader);
-                this.imported.Add(imported_element);
-            }
-            reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            this.users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
-            {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                this.users.Add(users_element);
-            }
+            importedContacts = TL.ParseVector<ImportedContact>(reader, true);
+            retryContacts = TL.ParseVector(reader, reader.ReadInt64, true);
+            users = TL.ParseVector<User>(reader, true);
         }
 
         public override string ToString()
         {
-            return String.Format("(contacts_importedContacts imported:{0} users:{1})", Serializers.VectorToString(imported),
-                Serializers.VectorToString(users));
+            return $"({Constructor}) ImportedContacts: {importedContacts}, RetryContacts: {retryContacts}, Users: {users}";
         }
     }
 

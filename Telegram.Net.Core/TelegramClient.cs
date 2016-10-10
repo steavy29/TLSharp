@@ -201,12 +201,12 @@ namespace Telegram.Net.Core
             return true;
         }
 
-        public async Task<ImportedContactConstructor> ImportContactByPhoneNumber(string phoneNumber, string firstName, string lastName, bool replace = true)
+        public async Task<ContactsImportedContactsConstructor> ImportContactByPhoneNumber(string phoneNumber, string firstName, string lastName, bool replace = true)
         {
             var request = new ImportContactRequest(new InputPhoneContactConstructor(0, phoneNumber, firstName, lastName), replace);
             await SendRpcRequest(request);
 
-            return (ImportedContactConstructor)request.imported.FirstOrDefault();
+            return (ContactsImportedContactsConstructor)request.importedContacts;
         }
 
         public async Task SendDirectMessage(int userId, string message)
