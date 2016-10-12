@@ -227,6 +227,14 @@ namespace Telegram.Net.Core
             await SendRpcRequest(request);
         }
 
+        public async Task<List<int>> DeleteMessages(List<int> messageIdsToDelete)
+        {
+            var request = new DeleteMessagesRequest(messageIdsToDelete);
+            await SendRpcRequest(request);
+
+            return request.deletedMessageIds;
+        }
+
         public async Task<List<Message>> GetMessagesHistoryForContact(int userId, int offset, int limit, int maxId = -1)
         {
             var request = new GetHistoryRequest(new InputPeerContactConstructor(userId), offset, maxId, limit);

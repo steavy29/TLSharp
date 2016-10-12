@@ -604,14 +604,14 @@ namespace Telegram.Net.Core.MTProto
             throw new Exception("unknown return type");
         }
 
-        public static List<T> ParseVector<T>(BinaryReader reader, bool readDataCode = false) where T: TLObject
+        public static List<T> ParseVector<T>(BinaryReader reader, bool readVectorDataCode = true) where T: TLObject
         {
-            return ParseVector(reader, () => Parse<T>(reader), readDataCode);
+            return ParseVector(reader, () => Parse<T>(reader), readVectorDataCode);
         }
 
-        public static List<T> ParseVector<T>(BinaryReader reader, Func<T> readNextFunc, bool readDataCode = false)
+        public static List<T> ParseVector<T>(BinaryReader reader, Func<T> readNextFunc, bool readVectorDataCode = true)
         {
-            if (readDataCode)
+            if (readVectorDataCode)
                 reader.ReadInt32(); // vector code
 
             int count = reader.ReadInt32();
@@ -7841,9 +7841,9 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            importedContacts = TL.ParseVector<ImportedContact>(reader, true);
-            retryContacts = TL.ParseVector(reader, reader.ReadInt64, true);
-            users = TL.ParseVector<User>(reader, true);
+            importedContacts = TL.ParseVector<ImportedContact>(reader);
+            retryContacts = TL.ParseVector(reader, reader.ReadInt64);
+            users = TL.ParseVector<User>(reader);
         }
 
         public override string ToString()
