@@ -148,14 +148,14 @@ namespace Telegram.Net.Core
             session.Save();
         }
 
-        public async Task<InputFile> UploadFile(string name, Stream stream)
+        public async Task<InputFileConstructor> UploadFile(string name, Stream content)
         {
             var buffer = new byte[65536];
             var fileId = DateTime.Now.Ticks;
 
             int partsCount = 0;
             int bytesRead;
-            while((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+            while((bytesRead = content.Read(buffer, 0, buffer.Length)) > 0)
             {
                 var request = new Upload_SaveFilePartRequest(fileId, partsCount, buffer, bytesRead);
                 await SendRpcRequest(request);
@@ -167,13 +167,13 @@ namespace Telegram.Net.Core
             }
 
             var md5Checksum = string.Empty;
-            if (stream.CanSeek)
+            if (content.CanSeek)
             {
-                stream.Position = 0;
+                content.Position = 0;
                 
                 using (var md5 = MD5.Create())
                 {
-                    var hash = md5.ComputeHash(stream);
+                    var hash = md5.ComputeHash(content);
                     var hashResult = new StringBuilder(hash.Length * 2);
 
                     foreach (byte b in hash)
