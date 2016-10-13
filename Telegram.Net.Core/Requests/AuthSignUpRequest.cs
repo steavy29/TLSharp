@@ -27,11 +27,11 @@ namespace Telegram.Net.Core.Requests
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0x1b067634);
-            Serializers.String.write(writer, _phoneNumber);
-            Serializers.String.write(writer, _phoneCodeHash);
-            Serializers.String.write(writer, _code);
-            Serializers.String.write(writer, _firstName);
-            Serializers.String.write(writer, _lastName);
+            Serializers.String.Write(writer, _phoneNumber);
+            Serializers.String.Write(writer, _phoneCodeHash);
+            Serializers.String.Write(writer, _code);
+            Serializers.String.Write(writer, _firstName);
+            Serializers.String.Write(writer, _lastName);
         }
 
         public override void OnResponse(BinaryReader reader)

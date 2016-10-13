@@ -7,17 +7,19 @@ namespace Telegram.Net.Core.Requests
     //upload.saveFilePart#b304a621 file_id:long file_part:int bytes:bytes = Bool;
     public class Upload_SaveFilePartRequest : MTProtoRequest
     {
-        long file_id;
-        int file_part;
-        byte[] bytes;
+        private readonly long fileId;
+        private readonly int filePart;
+        private readonly byte[] data;
+        private readonly int count;
 
         public bool Done { get; set; }
 
-        public Upload_SaveFilePartRequest(long file_id, int file_part, byte[] bytes)
+        public Upload_SaveFilePartRequest(long fileId, int filePart, byte[] data, int count)
         {
-            this.file_id = file_id;
-            this.file_part = file_part;
-            this.bytes = bytes;
+            this.fileId = fileId;
+            this.filePart = filePart;
+            this.data = data;
+            this.count = count;
         }
 
         public override void OnResponse(BinaryReader reader)
@@ -33,9 +35,10 @@ namespace Telegram.Net.Core.Requests
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0xb304a621);
-            writer.Write(file_id);
-            writer.Write(file_part);
-            Serializers.Bytes.write(writer, bytes);
+            writer.Write(fileId);
+            writer.Write(filePart);
+
+            Serializers.Bytes.Write(writer, data, count);
         }
 
         public override void OnException(Exception exception)

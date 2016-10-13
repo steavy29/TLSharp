@@ -21,7 +21,7 @@ namespace Telegram.Net.Core.Requests
         {
             var code = reader.ReadUInt32();
 
-            country = Serializers.String.read(reader);
+            country = Serializers.String.Read(reader);
             this_dc = reader.ReadInt32();
             nearest_dc = reader.ReadInt32();
 

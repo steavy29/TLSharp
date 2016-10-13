@@ -24,7 +24,7 @@ namespace Telegram.Net.Core.Requests
             writer.Write(inputUsers.Count); // vector length
             foreach (var id in inputUsers)
                 id.Write(writer);
-            Serializers.String.write(writer, title);
+            Serializers.String.Write(writer, title);
         }
 
         public override void OnResponse(BinaryReader reader)

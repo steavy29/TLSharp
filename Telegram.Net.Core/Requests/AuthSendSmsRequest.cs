@@ -19,8 +19,8 @@ namespace Telegram.Net.Core.Requests
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0xda9f3e8);
-            Serializers.String.write(writer, _phoneNumber);
-            Serializers.String.write(writer, _phoneCodeHash);
+            Serializers.String.Write(writer, _phoneNumber);
+            Serializers.String.Write(writer, _phoneCodeHash);
         }
 
         public override void OnResponse(BinaryReader reader)

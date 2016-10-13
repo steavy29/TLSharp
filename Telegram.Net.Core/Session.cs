@@ -90,7 +90,7 @@ namespace Telegram.Net.Core
                 writer.Write(Salt);
                 writer.Write(LastMessageId);
                 writer.Write(TimeOffset);
-                Serializers.String.write(writer, ServerAddress);
+                Serializers.String.Write(writer, ServerAddress);
                 writer.Write(Port);
 
                 if (User != null)
@@ -104,7 +104,7 @@ namespace Telegram.Net.Core
                     writer.Write(0);
                 }
 
-                Serializers.Bytes.write(writer, AuthKey.Data);
+                Serializers.Bytes.Write(writer, AuthKey.Data);
 
                 return stream.ToArray();
             }
@@ -120,7 +120,7 @@ namespace Telegram.Net.Core
                 var salt = reader.ReadUInt64();
                 var lastMessageId = reader.ReadInt64();
                 var timeOffset = reader.ReadInt32();
-                var serverAddress = Serializers.String.read(reader);
+                var serverAddress = Serializers.String.Read(reader);
                 var port = reader.ReadInt32();
 
                 var isAuthExsist = reader.ReadInt32() == 1;
@@ -132,7 +132,7 @@ namespace Telegram.Net.Core
                     user = TL.Parse<User>(reader);
                 }
 
-                var authData = Serializers.Bytes.read(reader);
+                var authData = Serializers.Bytes.Read(reader);
 
                 return new Session(store)
                 {

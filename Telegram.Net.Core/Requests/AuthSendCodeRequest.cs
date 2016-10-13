@@ -26,11 +26,11 @@ namespace Telegram.Net.Core.Requests
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(0x768d5f4d);
-            Serializers.String.write(writer, phoneNumber);
+            Serializers.String.Write(writer, phoneNumber);
             writer.Write(smsType);
             writer.Write(apiId);
-            Serializers.String.write(writer, apiHash);
-            Serializers.String.write(writer, langCode);
+            Serializers.String.Write(writer, apiHash);
+            Serializers.String.Write(writer, langCode);
         }
 
         public override void OnResponse(BinaryReader reader)
@@ -41,7 +41,7 @@ namespace Telegram.Net.Core.Requests
             var phoneRegisteredValue = reader.ReadUInt32();
             phoneRegistered = phoneRegisteredValue == boolTrue;
 
-            phoneCodeHash = Serializers.String.read(reader);
+            phoneCodeHash = Serializers.String.Read(reader);
 
             var sendCodeTimeout = reader.ReadInt32();
             var isPasswordValue = reader.ReadUInt32();

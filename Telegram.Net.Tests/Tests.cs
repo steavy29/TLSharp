@@ -183,12 +183,15 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
             var userId = await ImportAndGetUserId(client, NumberToSendMessage);
 
-            var file = File.ReadAllBytes("../../data/cat.jpg");
-            var mediaFile = await client.UploadFile("test_file.jpg", file);
+            InputFile mediaFile;
+            using (var fileStream = File.OpenRead("../../data/cat.jpg"))
+            {
+                mediaFile = await client.UploadFile("test_file.jpg", fileStream);
+            }
             Assert.IsNotNull(mediaFile);
 
-            var state = await client.SendMediaMessage(userId, mediaFile);
-            Assert.IsTrue(state);
+            var state = await client.SendMediaMessage(new InputPeerContactConstructor(userId), new InputMediaUploadedPhotoConstructor(mediaFile));
+            Assert.IsNotNull(state);
         }
 
         [TestMethod]

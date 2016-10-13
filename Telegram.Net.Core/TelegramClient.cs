@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -147,58 +148,50 @@ namespace Telegram.Net.Core
             session.Save();
         }
 
-        public async Task<InputFile> UploadFile(string name, byte[] data)
+        public async Task<InputFile> UploadFile(string name, Stream stream)
         {
-            var partSize = 65536;
-
+            var buffer = new byte[65536];
             var fileId = DateTime.Now.Ticks;
 
-            var partedData = new Dictionary<int, byte[]>();
-            var partsCount = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(data.Length) / Convert.ToDouble(partSize)));
-            var remainBytes = data.Length;
-            for (int i = 0; i < partsCount; i++)
+            int partsCount = 0;
+            int bytesRead;
+            while((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
             {
-                partedData.Add(i, data
-                    .Skip(i * partSize)
-                    .Take(remainBytes < partSize ? remainBytes : partSize)
-                    .ToArray());
+                var request = new Upload_SaveFilePartRequest(fileId, partsCount, buffer, bytesRead);
+                await SendRpcRequest(request);
 
-                remainBytes -= partSize;
+                partsCount++;
+
+                if (request.Done == false)
+                    throw new InvalidOperationException($"Failed to upload file({name}) part: {partsCount})");
             }
 
-            for (int i = 0; i < partsCount; i++)
+            var md5Checksum = string.Empty;
+            if (stream.CanSeek)
             {
-                var saveFilePartRequest = new Upload_SaveFilePartRequest(fileId, i, partedData[i]);
-                await SendRpcRequest(saveFilePartRequest);
+                stream.Position = 0;
+                
+                using (var md5 = MD5.Create())
+                {
+                    var hash = md5.ComputeHash(stream);
+                    var hashResult = new StringBuilder(hash.Length * 2);
 
-                if (saveFilePartRequest.Done == false)
-                    throw new InvalidOperationException($"Failed to upload fine. (failed part: {i}/{partsCount})");
-            }
+                    foreach (byte b in hash)
+                        hashResult.Append(b.ToString("x2"));
 
-            string md5Checksum;
-            using (var md5 = MD5.Create())
-            {
-                var hash = md5.ComputeHash(data);
-                var hashResult = new StringBuilder(hash.Length * 2);
-
-                for (int i = 0; i < hash.Length; i++)
-                    hashResult.Append(i.ToString("x2"));
-
-                md5Checksum = hashResult.ToString();
+                    md5Checksum = hashResult.ToString();
+                }
             }
 
             return new InputFileConstructor(fileId, partsCount, name, md5Checksum);
         }
 
-        public async Task<bool> SendMediaMessage(int contactId, InputFile file)
+        public async Task<messages_StatedMessage> SendMediaMessage(InputPeer inputPeer, InputMedia media)
         {
-            var request = new Message_SendMediaRequest(
-                new InputPeerContactConstructor(contactId),
-                new InputMediaUploadedPhotoConstructor(file));
-
+            var request = new Message_SendMediaRequest(inputPeer, media);
             await SendRpcRequest(request);
 
-            return true;
+            return request.StatedMessage;
         }
 
         public async Task<ContactsImportedContactsConstructor> ImportContactByPhoneNumber(string phoneNumber, string firstName, string lastName, bool replace = true)
@@ -355,10 +348,10 @@ namespace Telegram.Net.Core
                 // resync updates state
             }
 
+            session.Save();
+
             // escalate to user
             request.ThrowIfHasError();
-
-            session.Save();
         }
     }
 }

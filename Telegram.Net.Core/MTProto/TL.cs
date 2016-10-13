@@ -2502,13 +2502,13 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xc4b9f9bb);
             writer.Write(this.code);
-            Serializers.String.write(writer, this.text);
+            Serializers.String.Write(writer, this.text);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.code = reader.ReadInt32();
-            this.text = Serializers.String.read(reader);
+            this.text = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -2870,17 +2870,17 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xf392b7f4);
             writer.Write(this.client_id);
-            Serializers.String.write(writer, this.phone);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
+            Serializers.String.Write(writer, this.phone);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.client_id = reader.ReadInt64();
-            this.phone = Serializers.String.read(reader);
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
+            this.phone = Serializers.String.Read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -2922,16 +2922,16 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0xf52ff27f);
             writer.Write(this.id);
             writer.Write(this.parts);
-            Serializers.String.write(writer, this.name);
-            Serializers.String.write(writer, this.md5_checksum);
+            Serializers.String.Write(writer, this.name);
+            Serializers.String.Write(writer, this.md5_checksum);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt64();
             this.parts = reader.ReadInt32();
-            this.name = Serializers.String.read(reader);
-            this.md5_checksum = Serializers.String.read(reader);
+            this.name = Serializers.String.Read(reader);
+            this.md5_checksum = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -3113,16 +3113,16 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa6e45987);
-            Serializers.String.write(writer, this.phone_number);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
+            Serializers.String.Write(writer, this.phone_number);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.phone_number = Serializers.String.read(reader);
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
+            this.phone_number = Serializers.String.Read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -3805,17 +3805,17 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x770656a8);
             writer.Write(this.time);
-            Serializers.String.write(writer, this.type);
+            Serializers.String.Write(writer, this.type);
             writer.Write(this.peer);
-            Serializers.String.write(writer, this.data);
+            Serializers.String.Write(writer, this.data);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.time = reader.ReadDouble();
-            this.type = Serializers.String.read(reader);
+            this.type = Serializers.String.Read(reader);
             this.peer = reader.ReadInt64();
-            this.data = Serializers.String.read(reader);
+            this.data = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -4354,10 +4354,10 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x720535ec);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
-            Serializers.String.write(writer, this.username);
-            Serializers.String.write(writer, this.phone);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
+            Serializers.String.Write(writer, this.username);
+            Serializers.String.Write(writer, this.phone);
             this.photo.Write(writer);
             this.status.Write(writer);
             writer.Write(this.inactive ? 0x997275b5 : 0xbc799737);
@@ -4366,10 +4366,10 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
-            this.username = Serializers.String.read(reader);
-            this.phone = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
+            this.username = Serializers.String.Read(reader);
+            this.phone = Serializers.String.Read(reader);
             this.photo = TL.Parse<UserProfilePhoto>(reader);
             this.status = TL.Parse<UserStatus>(reader);
             this.inactive = reader.ReadUInt32() == 0x997275b5;
@@ -4423,11 +4423,11 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xcab35e18);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
-            Serializers.String.write(writer, this.username);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
+            Serializers.String.Write(writer, this.username);
             writer.Write(this.access_hash);
-            Serializers.String.write(writer, this.phone);
+            Serializers.String.Write(writer, this.phone);
             this.photo.Write(writer);
             this.status.Write(writer);
         }
@@ -4435,11 +4435,11 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
-            this.username = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
+            this.username = Serializers.String.Read(reader);
             this.access_hash = reader.ReadInt64();
-            this.phone = Serializers.String.read(reader);
+            this.phone = Serializers.String.Read(reader);
             this.photo = TL.Parse<UserProfilePhoto>(reader);
             this.status = TL.Parse<UserStatus>(reader);
         }
@@ -4493,11 +4493,11 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x22e8ceb0);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
-            Serializers.String.write(writer, this.username);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
+            Serializers.String.Write(writer, this.username);
             writer.Write(this.access_hash);
-            Serializers.String.write(writer, this.phone);
+            Serializers.String.Write(writer, this.phone);
             this.photo.Write(writer);
             this.status.Write(writer);
         }
@@ -4505,11 +4505,11 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
-            this.username = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
+            this.username = Serializers.String.Read(reader);
             this.access_hash = reader.ReadInt64();
-            this.phone = Serializers.String.read(reader);
+            this.phone = Serializers.String.Read(reader);
             this.photo = TL.Parse<UserProfilePhoto>(reader);
             this.status = TL.Parse<UserStatus>(reader);
         }
@@ -4560,9 +4560,9 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x5214c89d);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
-            Serializers.String.write(writer, this.username);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
+            Serializers.String.Write(writer, this.username);
             writer.Write(this.access_hash);
             this.photo.Write(writer);
             this.status.Write(writer);
@@ -4571,9 +4571,9 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
-            this.username = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
+            this.username = Serializers.String.Read(reader);
             this.access_hash = reader.ReadInt64();
             this.photo = TL.Parse<UserProfilePhoto>(reader);
             this.status = TL.Parse<UserStatus>(reader);
@@ -4618,17 +4618,17 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xb29ad7cc);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
-            Serializers.String.write(writer, this.username);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
+            Serializers.String.Write(writer, this.username);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
-            this.username = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
+            this.username = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -4895,7 +4895,7 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x6e9c9bc7);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
             this.photo.Write(writer);
             writer.Write(this.participants_count);
             writer.Write(this.date);
@@ -4906,7 +4906,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
             this.photo = TL.Parse<ChatPhoto>(reader);
             this.participants_count = reader.ReadInt32();
             this.date = reader.ReadInt32();
@@ -4950,14 +4950,14 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xfb0ccc41);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
             writer.Write(this.date);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
             this.date = reader.ReadInt32();
         }
 
@@ -5320,7 +5320,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.fromId);
             toId.Write(writer);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.message);
+            Serializers.String.Write(writer, this.message);
             media.Write(writer);
         }
 
@@ -5332,7 +5332,7 @@ namespace Telegram.Net.Core.MTProto
             this.fromId = reader.ReadInt32();
             this.toId = TL.Parse<Peer>(reader);
             this.date = reader.ReadInt32();
-            this.message = Serializers.String.read(reader);
+            this.message = Serializers.String.Read(reader);
             this.media = TL.Parse<MessageMedia>(reader);
         }
 
@@ -5390,7 +5390,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(fromId);
             toId.Write(writer);
             writer.Write(date);
-            Serializers.String.write(writer, message);
+            Serializers.String.Write(writer, message);
             media.Write(writer);
         }
 
@@ -5403,7 +5403,7 @@ namespace Telegram.Net.Core.MTProto
             fromId = reader.ReadInt32();
             toId = TL.Parse<Peer>(reader);
             date = reader.ReadInt32();
-            message = Serializers.String.read(reader);
+            message = Serializers.String.Read(reader);
             media = TL.Parse<MessageMedia>(reader);
         }
 
@@ -5645,17 +5645,17 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5e7d2f39);
-            Serializers.String.write(writer, this.phone_number);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
+            Serializers.String.Write(writer, this.phone_number);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
             writer.Write(this.user_id);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.phone_number = Serializers.String.read(reader);
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
+            this.phone_number = Serializers.String.Read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
             this.user_id = reader.ReadInt32();
         }
 
@@ -5690,12 +5690,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x29632a36);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -5761,7 +5761,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa6638b9a);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
             writer.Write(0x1cb5c415);
             writer.Write(this.users.Count);
             foreach (int users_element in this.users)
@@ -5772,7 +5772,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
             reader.ReadInt32(); // vector code
             int users_len = reader.ReadInt32();
             this.users = new List<int>(users_len);
@@ -5814,12 +5814,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xb5a1ce5a);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -6116,7 +6116,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.access_hash);
             writer.Write(this.user_id);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.caption);
+            Serializers.String.Write(writer, this.caption);
             this.geo.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(this.sizes.Count);
@@ -6132,7 +6132,7 @@ namespace Telegram.Net.Core.MTProto
             this.access_hash = reader.ReadInt64();
             this.user_id = reader.ReadInt32();
             this.date = reader.ReadInt32();
-            this.caption = Serializers.String.read(reader);
+            this.caption = Serializers.String.Read(reader);
             this.geo = TL.Parse<GeoPoint>(reader);
             reader.ReadInt32(); // vector code
             int sizes_len = reader.ReadInt32();
@@ -6176,12 +6176,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x0e17e23c);
-            Serializers.String.write(writer, this.type);
+            Serializers.String.Write(writer, this.type);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.type = Serializers.String.read(reader);
+            this.type = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -6222,7 +6222,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x77bfb61b);
-            Serializers.String.write(writer, this.type);
+            Serializers.String.Write(writer, this.type);
             this.location.Write(writer);
             writer.Write(this.w);
             writer.Write(this.h);
@@ -6231,7 +6231,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            this.type = Serializers.String.read(reader);
+            this.type = Serializers.String.Read(reader);
             this.location = TL.Parse<FileLocation>(reader);
             this.w = reader.ReadInt32();
             this.h = reader.ReadInt32();
@@ -6276,20 +6276,20 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xe9a734fa);
-            Serializers.String.write(writer, this.type);
+            Serializers.String.Write(writer, this.type);
             this.location.Write(writer);
             writer.Write(this.w);
             writer.Write(this.h);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.type = Serializers.String.read(reader);
+            this.type = Serializers.String.Read(reader);
             this.location = TL.Parse<FileLocation>(reader);
             this.w = reader.ReadInt32();
             this.h = reader.ReadInt32();
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -6386,7 +6386,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.access_hash);
             writer.Write(this.user_id);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.caption);
+            Serializers.String.Write(writer, this.caption);
             writer.Write(this.duration);
             writer.Write(this.size);
             this.thumb.Write(writer);
@@ -6401,7 +6401,7 @@ namespace Telegram.Net.Core.MTProto
             this.access_hash = reader.ReadInt64();
             this.user_id = reader.ReadInt32();
             this.date = reader.ReadInt32();
-            this.caption = Serializers.String.read(reader);
+            this.caption = Serializers.String.Read(reader);
             this.duration = reader.ReadInt32();
             this.size = reader.ReadInt32();
             this.thumb = TL.Parse<PhotoSize>(reader);
@@ -6561,13 +6561,13 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x2215bcbd);
             writer.Write(this.phone_registered ? 0x997275b5 : 0xbc799737);
-            Serializers.String.write(writer, this.phone_code_hash);
+            Serializers.String.Write(writer, this.phone_code_hash);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.phone_registered = reader.ReadUInt32() == 0x997275b5;
-            this.phone_code_hash = Serializers.String.read(reader);
+            this.phone_code_hash = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -6645,13 +6645,13 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xdf969c2d);
             writer.Write(this.id);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -6884,7 +6884,7 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x46a2ce98);
             writer.Write(this.mute_until);
-            Serializers.String.write(writer, this.sound);
+            Serializers.String.Write(writer, this.sound);
             writer.Write(this.show_previews ? 0x997275b5 : 0xbc799737);
             writer.Write(this.events_mask);
         }
@@ -6892,7 +6892,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.mute_until = reader.ReadInt32();
-            this.sound = Serializers.String.read(reader);
+            this.sound = Serializers.String.Read(reader);
             this.show_previews = reader.ReadUInt32() == 0x997275b5;
             this.events_mask = reader.ReadInt32();
         }
@@ -7028,7 +7028,7 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x8d5e11ee);
             writer.Write(this.mute_until);
-            Serializers.String.write(writer, this.sound);
+            Serializers.String.Write(writer, this.sound);
             writer.Write(this.show_previews ? 0x997275b5 : 0xbc799737);
             writer.Write(this.events_mask);
         }
@@ -7036,7 +7036,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.mute_until = reader.ReadInt32();
-            this.sound = Serializers.String.read(reader);
+            this.sound = Serializers.String.Read(reader);
             this.show_previews = reader.ReadUInt32() == 0x997275b5;
             this.events_mask = reader.ReadInt32();
         }
@@ -7079,7 +7079,7 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xccb03657);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
             writer.Write(0x1cb5c415);
             writer.Write(this.sizes.Count);
             foreach (PhotoSize sizes_element in this.sizes)
@@ -7092,7 +7092,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
             reader.ReadInt32(); // vector code
             int sizes_len = reader.ReadInt32();
             this.sizes = new List<PhotoSize>(sizes_len);
@@ -7154,8 +7154,8 @@ namespace Telegram.Net.Core.MTProto
             this.profile_photo.Write(writer);
             this.notify_settings.Write(writer);
             writer.Write(this.blocked ? 0x997275b5 : 0xbc799737);
-            Serializers.String.write(writer, this.real_first_name);
-            Serializers.String.write(writer, this.real_last_name);
+            Serializers.String.Write(writer, this.real_first_name);
+            Serializers.String.Write(writer, this.real_last_name);
         }
 
         public override void Read(BinaryReader reader)
@@ -7173,8 +7173,8 @@ namespace Telegram.Net.Core.MTProto
             this.profile_photo = TL.Parse<Photo>(reader);
             this.notify_settings = TL.Parse<PeerNotifySettings>(reader);
             this.blocked = reader.ReadUInt32() == 0x997275b5;
-            this.real_first_name = Serializers.String.read(reader);
-            this.real_last_name = Serializers.String.read(reader);
+            this.real_first_name = Serializers.String.Read(reader);
+            this.real_last_name = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -8728,10 +8728,7 @@ namespace Telegram.Net.Core.MTProto
         public int pts;
         public int seq;
 
-        public Messages_statedMessageConstructor()
-        {
-
-        }
+        public Messages_statedMessageConstructor() { }
 
         public Messages_statedMessageConstructor(Message message, List<Chat> chats, List<User> users, int pts, int seq)
         {
@@ -8741,7 +8738,6 @@ namespace Telegram.Net.Core.MTProto
             this.pts = pts;
             this.seq = seq;
         }
-
 
         public override Constructor Constructor
         {
@@ -8770,29 +8766,12 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            this.message = TL.Parse<Message>(reader);
-            reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            this.chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
-            {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                this.chats.Add(chats_element);
-            }
-            /*
-			reader.ReadInt32(); // vector code
-			int users_len = reader.ReadInt32();
-			this.users = new List<User>(users_len);
-			for (int users_index = 0; users_index < users_len; users_index++)
-			{
-				User users_element;
-				users_element = TL.Parse<User>(reader);
-				this.users.Add(users_element);
-			}
-			this.pts = reader.ReadInt32();
-			this.seq = reader.ReadInt32();
-			*/
+            message = TL.Parse<Message>(reader);
+            chats = TL.ParseVector<Chat>(reader);
+            users = TL.ParseVector<User>(reader);
+
+            pts = reader.ReadInt32();
+            seq = reader.ReadInt32();
         }
 
         public override string ToString()
@@ -9657,15 +9636,15 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xa7332b73);
             writer.Write(this.user_id);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.user_id = reader.ReadInt32();
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -9882,16 +9861,16 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x8f06529a);
             writer.Write(this.auth_key_id);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.device);
-            Serializers.String.write(writer, this.location);
+            Serializers.String.Write(writer, this.device);
+            Serializers.String.Write(writer, this.location);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.auth_key_id = reader.ReadInt64();
             this.date = reader.ReadInt32();
-            this.device = Serializers.String.read(reader);
-            this.location = Serializers.String.read(reader);
+            this.device = Serializers.String.Read(reader);
+            this.location = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -10327,7 +10306,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0xd3f45784);
             writer.Write(this.id);
             writer.Write(this.from_id);
-            Serializers.String.write(writer, this.message);
+            Serializers.String.Write(writer, this.message);
             writer.Write(this.pts);
             writer.Write(this.date);
             writer.Write(this.seq);
@@ -10337,7 +10316,7 @@ namespace Telegram.Net.Core.MTProto
         {
             this.id = reader.ReadInt32();
             this.from_id = reader.ReadInt32();
-            this.message = Serializers.String.read(reader);
+            this.message = Serializers.String.Read(reader);
             this.pts = reader.ReadInt32();
             this.date = reader.ReadInt32();
             this.seq = reader.ReadInt32();
@@ -10389,7 +10368,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.id);
             writer.Write(this.from_id);
             writer.Write(this.chat_id);
-            Serializers.String.write(writer, this.message);
+            Serializers.String.Write(writer, this.message);
             writer.Write(this.pts);
             writer.Write(this.date);
             writer.Write(this.seq);
@@ -10400,7 +10379,7 @@ namespace Telegram.Net.Core.MTProto
             this.id = reader.ReadInt32();
             this.from_id = reader.ReadInt32();
             this.chat_id = reader.ReadInt32();
-            this.message = Serializers.String.read(reader);
+            this.message = Serializers.String.Read(reader);
             this.pts = reader.ReadInt32();
             this.date = reader.ReadInt32();
             this.seq = reader.ReadInt32();
@@ -10877,14 +10856,14 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x096a18d5);
             this.type.Write(writer);
             writer.Write(this.mtime);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.type = TL.Parse<storage_FileType>(reader);
             this.mtime = reader.ReadInt32();
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -10924,16 +10903,16 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x2ec2a43c);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.hostname);
-            Serializers.String.write(writer, this.ip_address);
+            Serializers.String.Write(writer, this.hostname);
+            Serializers.String.Write(writer, this.ip_address);
             writer.Write(this.port);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.hostname = Serializers.String.read(reader);
-            this.ip_address = Serializers.String.read(reader);
+            this.hostname = Serializers.String.Read(reader);
+            this.ip_address = Serializers.String.Read(reader);
             this.port = reader.ReadInt32();
         }
 
@@ -11040,14 +11019,14 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8e1a1775);
-            Serializers.String.write(writer, this.country);
+            Serializers.String.Write(writer, this.country);
             writer.Write(this.this_dc);
             writer.Write(this.nearest_dc);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.country = Serializers.String.read(reader);
+            this.country = Serializers.String.Read(reader);
             this.this_dc = reader.ReadInt32();
             this.nearest_dc = reader.ReadInt32();
         }
@@ -11090,16 +11069,16 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x8987f311);
             writer.Write(this.id);
             writer.Write(this.critical ? 0x997275b5 : 0xbc799737);
-            Serializers.String.write(writer, this.url);
-            Serializers.String.write(writer, this.text);
+            Serializers.String.Write(writer, this.url);
+            Serializers.String.Write(writer, this.text);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
             this.critical = reader.ReadUInt32() == 0x997275b5;
-            this.url = Serializers.String.read(reader);
-            this.text = Serializers.String.read(reader);
+            this.url = Serializers.String.Read(reader);
+            this.text = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -11163,12 +11142,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x18cb9f78);
-            Serializers.String.write(writer, this.message);
+            Serializers.String.Write(writer, this.message);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.message = Serializers.String.read(reader);
+            this.message = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -11585,9 +11564,9 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x75eaea5a);
             writer.Write(this.id);
             writer.Write(this.access_hash);
-            Serializers.String.write(writer, this.title);
-            Serializers.String.write(writer, this.address);
-            Serializers.String.write(writer, this.venue);
+            Serializers.String.Write(writer, this.title);
+            Serializers.String.Write(writer, this.address);
+            Serializers.String.Write(writer, this.venue);
             this.geo.Write(writer);
             this.photo.Write(writer);
             writer.Write(this.participants_count);
@@ -11600,9 +11579,9 @@ namespace Telegram.Net.Core.MTProto
         {
             this.id = reader.ReadInt32();
             this.access_hash = reader.ReadInt64();
-            this.title = Serializers.String.read(reader);
-            this.address = Serializers.String.read(reader);
-            this.venue = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
+            this.address = Serializers.String.Read(reader);
+            this.venue = Serializers.String.Read(reader);
             this.geo = TL.Parse<GeoPoint>(reader);
             this.photo = TL.Parse<ChatPhoto>(reader);
             this.participants_count = reader.ReadInt32();
@@ -11700,7 +11679,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.id);
             writer.Write(this.from_id);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.message);
+            Serializers.String.Write(writer, this.message);
             this.media.Write(writer);
         }
 
@@ -11710,7 +11689,7 @@ namespace Telegram.Net.Core.MTProto
             this.id = reader.ReadInt32();
             this.from_id = reader.ReadInt32();
             this.date = reader.ReadInt32();
-            this.message = Serializers.String.read(reader);
+            this.message = Serializers.String.Read(reader);
             this.media = TL.Parse<MessageMedia>(reader);
         }
 
@@ -12160,14 +12139,14 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6f038ebc);
-            Serializers.String.write(writer, this.title);
-            Serializers.String.write(writer, this.address);
+            Serializers.String.Write(writer, this.title);
+            Serializers.String.Write(writer, this.address);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.title = Serializers.String.read(reader);
-            this.address = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
+            this.address = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -12276,7 +12255,7 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x63117f24);
             writer.Write(this.id);
-            Serializers.String.write(writer, this.title);
+            Serializers.String.Write(writer, this.title);
             writer.Write(this.bg_color);
             writer.Write(this.color);
         }
@@ -12284,7 +12263,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt32();
-            this.title = Serializers.String.read(reader);
+            this.title = Serializers.String.Read(reader);
             this.bg_color = reader.ReadInt32();
             this.color = reader.ReadInt32();
         }
@@ -12598,8 +12577,8 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.date);
             writer.Write(this.admin_id);
             writer.Write(this.participant_id);
-            Serializers.Bytes.write(writer, this.g_a);
-            Serializers.Bytes.write(writer, this.nonce);
+            Serializers.Bytes.Write(writer, this.g_a);
+            Serializers.Bytes.Write(writer, this.nonce);
         }
 
         public override void Read(BinaryReader reader)
@@ -12609,8 +12588,8 @@ namespace Telegram.Net.Core.MTProto
             this.date = reader.ReadInt32();
             this.admin_id = reader.ReadInt32();
             this.participant_id = reader.ReadInt32();
-            this.g_a = Serializers.Bytes.read(reader);
-            this.nonce = Serializers.Bytes.read(reader);
+            this.g_a = Serializers.Bytes.Read(reader);
+            this.nonce = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -12666,8 +12645,8 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.date);
             writer.Write(this.admin_id);
             writer.Write(this.participant_id);
-            Serializers.Bytes.write(writer, this.g_a_or_b);
-            Serializers.Bytes.write(writer, this.nonce);
+            Serializers.Bytes.Write(writer, this.g_a_or_b);
+            Serializers.Bytes.Write(writer, this.nonce);
             writer.Write(this.key_fingerprint);
         }
 
@@ -12678,8 +12657,8 @@ namespace Telegram.Net.Core.MTProto
             this.date = reader.ReadInt32();
             this.admin_id = reader.ReadInt32();
             this.participant_id = reader.ReadInt32();
-            this.g_a_or_b = Serializers.Bytes.read(reader);
-            this.nonce = Serializers.Bytes.read(reader);
+            this.g_a_or_b = Serializers.Bytes.Read(reader);
+            this.nonce = Serializers.Bytes.Read(reader);
             this.key_fingerprint = reader.ReadInt64();
         }
 
@@ -12922,7 +12901,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x64bd0306);
             writer.Write(this.id);
             writer.Write(this.parts);
-            Serializers.String.write(writer, this.md5_checksum);
+            Serializers.String.Write(writer, this.md5_checksum);
             writer.Write(this.key_fingerprint);
         }
 
@@ -12930,7 +12909,7 @@ namespace Telegram.Net.Core.MTProto
         {
             this.id = reader.ReadInt64();
             this.parts = reader.ReadInt32();
-            this.md5_checksum = Serializers.String.read(reader);
+            this.md5_checksum = Serializers.String.Read(reader);
             this.key_fingerprint = reader.ReadInt32();
         }
 
@@ -13060,7 +13039,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.random_id);
             writer.Write(this.chat_id);
             writer.Write(this.date);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
             this.file.Write(writer);
         }
 
@@ -13069,7 +13048,7 @@ namespace Telegram.Net.Core.MTProto
             this.random_id = reader.ReadInt64();
             this.chat_id = reader.ReadInt32();
             this.date = reader.ReadInt32();
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
             this.file = TL.Parse<EncryptedFile>(reader);
         }
 
@@ -13113,7 +13092,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.random_id);
             writer.Write(this.chat_id);
             writer.Write(this.date);
-            Serializers.Bytes.write(writer, this.bytes);
+            Serializers.Bytes.Write(writer, this.bytes);
         }
 
         public override void Read(BinaryReader reader)
@@ -13121,7 +13100,7 @@ namespace Telegram.Net.Core.MTProto
             this.random_id = reader.ReadInt64();
             this.chat_id = reader.ReadInt32();
             this.date = reader.ReadInt32();
-            this.bytes = Serializers.Bytes.read(reader);
+            this.bytes = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -13204,16 +13183,16 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x1f814f1f);
             writer.Write(this.random_id);
-            Serializers.Bytes.write(writer, this.random_bytes);
-            Serializers.String.write(writer, this.message);
+            Serializers.Bytes.Write(writer, this.random_bytes);
+            Serializers.String.Write(writer, this.message);
             this.media.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.random_id = reader.ReadInt64();
-            this.random_bytes = Serializers.Bytes.read(reader);
-            this.message = Serializers.String.read(reader);
+            this.random_bytes = Serializers.Bytes.Read(reader);
+            this.message = Serializers.String.Read(reader);
             this.media = TL.Parse<DecryptedMessageMedia>(reader);
         }
 
@@ -13253,14 +13232,14 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0xaa48327d);
             writer.Write(this.random_id);
-            Serializers.Bytes.write(writer, this.random_bytes);
+            Serializers.Bytes.Write(writer, this.random_bytes);
             this.action.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.random_id = reader.ReadInt64();
-            this.random_bytes = Serializers.Bytes.read(reader);
+            this.random_bytes = Serializers.Bytes.Read(reader);
             this.action = TL.Parse<DecryptedMessageAction>(reader);
         }
 
@@ -13341,26 +13320,26 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x32798a8c);
-            Serializers.Bytes.write(writer, this.thumb);
+            Serializers.Bytes.Write(writer, this.thumb);
             writer.Write(this.thumb_w);
             writer.Write(this.thumb_h);
             writer.Write(this.w);
             writer.Write(this.h);
             writer.Write(this.size);
-            Serializers.Bytes.write(writer, this.key);
-            Serializers.Bytes.write(writer, this.iv);
+            Serializers.Bytes.Write(writer, this.key);
+            Serializers.Bytes.Write(writer, this.iv);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.thumb = Serializers.Bytes.read(reader);
+            this.thumb = Serializers.Bytes.Read(reader);
             this.thumb_w = reader.ReadInt32();
             this.thumb_h = reader.ReadInt32();
             this.w = reader.ReadInt32();
             this.h = reader.ReadInt32();
             this.size = reader.ReadInt32();
-            this.key = Serializers.Bytes.read(reader);
-            this.iv = Serializers.Bytes.read(reader);
+            this.key = Serializers.Bytes.Read(reader);
+            this.iv = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -13412,28 +13391,28 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4cee6ef3);
-            Serializers.Bytes.write(writer, this.thumb);
+            Serializers.Bytes.Write(writer, this.thumb);
             writer.Write(this.thumb_w);
             writer.Write(this.thumb_h);
             writer.Write(this.duration);
             writer.Write(this.w);
             writer.Write(this.h);
             writer.Write(this.size);
-            Serializers.Bytes.write(writer, this.key);
-            Serializers.Bytes.write(writer, this.iv);
+            Serializers.Bytes.Write(writer, this.key);
+            Serializers.Bytes.Write(writer, this.iv);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.thumb = Serializers.Bytes.read(reader);
+            this.thumb = Serializers.Bytes.Read(reader);
             this.thumb_w = reader.ReadInt32();
             this.thumb_h = reader.ReadInt32();
             this.duration = reader.ReadInt32();
             this.w = reader.ReadInt32();
             this.h = reader.ReadInt32();
             this.size = reader.ReadInt32();
-            this.key = Serializers.Bytes.read(reader);
-            this.iv = Serializers.Bytes.read(reader);
+            this.key = Serializers.Bytes.Read(reader);
+            this.iv = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -13518,17 +13497,17 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x588a0a97);
-            Serializers.String.write(writer, this.phone_number);
-            Serializers.String.write(writer, this.first_name);
-            Serializers.String.write(writer, this.last_name);
+            Serializers.String.Write(writer, this.phone_number);
+            Serializers.String.Write(writer, this.first_name);
+            Serializers.String.Write(writer, this.last_name);
             writer.Write(this.user_id);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.phone_number = Serializers.String.read(reader);
-            this.first_name = Serializers.String.read(reader);
-            this.last_name = Serializers.String.read(reader);
+            this.phone_number = Serializers.String.Read(reader);
+            this.first_name = Serializers.String.Read(reader);
+            this.last_name = Serializers.String.Read(reader);
             this.user_id = reader.ReadInt32();
         }
 
@@ -13602,12 +13581,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xc0e24635);
-            Serializers.Bytes.write(writer, this.random);
+            Serializers.Bytes.Write(writer, this.random);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.random = Serializers.Bytes.read(reader);
+            this.random = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -13647,17 +13626,17 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x2c221edd);
             writer.Write(this.g);
-            Serializers.Bytes.write(writer, this.p);
+            Serializers.Bytes.Write(writer, this.p);
             writer.Write(this.version);
-            Serializers.Bytes.write(writer, this.random);
+            Serializers.Bytes.Write(writer, this.random);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.g = reader.ReadInt32();
-            this.p = Serializers.Bytes.read(reader);
+            this.p = Serializers.Bytes.Read(reader);
             this.version = reader.ReadInt32();
-            this.random = Serializers.Bytes.read(reader);
+            this.random = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -13777,14 +13756,14 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0xfa4f0bb5);
             writer.Write(this.id);
             writer.Write(this.parts);
-            Serializers.String.write(writer, this.name);
+            Serializers.String.Write(writer, this.name);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.id = reader.ReadInt64();
             this.parts = reader.ReadInt32();
-            this.name = Serializers.String.read(reader);
+            this.name = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -14226,15 +14205,15 @@ namespace Telegram.Net.Core.MTProto
         {
             writer.Write(0x34e794bd);
             this.file.Write(writer);
-            Serializers.String.write(writer, this.file_name);
-            Serializers.String.write(writer, this.mime_type);
+            Serializers.String.Write(writer, this.file_name);
+            Serializers.String.Write(writer, this.mime_type);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.file = TL.Parse<InputFile>(reader);
-            this.file_name = Serializers.String.read(reader);
-            this.mime_type = Serializers.String.read(reader);
+            this.file_name = Serializers.String.Read(reader);
+            this.mime_type = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -14276,16 +14255,16 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x3e46de5d);
             this.file.Write(writer);
             this.thumb.Write(writer);
-            Serializers.String.write(writer, this.file_name);
-            Serializers.String.write(writer, this.mime_type);
+            Serializers.String.Write(writer, this.file_name);
+            Serializers.String.Write(writer, this.mime_type);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.file = TL.Parse<InputFile>(reader);
             this.thumb = TL.Parse<InputFile>(reader);
-            this.file_name = Serializers.String.read(reader);
-            this.mime_type = Serializers.String.read(reader);
+            this.file_name = Serializers.String.Read(reader);
+            this.mime_type = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -14678,26 +14657,26 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xb095434b);
-            Serializers.Bytes.write(writer, this.thumb);
+            Serializers.Bytes.Write(writer, this.thumb);
             writer.Write(this.thumb_w);
             writer.Write(this.thumb_h);
-            Serializers.String.write(writer, this.file_name);
-            Serializers.String.write(writer, this.mime_type);
+            Serializers.String.Write(writer, this.file_name);
+            Serializers.String.Write(writer, this.mime_type);
             writer.Write(this.size);
-            Serializers.Bytes.write(writer, this.key);
-            Serializers.Bytes.write(writer, this.iv);
+            Serializers.Bytes.Write(writer, this.key);
+            Serializers.Bytes.Write(writer, this.iv);
         }
 
         public override void Read(BinaryReader reader)
         {
-            this.thumb = Serializers.Bytes.read(reader);
+            this.thumb = Serializers.Bytes.Read(reader);
             this.thumb_w = reader.ReadInt32();
             this.thumb_h = reader.ReadInt32();
-            this.file_name = Serializers.String.read(reader);
-            this.mime_type = Serializers.String.read(reader);
+            this.file_name = Serializers.String.Read(reader);
+            this.mime_type = Serializers.String.Read(reader);
             this.size = reader.ReadInt32();
-            this.key = Serializers.Bytes.read(reader);
-            this.iv = Serializers.Bytes.read(reader);
+            this.key = Serializers.Bytes.Read(reader);
+            this.iv = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -14742,16 +14721,16 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(0x6080758f);
             writer.Write(this.duration);
             writer.Write(this.size);
-            Serializers.Bytes.write(writer, this.key);
-            Serializers.Bytes.write(writer, this.iv);
+            Serializers.Bytes.Write(writer, this.key);
+            Serializers.Bytes.Write(writer, this.iv);
         }
 
         public override void Read(BinaryReader reader)
         {
             this.duration = reader.ReadInt32();
             this.size = reader.ReadInt32();
-            this.key = Serializers.Bytes.read(reader);
-            this.iv = Serializers.Bytes.read(reader);
+            this.key = Serializers.Bytes.Read(reader);
+            this.iv = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
@@ -14942,7 +14921,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(this.id);
             writer.Write(this.access_hash);
             writer.Write(this.date);
-            Serializers.String.write(writer, this.mime_type);
+            Serializers.String.Write(writer, this.mime_type);
             writer.Write(this.size);
             this.thumb.Write(writer);
             writer.Write(this.dc_id);
@@ -14960,7 +14939,7 @@ namespace Telegram.Net.Core.MTProto
             this.id = reader.ReadInt64();
             this.access_hash = reader.ReadInt64();
             this.date = reader.ReadInt32();
-            this.mime_type = Serializers.String.read(reader);
+            this.mime_type = Serializers.String.Read(reader);
             this.size = reader.ReadInt32();
             this.thumb = TL.Parse<PhotoSize>(reader);
             this.dc_id = reader.ReadInt32();

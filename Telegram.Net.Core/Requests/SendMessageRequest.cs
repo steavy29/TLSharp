@@ -21,7 +21,7 @@ namespace Telegram.Net.Core.Requests
             long random_id = Helpers.GenerateRandomLong();
             writer.Write(0x4cde0aab);
             _peer.Write(writer);
-            Serializers.String.write(writer, _message);
+            Serializers.String.Write(writer, _message);
             writer.Write(random_id);
         }
 

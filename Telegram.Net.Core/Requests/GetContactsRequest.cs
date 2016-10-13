@@ -28,7 +28,7 @@ namespace Telegram.Net.Core.Requests
         {
             writer.Write(0x22c6aa08);
             if (CurrentContacts == null)
-                Serializers.String.write(writer, "");
+                Serializers.String.Write(writer, "");
             else
             {
                 // create CSV of contactids and calculate md5 hash
@@ -45,7 +45,7 @@ namespace Telegram.Net.Core.Requests
                     hash = sb.ToString();
                 }
 
-                Serializers.String.write(writer, hash);
+                Serializers.String.Write(writer, hash);
             }
         }
 

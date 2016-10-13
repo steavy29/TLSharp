@@ -20,10 +20,10 @@ namespace Telegram.Net.Core.Requests
             writer.Write(23);// invokeWithLayer23#1c900537
             writer.Write(0x69796de9); // initConnection
             writer.Write(_apiId); // api id
-            Serializers.String.write(writer, "WinPhone Emulator"); // device model
-            Serializers.String.write(writer, "WinPhone 8.0"); // system version
-            Serializers.String.write(writer, "1.0-SNAPSHOT"); // app version
-            Serializers.String.write(writer, "en"); // lang code
+            Serializers.String.Write(writer, "WinPhone Emulator"); // device model
+            Serializers.String.Write(writer, "WinPhone 8.0"); // system version
+            Serializers.String.Write(writer, "1.0-SNAPSHOT"); // app version
+            Serializers.String.Write(writer, "en"); // lang code
 
             writer.Write(0xc4f9186b); // help.getConfig
         }

@@ -261,7 +261,7 @@ namespace Telegram.Net.Core.Network
             if (innerCode == 0x2144ca19) // rpc_error
             {
                 int errorCode = messageReader.ReadInt32();
-                string errorMessage = Serializers.String.read(messageReader);
+                string errorMessage = Serializers.String.Read(messageReader);
                 request.OnError(errorCode, errorMessage);
                 requestInfo.Item2.SetResult(true);
             }
@@ -269,7 +269,7 @@ namespace Telegram.Net.Core.Network
             {
                 try
                 {
-                    byte[] packedData = Serializers.Bytes.read(messageReader);
+                    byte[] packedData = Serializers.Bytes.Read(messageReader);
                     using (var ms = new MemoryStream())
                     {
                         using (var packedStream = new MemoryStream(packedData, false))
@@ -345,7 +345,7 @@ namespace Telegram.Net.Core.Network
 
         private void HandleGzipPacked(long messageId, int sequence, BinaryReader messageReader)
         {
-            byte[] packedData = GZipStream.UncompressBuffer(Serializers.Bytes.read(messageReader));
+            byte[] packedData = GZipStream.UncompressBuffer(Serializers.Bytes.Read(messageReader));
             using (MemoryStream packedStream = new MemoryStream(packedData, false))
             using (BinaryReader compressedReader = new BinaryReader(packedStream))
             {

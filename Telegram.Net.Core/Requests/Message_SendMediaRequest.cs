@@ -11,7 +11,7 @@ namespace Telegram.Net.Core.Requests
         InputPeer inputPeer;
         InputMedia inputMedia;
 
-        public messages_StatedMessage StatedMessage { get; set; }
+        public messages_StatedMessage StatedMessage { get; private set; }
 
         public Message_SendMediaRequest(InputPeer inputPeer, InputMedia inputMedia)
         {
@@ -30,7 +30,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-
+            StatedMessage = TL.Parse<messages_StatedMessage>(reader);
         }
 
         public override void OnException(Exception exception)
