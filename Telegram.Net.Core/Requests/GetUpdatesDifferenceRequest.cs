@@ -17,7 +17,7 @@ namespace Telegram.Net.Core.Requests
             this.qts = qts;
         }
 
-        public updates_Difference updatesDifference { get; private set; }
+        public UpdatesDifference updatesDifference { get; private set; }
 
         public override void OnSend(BinaryWriter writer)
         {
@@ -29,7 +29,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            updatesDifference = TL.Parse<updates_Difference>(reader);
+            updatesDifference = TL.Parse<UpdatesDifference>(reader);
         }
 
         public override void OnException(Exception exception)

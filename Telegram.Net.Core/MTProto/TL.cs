@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Telegram.Net.Core.MTProto
 {
@@ -112,7 +113,8 @@ namespace Telegram.Net.Core.MTProto
         geoPointEmpty,
         geoPoint,
         auth_checkedPhone,
-        auth_sentCode,
+        authSentCode,
+        authSentAppCode,
         auth_authorization,
         auth_exportedAuthorization,
         inputNotifyPeer,
@@ -386,7 +388,8 @@ namespace Telegram.Net.Core.MTProto
             {0x1117dd5f, typeof (GeoPointEmptyConstructor)},
             {0x2049d70c, typeof (GeoPointConstructor)},
             {0xe300cc3b, typeof (Auth_checkedPhoneConstructor)},
-            {0x2215bcbd, typeof (Auth_sentCodeConstructor)},
+            {0xefed51d9, typeof (AuthSentCodeConstructor)},
+            {0xe325edcf, typeof (AuthSentAppCodeConstructor)},
             {0xf6b673a4, typeof (Auth_authorizationConstructor)},
             {0xdf969c2d, typeof (Auth_exportedAuthorizationConstructor)},
             {0xb8bc5b0c, typeof (InputNotifyPeerConstructor)},
@@ -571,17 +574,29 @@ namespace Telegram.Net.Core.MTProto
 
         public static T Parse<T>(BinaryReader reader, uint dataCode)
         {
-            if (typeof(TLObject).IsAssignableFrom(typeof(T)))
+            if (dataCode == 0x997275b5)
+            {
+                return (T)(object)true;
+            }
+            if (dataCode == 0xbc799737)
+            {
+                return (T)(object)false;
+            }
+
+            var type = typeof(T);
+            var typeInfo = type.GetTypeInfo();
+
+            if (typeof(TLObject).GetTypeInfo().IsAssignableFrom(typeInfo))
             {
                 if (!constructors.ContainsKey(dataCode))
                 {
-                    throw new Exception($"invalid constructor code {dataCode.ToString("X")}");
+                    throw new Exception($"Invalid constructor code {dataCode.ToString("X")}");
                 }
 
-                Type constructorType = constructors[dataCode];
-                if (!typeof(T).IsAssignableFrom(constructorType))
+                TypeInfo constructorType = constructors[dataCode].GetTypeInfo();
+                if (!typeInfo.IsAssignableFrom(constructorType))
                 {
-                    throw new Exception($"try to parse {typeof (T).FullName}, but incompatible type {constructorType.FullName}");
+                    throw new Exception($"Try to parse {typeInfo.FullName}, but incompatible type {constructorType.FullName}");
                 }
 
                 T obj = (T)Activator.CreateInstance(constructorType);
@@ -589,21 +604,10 @@ namespace Telegram.Net.Core.MTProto
                 return obj;
             }
 
-            if (typeof(T) == typeof(bool))
-            {
-                if (dataCode == 0x997275b5)
-                {
-                    return (T)(object)true;
-                }
-                if (dataCode == 0xbc799737)
-                {
-                    return (T)(object)false;
-                }
-            }
             throw new Exception("unknown return type");
         }
 
-        public static List<T> ParseVector<T>(BinaryReader reader, bool readVectorDataCode = true) where T: TLObject
+        public static List<T> ParseVector<T>(BinaryReader reader, bool readVectorDataCode = true) where T : TLObject
         {
             return ParseVector(reader, () => Parse<T>(reader), readVectorDataCode);
         }
@@ -995,7 +999,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class updates_Difference : TLObject
+    public abstract class UpdatesDifference : TLObject
     {
 
     }
@@ -1055,9 +1059,34 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class auth_SentCode : TLObject
+    public abstract class AuthSentCode : TLObject
     {
+        public bool phoneRegistered;
+        public string phoneCodeHash;
+        public int sendCallTimeout;
+        public bool isPassword;
 
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0x2215bcbd);
+            writer.Write(phoneRegistered ? 0x997275b5 : 0xbc799737);
+            Serializers.String.Write(writer, phoneCodeHash);
+            writer.Write(sendCallTimeout);
+            writer.Write(isPassword);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            phoneRegistered = reader.ReadUInt32() == 0x997275b5;
+            phoneCodeHash = Serializers.String.Read(reader);
+            sendCallTimeout = reader.ReadInt32();
+            isPassword = reader.ReadUInt32() == 0x997275b5;
+        }
+
+        public override string ToString()
+        {
+            return $"(auth_sentCode phone_registered:{phoneRegistered} phone_code_hash:'{phoneCodeHash}')";
+        }
     }
 
     public abstract class geochats_Messages : TLObject
@@ -4897,44 +4926,15 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Auth_sentCodeConstructor : auth_SentCode
+    public class AuthSentCodeConstructor : AuthSentCode
     {
-        public bool phone_registered;
-        public string phone_code_hash;
-
-        public Auth_sentCodeConstructor()
-        {
-
-        }
-
-        public Auth_sentCodeConstructor(bool phone_registered, string phone_code_hash)
-        {
-            this.phone_registered = phone_registered;
-            this.phone_code_hash = phone_code_hash;
-        }
-
-
-        public override Constructor Constructor => Constructor.auth_sentCode;
-
-        public override void Write(BinaryWriter writer)
-        {
-            writer.Write(0x2215bcbd);
-            writer.Write(phone_registered ? 0x997275b5 : 0xbc799737);
-            Serializers.String.Write(writer, phone_code_hash);
-        }
-
-        public override void Read(BinaryReader reader)
-        {
-            phone_registered = reader.ReadUInt32() == 0x997275b5;
-            phone_code_hash = Serializers.String.Read(reader);
-        }
-
-        public override string ToString()
-        {
-            return $"(auth_sentCode phone_registered:{phone_registered} phone_code_hash:'{phone_code_hash}')";
-        }
+        public override Constructor Constructor => Constructor.authSentCode;
     }
 
+    public class AuthSentAppCodeConstructor : AuthSentCode
+    {
+        public override Constructor Constructor => Constructor.authSentAppCode;
+    }
 
     public class Auth_authorizationConstructor : auth_Authorization
     {
@@ -5472,7 +5472,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
         public override void Read(BinaryReader reader)
-        { 
+        {
             if (reader.ReadUInt32() == 0x7007b451)
             {
                 user = new UserSelfConstructor();
@@ -6091,7 +6091,7 @@ namespace Telegram.Net.Core.MTProto
         public List<ImportedContact> importedContacts;
         public List<long> retryContacts;
         public List<User> users;
-        
+
         public override Constructor Constructor => Constructor.contacts_importedContacts;
 
         public override void Write(BinaryWriter writer)
@@ -8082,7 +8082,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Updates_differenceEmptyConstructor : updates_Difference
+    public class Updates_differenceEmptyConstructor : UpdatesDifference
     {
         public int date;
         public int seq;
@@ -8121,7 +8121,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Updates_differenceConstructor : updates_Difference
+    public class Updates_differenceConstructor : UpdatesDifference
     {
         public List<Message> new_messages;
         public List<EncryptedMessage> new_encrypted_messages;
@@ -8245,7 +8245,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Updates_differenceSliceConstructor : updates_Difference
+    public class Updates_differenceSliceConstructor : UpdatesDifference
     {
         public List<Message> new_messages;
         public List<EncryptedMessage> new_encrypted_messages;
@@ -12949,7 +12949,7 @@ namespace Telegram.Net.Core.MTProto
             file_name = reader.ReadString();
         }
     }
-    
+
     public enum RpcRequestError
     {
         None = 0,
@@ -12979,5 +12979,11 @@ namespace Telegram.Net.Core.MTProto
         NotFound = 404,
         Flood = 420,
         InternalServer = 500
+    }
+
+    public enum VerificationCodeDeliveryType
+    {
+        NumericCodeViaSms = 0,
+        NumericCodeViaTelegram = 5
     }
 }

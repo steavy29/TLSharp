@@ -30,12 +30,6 @@ namespace Telegram.Net.Core
 
         public event EventHandler<Updates> UpdateMessage;
 
-        public enum VerificationCodeDeliveryType
-        {
-            NumericCodeViaSms = 0,
-            NumericCodeViaTelegram = 5
-        }
-
         public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
         {
             if (apiId == 0)
@@ -112,12 +106,12 @@ namespace Telegram.Net.Core
             return authCheckPhoneRequest.checkedPhone;
         }
 
-        public async Task<AuthSendCodeRequest> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
+        public async Task<AuthSentCode> SendCodeRequest(string phoneNumber, VerificationCodeDeliveryType tokenDestination = VerificationCodeDeliveryType.NumericCodeViaTelegram)
         {
             var request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
             await SendRpcRequest(request);
 
-            return request;
+            return request.sentCode;
         }
 
         public async Task<User> MakeAuth(string phoneNumber, string phoneCodeHash, string code)

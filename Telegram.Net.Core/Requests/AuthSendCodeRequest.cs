@@ -11,8 +11,8 @@ namespace Telegram.Net.Core.Requests
         private readonly int apiId;
         private readonly string apiHash;
         private readonly string langCode;
-        public bool phoneRegistered;
-        public string phoneCodeHash;
+
+        public AuthSentCode sentCode { get; private set; }
 
         public AuthSendCodeRequest(string phoneNumber, int smsType, int apiId, string apiHash, string langCode)
         {
@@ -35,17 +35,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            var boolTrue = 0x997275b5;
-            var dataCode = reader.ReadUInt32();
-
-            var phoneRegisteredValue = reader.ReadUInt32();
-            phoneRegistered = phoneRegisteredValue == boolTrue;
-
-            phoneCodeHash = Serializers.String.Read(reader);
-
-            var sendCodeTimeout = reader.ReadInt32();
-            var isPasswordValue = reader.ReadUInt32();
-            var isPassword = isPasswordValue == boolTrue;
+            sentCode = TL.Parse<AuthSentCode>(reader);
         }
 
         public override void OnException(Exception exception)
