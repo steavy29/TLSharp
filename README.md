@@ -25,7 +25,6 @@ Russian description you can find [here](https://habrahabr.ru/post/277079/)
 - [Dependencies](#dependencies)
 - [Starter Guide](#starter-guide)
   - [Quick configuration](#quick-configuration)
-  - [Using TLSharp](#using-tlsharp)
 - [Contributing](#contributing)
 - [FAQ](#faq)
 - [Donations](#donations)
@@ -37,14 +36,14 @@ Library isn't ready for production usage, that's why no Nu-Get package available
 
 To use it follow next steps:
 
-1. Clone TLSharp from GitHub
+1. Clone Telegram.Net from GitHub
 1. Compile source with VS2015
-1. Add reference to ```TLSharp.Core.dll``` to your awesome project.
+1. Add reference to ```Telegram.Net.Core.dll``` to your awesome project.
 
 #Dependencies
 
-TLSharp has a few dependenices, most of functionality implemented from scratch.
-All dependencies listed in [package.conf file](https://github.com/sochix/TLSharp/blob/master/TLSharp.Core/packages.config).
+Telegram.Net has a few dependenices, most of functionality implemented from scratch.
+All dependencies listed in [package.conf file](https://github.com/steavy29/Telegram.Net/blob/master/Telegram.Net.Core/packages.config).
 
 #Starter Guide
 
@@ -54,11 +53,9 @@ Telegram API isn't that easy to start. You need to do some configuration first.
 1. Create a [developer account](https://my.telegram.org/) in Telegram. 
 1. Goto [API development tools](https://my.telegram.org/apps) and copy **API_ID** and **API_HASH** from your account. You'll need it later.
 
-## Using TLSharp
-
 ###Initializing client
 
-To initialize client you need to create a store in which TLSharp will save Session info.
+To initialize client you need to create a store in which Telegram.Net will save Session info.
 
 ```
 var store = new FileSessionStore();
@@ -132,7 +129,7 @@ _Example_:
     
 	var code = "1234"; //code that you receive from Telegram 
 
-	var user = await client.SignUp(phoneNumber, hash, code, "TLSharp", "User"); 
+	var user = await client.SignUp(phoneNumber, hash, code, "Telegram", "User"); 
 ```
 * phoneNumber - **string**, phone number in international format (eg. 791812312323) that is not yet registered in Telegram.
 * firstName - **string**, new user first name
@@ -353,21 +350,13 @@ public class ExampleRequest : MTProtoRequest
 }
 ```
 
-More advanced examples you can find in [Requests folder](https://github.com/sochix/TLSharp/tree/master/TLSharp.Core/Requests). 
-
-###What things can I Implement (Project Roadmap)?
-
-* Factor out current TL language implementation, and use [this one](https://github.com/everbytes/SharpTL)
-* Add possibility to get current user Chats and Users
-* Fix Chat requests (Create, AddUser) 
-* Add Updates handling
-* Add possibility to work with Channels
+More advanced examples you can find in [Requests folder](https://github.com/steavy29/Telegram.Net/tree/master/Telegram.Net.Core/Requests). 
 
 # FAQ
 
 #### I get an error MIGRATE_X?
 
-TLSharp library should automatically handle this errors. If you see such errors, pls create a new issue.
+Library should automatically handle this errors. If you see such errors, pls create a new issue.
 
 #### I get an exception: System.IO.EndOfStreamException: Unable to read beyond the end of the stream. All test methos except that AuthenticationWorks and TestConnection return same error. I did every thing including setting api id and hash, and setting server address.
 
@@ -376,7 +365,7 @@ You should create a Telegram session. See [configuration guide](#sending-message
 #### Why I get FLOOD_WAIT error?
 It's Telegram restrictions. See [this](https://core.telegram.org/api/errors#420-flood)
 
-#### Why does TLSharp lacks feature XXXX?
+#### Why does Telegram.Net lacks feature XXXX?
 
 You can request the feature you need it in Issues section. I will try to 
 
