@@ -593,8 +593,8 @@ namespace Telegram.Net.Core.MTProto
                     throw new Exception($"Invalid constructor code {dataCode.ToString("X")}");
                 }
 
-                TypeInfo constructorType = constructors[dataCode].GetTypeInfo();
-                if (!typeInfo.IsAssignableFrom(constructorType))
+                Type constructorType = constructors[dataCode];
+                if (!typeInfo.IsAssignableFrom(constructorType.GetTypeInfo()))
                 {
                     throw new Exception($"Try to parse {typeInfo.FullName}, but incompatible type {constructorType.FullName}");
                 }
