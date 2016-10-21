@@ -202,22 +202,28 @@ namespace Telegram.Net.Core
             return (ContactsImportedContactsConstructor)request.importedContacts;
         }
 
-        public async Task SendDirectMessage(int userId, string message)
+        public async Task<SentMessage> SendDirectMessage(int userId, string message)
         {
             var request = new SendMessageRequest(new InputPeerContactConstructor(userId), message);
             await SendRpcRequest(request);
+
+            return request.sentMessage;
         }
 
-        public async Task SendChatMessage(int chatId, string message)
+        public async Task<SentMessage> SendChatMessage(int chatId, string message)
         {
             var request = new SendMessageRequest(new InputPeerChatConstructor(chatId), message);
             await SendRpcRequest(request);
+
+            return request.sentMessage;
         }
 
-        public async Task SendMessageToForeignContact(int id, long accessHash, string message)
+        public async Task<SentMessage> SendMessageToForeignContact(int id, long accessHash, string message)
         {
             var request = new SendMessageRequest(new InputPeerForeignConstructor(id, accessHash), message);
             await SendRpcRequest(request);
+
+            return request.sentMessage;
         }
 
         public async Task<List<int>> DeleteMessages(List<int> messageIdsToDelete)

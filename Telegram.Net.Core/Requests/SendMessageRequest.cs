@@ -7,32 +7,29 @@ namespace Telegram.Net.Core.Requests
 {
     public class SendMessageRequest : MTProtoRequest
     {
-        private InputPeer _peer;
-        private string _message;
+        private readonly InputPeer peer;
+        private readonly string message;
+
+        public SentMessage sentMessage { get; private set; }
 
         public SendMessageRequest(InputPeer peer, string message)
         {
-            _peer = peer;
-            _message = message;
+            this.peer = peer;
+            this.message = message;
         }
 
         public override void OnSend(BinaryWriter writer)
         {
-            long random_id = Helpers.GenerateRandomLong();
+            long randomId = Helpers.GenerateRandomLong();
             writer.Write(0x4cde0aab);
-            _peer.Write(writer);
-            Serializers.String.Write(writer, _message);
-            writer.Write(random_id);
+            peer.Write(writer);
+            Serializers.String.Write(writer, message);
+            writer.Write(randomId);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var code = reader.ReadUInt32();
-
-            var id = reader.ReadInt32();
-            var date = reader.ReadInt32();
-            var pts = reader.ReadInt32();
-            var seq = reader.ReadInt32();
+            sentMessage = TL.Parse<SentMessage>(reader);
         }
 
         public override void OnException(Exception exception)
