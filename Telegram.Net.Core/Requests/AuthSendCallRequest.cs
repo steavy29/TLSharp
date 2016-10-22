@@ -1,25 +1,23 @@
-﻿using System;
+using System;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class AuthSignInRequest : MTProtoRequest
+    public class AuthSendCallRequest : MTProtoRequest
     {
         private readonly string phoneNumber;
         private readonly string phoneCodeHash;
-        private readonly string code;
 
-        public AuthAuthorization authorization { get; private set; }
+        public bool callSent { get; private set; }
 
-        public AuthSignInRequest(string phoneNumber, string phoneCodeHash, string code)
+        public AuthSendCallRequest(string phoneNumber, string phoneCodeHash)
         {
             this.phoneNumber = phoneNumber;
             this.phoneCodeHash = phoneCodeHash;
-            this.code = code;
         }
 
-        protected override uint requestCode => 0xbcd51581;
+        protected override uint requestCode => 0x3c51564;
 
         public override void OnSend(BinaryWriter writer)
         {
@@ -27,12 +25,11 @@ namespace Telegram.Net.Core.Requests
 
             Serializers.String.Write(writer, phoneNumber);
             Serializers.String.Write(writer, phoneCodeHash);
-            Serializers.String.Write(writer, code);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            authorization = TLObject.Read<AuthAuthorization>(reader);
+            callSent = TLObject.ReadBool(reader);
         }
 
         public override void OnException(Exception exception)

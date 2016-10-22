@@ -14,32 +14,32 @@ namespace Telegram.Net.Core.Network
 {
     public class MtProtoSender
     {
-        private readonly TcpTransport _transport;
-        private readonly Session _session;
+        private readonly TcpTransport transport;
+        private readonly Session session;
 
-        private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> _runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
-        private readonly List<long> _needConfirmation = new List<long>();
+        private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
+        private readonly List<long> needConfirmation = new List<long>();
 
-        private TaskCompletionSource<bool> _finishedListening;
-        public Task FinishedListeningTask => _finishedListening.Task;
+        private TaskCompletionSource<bool> finishedListening;
+        public Task finishedListeningTask => finishedListening.Task;
 
         public event EventHandler<Updates> UpdateMessage;
         private event EventHandler Invalidated; // todo
 
         public MtProtoSender(TcpTransport transport, Session session)
         {
-            _transport = transport;
-            _session = session;
+            this.transport = transport;
+            this.session = session;
 
             StartListening();
         }
 
         private async void StartListening()
         {
-            _finishedListening = new TaskCompletionSource<bool>();
+            finishedListening = new TaskCompletionSource<bool>();
             while (true)
             {
-                var message = await _transport.Receieve().ConfigureAwait(false);
+                var message = await transport.Receieve().ConfigureAwait(false);
                 if (message == null)
                     break;
 
@@ -51,22 +51,22 @@ namespace Telegram.Net.Core.Network
                     ProcessMessage(decodedMessage.Item2, decodedMessage.Item3, messageReader);
                 }
             }
-            _finishedListening.SetResult(true);
+            finishedListening.SetResult(true);
         }
 
         public async Task Send(MTProtoRequest request)
         {
-            if (_needConfirmation.Any()) // TODO: move to separate task-thread
+            if (needConfirmation.Any()) // TODO: move to separate task-thread
             {
-                var ackRequest = new AckRequestLong(_needConfirmation);
+                var ackRequest = new AckRequestLong(needConfirmation);
                 using (var memory = new MemoryStream())
                 using (var writer = new BinaryWriter(memory))
                 {
-                    ackRequest.MessageId = _session.GetNewMessageId();
+                    ackRequest.MessageId = session.GetNewMessageId();
 
                     ackRequest.OnSend(writer);
                     await Send(memory.ToArray(), ackRequest);
-                    _needConfirmation.Clear();
+                    needConfirmation.Clear();
                 }
             }
 
@@ -74,19 +74,19 @@ namespace Telegram.Net.Core.Network
             using (var memory = new MemoryStream())
             using (var writer = new BinaryWriter(memory))
             {
-                var messageId = _session.GetNewMessageId();
+                var messageId = session.GetNewMessageId();
                 request.MessageId = messageId;
                 Debug.WriteLine($"Send request - {messageId}");
 
                 responseSource = new TaskCompletionSource<bool>();
-                _runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
+                runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
 
                 request.OnSend(writer);
                 await Send(memory.ToArray(), request);
             }
 
             await responseSource.Task;
-            _runningRequests.Remove(request.MessageId);
+            runningRequests.Remove(request.MessageId);
         }
 
         private async Task Send(byte[] packet, MTProtoRequest request)
@@ -97,15 +97,15 @@ namespace Telegram.Net.Core.Network
             {
                 using (BinaryWriter plaintextWriter = new BinaryWriter(plaintextPacket))
                 {
-                    plaintextWriter.Write(_session.Salt);
-                    plaintextWriter.Write(_session.Id);
+                    plaintextWriter.Write(session.salt);
+                    plaintextWriter.Write(session.id);
                     plaintextWriter.Write(request.MessageId);
                     plaintextWriter.Write(GenerateSequence(request.Confirmed));
                     plaintextWriter.Write(packet.Length);
                     plaintextWriter.Write(packet);
 
                     msgKey = Helpers.CalcMsgKey(plaintextPacket.GetBuffer());
-                    ciphertext = AES.EncryptAES(Helpers.CalcKey(_session.AuthKey.Data, msgKey, true), plaintextPacket.GetBuffer());
+                    ciphertext = AES.EncryptAES(Helpers.CalcKey(session.authKey.Data, msgKey, true), plaintextPacket.GetBuffer());
                 }
             }
 
@@ -113,11 +113,11 @@ namespace Telegram.Net.Core.Network
             {
                 using (BinaryWriter writer = new BinaryWriter(ciphertextPacket))
                 {
-                    writer.Write(_session.AuthKey.Id);
+                    writer.Write(session.authKey.Id);
                     writer.Write(msgKey);
                     writer.Write(ciphertext);
 
-                    await _transport.Send(ciphertextPacket.GetBuffer());
+                    await transport.Send(ciphertextPacket.GetBuffer());
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace Telegram.Net.Core.Network
             // TODO: check seqno
 
             //logger.debug("processMessage: msg_id {0}, sequence {1}, data {2}", BitConverter.ToString(((MemoryStream)messageReader.BaseStream).GetBuffer(), (int) messageReader.BaseStream.Position, (int) (messageReader.BaseStream.Length - messageReader.BaseStream.Position)).Replace("-","").ToLower());
-            _needConfirmation.Add(messageId);
+            needConfirmation.Add(messageId);
 
             uint code = messageReader.ReadUInt32();
             switch (code)
@@ -203,7 +203,7 @@ namespace Telegram.Net.Core.Network
 
                 long remoteAuthKeyId = inputReader.ReadInt64(); // TODO: check auth key id
                 byte[] msgKey = inputReader.ReadBytes(16); // TODO: check msg_key correctness
-                AESKeyData keyData = Helpers.CalcKey(_session.AuthKey.Data, msgKey, false);
+                AESKeyData keyData = Helpers.CalcKey(session.authKey.Data, msgKey, false);
 
                 byte[] plaintext = AES.DecryptAES(keyData, inputReader.ReadBytes((int)(inputStream.Length - inputStream.Position)));
 
@@ -223,7 +223,7 @@ namespace Telegram.Net.Core.Network
 
         private int GenerateSequence(bool confirmed)
         {
-            return confirmed ? _session.Sequence++ * 2 + 1 : _session.Sequence * 2;
+            return confirmed ? session.sequence++ * 2 + 1 : session.sequence * 2;
         }
 
         private void OnUpdateMessage(Updates update)
@@ -248,11 +248,11 @@ namespace Telegram.Net.Core.Network
             long requestId = messageReader.ReadInt64();
             Debug.WriteLine($"HandleRpcResult: requestId - {requestId}");
 
-            if (!_runningRequests.ContainsKey(requestId))
+            if (!runningRequests.ContainsKey(requestId))
             {
                 return;
             }
-            var requestInfo = _runningRequests[requestId];
+            var requestInfo = runningRequests[requestId];
             MTProtoRequest request = requestInfo.Item1;
 
             request.ConfirmReceived = true;
@@ -321,13 +321,13 @@ namespace Telegram.Net.Core.Network
             int errorCode = messageReader.ReadInt32();
             ulong newSalt = messageReader.ReadUInt64();
 
-            _session.Salt = newSalt;
+            session.salt = newSalt;
 
-            if (!_runningRequests.ContainsKey(badMsgId))
+            if (!runningRequests.ContainsKey(badMsgId))
                 return;
 
-            _runningRequests[badMsgId].Item1.OnError(errorCode, null);
-            _runningRequests[badMsgId].Item2.SetResult(true);
+            runningRequests[badMsgId].Item1.OnError(errorCode, null);
+            runningRequests[badMsgId].Item2.SetResult(true);
         }
 
         private void HandleBadMsgNotification(long messageId, int sequence, BinaryReader messageReader)
@@ -336,10 +336,10 @@ namespace Telegram.Net.Core.Network
             messageReader.ReadInt32(); // badRequestSequence
             int errorCode = messageReader.ReadInt32();
 
-            if (_runningRequests.ContainsKey(badRequestId))
+            if (runningRequests.ContainsKey(badRequestId))
             {
-                _runningRequests[badRequestId].Item1.OnError(errorCode, null);
-                _runningRequests[badRequestId].Item2.SetResult(true);
+                runningRequests[badRequestId].Item1.OnError(errorCode, null);
+                runningRequests[badRequestId].Item2.SetResult(true);
             }
         }
 
@@ -355,7 +355,7 @@ namespace Telegram.Net.Core.Network
 
         private void HandleUpdateMessage(BinaryReader messageReader, uint updateDataCode)
         {
-            var update = TL.Parse<Updates>(messageReader, updateDataCode);
+            var update = TLObject.Read<Updates>(messageReader, updateDataCode);
             OnUpdateMessage(update);
         }
 
@@ -365,8 +365,8 @@ namespace Telegram.Net.Core.Network
             var uniqueId = messageReader.ReadUInt64();
             var serverSalt = messageReader.ReadUInt64();
 
-            _session.Salt = serverSalt;
-            _session.Id = uniqueId;
+            session.salt = serverSalt;
+            session.id = uniqueId;
         }
 
         #endregion

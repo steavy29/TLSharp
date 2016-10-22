@@ -5,36 +5,28 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    class GetUsersRequest : MTProtoRequest
+    public class GetUsersRequest : MTProtoRequest
     {
-        List<InputUser> _id;
+        public readonly List<InputUser> id;
 
-        public List<User> users;
+        public List<User> users { get; private set; }
 
         public GetUsersRequest(List<InputUser> id)
         {
-            _id = id;
+            this.id = id;
         }
+
+        protected override uint requestCode => 0xd91a548;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0xd91a548);
-            writer.Write(0x1cb5c415); // vector#1cb5c415
-            writer.Write(_id.Count); // vector length
-            foreach (var id in _id)
-                id.Write(writer);
+            writer.Write(requestCode);
+            TLObject.WriteVector(writer, users);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var code = reader.ReadUInt32(); // vector#1cb5c415
-            int users_len = reader.ReadInt32(); // vector length
-            if (users_len != 0)
-            {
-                users = new List<User>(users_len);
-                for (int i = 0; i < users_len; i++)
-                    users.Add(TL.Parse<User>(reader));
-            }
+            users = TLObject.ReadVector<User>(reader);
         }
 
         public override void OnException(Exception exception)

@@ -17,71 +17,29 @@ namespace Telegram.Net.Tests
     [TestClass]
     public class Tests
     {
-        private int ApiId { get; set; }
-
-        private string ApiHash { get; set; }
-
-        private string NumberToSendMessage { get; set; }
-
-        private string NumberToAuthenticate { get; set; }
-
-        private string NotRegisteredNumberToSignUp { get; set; }
-
-        private string UserNameToSendMessage { get; set; }
-
-        private string NumberToGetUserFull { get; set; }
-
-        private string NumberToAddToChat { get; set; }
-        
-        [TestInitialize]
-        public void Init()
-        {
-            // Setup your api info and phone numbers in app.config
-
-            ApiId = int.Parse(ConfigurationManager.AppSettings[nameof(ApiId)]);
-            ApiHash = ConfigurationManager.AppSettings[nameof(ApiHash)];
-            if (string.IsNullOrEmpty(ApiHash))
-                Debug.WriteLine("ApiHash not configured in app.config! Some tests may fail.");
-            
-            NumberToAuthenticate = ConfigurationManager.AppSettings[nameof(NumberToAuthenticate)];
-            if (string.IsNullOrEmpty(NumberToAuthenticate))
-                Debug.WriteLine("NumberToAuthenticate not configured in app.config! Some tests may fail.");
-
-            NotRegisteredNumberToSignUp = ConfigurationManager.AppSettings[nameof(NotRegisteredNumberToSignUp)];
-            if (string.IsNullOrEmpty(NotRegisteredNumberToSignUp))
-                Debug.WriteLine("NotRegisteredNumberToSignUp not configured in app.config! Some tests may fail.");
-
-            NumberToSendMessage = ConfigurationManager.AppSettings[nameof(NumberToSendMessage)];
-            if (string.IsNullOrEmpty(NumberToSendMessage))
-                Debug.WriteLine("NumberToSendMessage not configured in app.config! Some tests may fail.");
-
-            UserNameToSendMessage = ConfigurationManager.AppSettings[nameof(UserNameToSendMessage)];
-            if (string.IsNullOrEmpty(UserNameToSendMessage))
-                Debug.WriteLine("UserNameToSendMessage not configured in app.config! Some tests may fail.");
-
-            NumberToGetUserFull = ConfigurationManager.AppSettings[nameof(NumberToGetUserFull)];
-            if (string.IsNullOrEmpty(NumberToGetUserFull))
-                Debug.WriteLine("NumberToGetUserFull not configured in app.config! Some tests may fail.");
-
-            NumberToAddToChat = ConfigurationManager.AppSettings[nameof(NumberToAddToChat)];
-            if (string.IsNullOrEmpty(NumberToAddToChat))
-                Debug.WriteLine("NumberToAddToChat not configured in app.config! Some tests may fail.");
-        }
+        private int apiId => int.Parse(ConfigurationManager.AppSettings[nameof(apiId)]);
+        private string apiHash => ConfigurationManager.AppSettings[nameof(apiHash)];
+        private string numberToSendMessage => ConfigurationManager.AppSettings[nameof(numberToAuthenticate)];
+        private string numberToAuthenticate => ConfigurationManager.AppSettings[nameof(notRegisteredNumberToSignUp)];
+        private string notRegisteredNumberToSignUp => ConfigurationManager.AppSettings[nameof(numberToSendMessage)];
+        private string userNameToSendMessage => ConfigurationManager.AppSettings[nameof(userNameToSendMessage)];
+        private string numberToGetUserFull => ConfigurationManager.AppSettings[nameof(numberToGetUserFull)];
+        private string numberToAddToChat => ConfigurationManager.AppSettings[nameof(numberToAddToChat)];
 
         [TestMethod]
         public async Task AuthUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
 
             await client.Connect();
 
-            var codeRequest = await client.SendCodeRequest(NumberToAuthenticate);
+            var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
             var code = ""; // you can change code in debugger
             Debugger.Break();
 
-            var user = await client.MakeAuth(NumberToAuthenticate, hash, code);
+            var user = await client.SignIn(numberToAuthenticate, hash, code);
 
             Assert.IsNotNull(user);
             Assert.IsTrue(client.IsUserAuthorized());
@@ -93,18 +51,18 @@ namespace Telegram.Net.Tests
         public async Task SignUpNewUser()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
             await client.Connect();
 
-            var codeRequest = await client.SendCodeRequest(NotRegisteredNumberToSignUp);
+            var codeRequest = await client.SendCode(notRegisteredNumberToSignUp, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
             var code = "";
 
-            var registeredUser = await client.SignUp(NotRegisteredNumberToSignUp, hash, code, "Telegram.Net", "User");
+            var registeredUser = await client.SignUp(notRegisteredNumberToSignUp, hash, code, "Telegram.Net", "User");
             Assert.IsNotNull(registeredUser);
             Assert.IsTrue(client.IsUserAuthorized());
 
-            var loggedInUser = await client.MakeAuth(NotRegisteredNumberToSignUp, hash, code);
+            var loggedInUser = await client.SignIn(notRegisteredNumberToSignUp, hash, code);
             Assert.IsNotNull(loggedInUser);
         }
 
@@ -112,13 +70,13 @@ namespace Telegram.Net.Tests
         public async Task CheckPhones()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
             await client.Connect();
 
-            var result = await client.CheckPhone(NumberToAuthenticate) as Auth_checkedPhoneConstructor;
+            var result = await client.CheckPhone(numberToAuthenticate);
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.phone_registered);
+            Assert.IsTrue(result.phoneRegistered);
         }
 
         [TestMethod]
@@ -126,7 +84,7 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var importedConacts = await client.ImportContactByPhoneNumber(NumberToSendMessage, "Contact", "Contact");
+            var importedConacts = await client.ImportContactByPhoneNumber(numberToSendMessage, "Contact", "Contact");
 
             Assert.IsNotNull(importedConacts);
             Assert.AreEqual(1, importedConacts.importedContacts.Count);
@@ -138,10 +96,10 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var resolveUsernameRequest = new ResolveUsernameRequest(UserNameToSendMessage);
+            var resolveUsernameRequest = new ResolveUsernameRequest(userNameToSendMessage);
             await client.SendRpcRequest(resolveUsernameRequest);
 
-            Assert.IsNotNull(resolveUsernameRequest.User);
+            Assert.IsNotNull(resolveUsernameRequest.user);
         }
 
         [TestMethod]
@@ -149,10 +107,10 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
             
-            var resolveUsernameRequest = new ResolveUsernameRequest(UserNameToSendMessage);
+            var resolveUsernameRequest = new ResolveUsernameRequest(userNameToSendMessage);
             await client.SendRpcRequest(resolveUsernameRequest);
             
-            var contactUser = resolveUsernameRequest.User as UserContactConstructor;
+            var contactUser = resolveUsernameRequest.user as UserContactConstructor;
             Assert.IsNotNull(contactUser);
 
             await client.SendDirectMessage(contactUser.id, "Test message from TelegramClient");
@@ -162,18 +120,18 @@ namespace Telegram.Net.Tests
         public async Task ImportContactByPhoneNumberAndSendMessage()
         {
             var client = await InitializeClient();
-            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
+            var user = await ImportAndGetUser(client, numberToSendMessage);
 
-            await client.SendDirectMessage(userId, "Test message from TelegramClient");
+            await client.SendDirectMessage(user.userId, "Test message from TelegramClient");
         }
 
         [TestMethod]
         public async Task GetHistory()
         {
             var client = await InitializeClient();
-            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
+            var user = await ImportAndGetUser(client, numberToSendMessage);
 
-            var hist = await client.GetMessagesHistoryForContact(userId, 0, 5);
+            var hist = await client.GetHistoryForContact(user.userId, 0, 5);
             Assert.IsNotNull(hist);
         }
 
@@ -181,7 +139,7 @@ namespace Telegram.Net.Tests
         public async Task UploadAndSendMedia()
         {
             var client = await InitializeClient();
-            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
+            var user = await ImportAndGetUser(client, numberToSendMessage);
 
             InputFile mediaFile;
             using (var fileStream = File.OpenRead("../../data/cat.jpg"))
@@ -190,7 +148,7 @@ namespace Telegram.Net.Tests
             }
             Assert.IsNotNull(mediaFile);
 
-            var state = await client.SendMediaMessage(new InputPeerContactConstructor(userId), new InputMediaUploadedPhotoConstructor(mediaFile));
+            var state = await client.SendMediaMessage(new InputPeerContactConstructor(user.userId), new InputMediaUploadedPhotoConstructor(mediaFile));
             Assert.IsNotNull(state);
         }
 
@@ -200,10 +158,10 @@ namespace Telegram.Net.Tests
             // Get uploaded file from last message (ie: cat.jpg)
             var client = await InitializeClient();
 
-            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
+            var user = await ImportAndGetUser(client, numberToSendMessage);
 
             // Get last message
-            var hist = await client.GetMessagesHistoryForContact(userId, 0, 1);
+            var hist = ((MessagesMessagesConstructor)await client.GetHistoryForContact(user.userId, 0, 1)).messages;
             Assert.AreEqual(1, hist.Count);
 
             var message = (MessageConstructor) hist[0];
@@ -220,22 +178,19 @@ namespace Telegram.Net.Tests
             Assert.AreEqual(typeof (FileLocationConstructor), photoSize.location.GetType());
 
             var fileLocation = (FileLocationConstructor) photoSize.location;
-            var file = await client.GetFile(fileLocation.volume_id, fileLocation.local_id, fileLocation.secret, 0, photoSize.size + 1024);
-
-            storage_FileType type = file.Item1;
-            byte[] bytes = file.Item2;
+            var file = await client.GetFile(fileLocation.volumeId, fileLocation.localId, fileLocation.secret, 0, photoSize.size + 1024);
 
             string name = "../../data/get_file.";
-            if (type.GetType() == typeof (Storage_fileJpegConstructor))
+            if (file.type.GetType() == typeof (StorageFileJpegConstructor))
                 name += "jpg";
-            else if (type.GetType() == typeof (Storage_fileGifConstructor))
+            else if (file.type.GetType() == typeof (StorageFileGifConstructor))
                 name += "gif";
-            else if (type.GetType() == typeof (Storage_filePngConstructor))
+            else if (file.type.GetType() == typeof (StorageFilePngConstructor))
                 name += "png";
 
             using (var fileStream = new FileStream(name, FileMode.Create, FileAccess.Write))
             {
-                fileStream.Write(bytes, 4, photoSize.size); // The first 4 bytes seem to be the error code
+                fileStream.Write(file.bytes, 4, photoSize.size); // The first 4 bytes seem to be the error code
             }
         }
 
@@ -243,7 +198,7 @@ namespace Telegram.Net.Tests
         public async Task TestConnection()
         {
             var store = new FakeSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
 
             await client.Connect();
         }
@@ -264,12 +219,12 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var userId = await ImportAndGetUserId(client, NumberToSendMessage);
+            var user = await ImportAndGetUser(client, numberToSendMessage);
             
-            var getUserFullRequest = new GetUserFullRequest(userId);
+            var getUserFullRequest = new GetFullUserRequest(new InputUserContactConstructor(user.userId));
             await client.SendRpcRequest(getUserFullRequest);
 
-            Assert.IsNotNull(getUserFullRequest._userFull);
+            Assert.IsNotNull(getUserFullRequest.userFull);
         }
 
         [TestMethod]
@@ -278,13 +233,13 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var chatName = Guid.NewGuid().ToString();
-            var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessage = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userIdToInvite) });
+            var userToInvite = await ImportAndGetUser(client, numberToSendMessage);
+            var statedMessage = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userToInvite.userId) });
 
             var createdChat = GetChatFromStatedMessage(statedMessage);
 
             Assert.AreEqual(chatName, createdChat.title);
-            Assert.AreEqual(2, createdChat.participants_count);
+            Assert.AreEqual(2, createdChat.participantsCount);
         }
 
         [TestMethod]
@@ -293,20 +248,18 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var chatName = Guid.NewGuid().ToString();
-            var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userIdToInvite) });
+            var userToInvite = await ImportAndGetUser(client, numberToSendMessage);
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userToInvite.userId) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
 
-            var userIdToAdd = await ImportAndGetUserId(client, NumberToSendMessage);
+            var userToAdd = await ImportAndGetUser(client, numberToSendMessage);
 
-            var request = new AddChatUserRequest(createdChat.id, new InputUserContactConstructor(userIdToAdd));
-            await client.SendRpcRequest(request);
-            var statedMessageAfterAddUser = request.message;
+            var statedMessageAfterAddUser = await client.AddChatUser(createdChat.id, new InputUserContactConstructor(userToAdd.userId), 0);
             var modifiedChat = GetChatFromStatedMessage(statedMessageAfterAddUser);
 
             Assert.AreEqual(createdChat.id, modifiedChat.id);
-            Assert.AreEqual(3, modifiedChat.participants_count);
+            Assert.AreEqual(3, modifiedChat.participantsCount);
         }
 
         [TestMethod]
@@ -315,8 +268,8 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var chatName = Guid.NewGuid().ToString();
-            var userIdToInvite = await ImportAndGetUserId(client, NumberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> {new InputUserContactConstructor(userIdToInvite) });
+            var userToInvite = await ImportAndGetUser(client, numberToSendMessage);
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> {new InputUserContactConstructor(userToInvite.userId) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
             
@@ -324,7 +277,7 @@ namespace Telegram.Net.Tests
             var modifiedChat = GetChatFromStatedMessage(statedMessageAfterLeave);
 
             Assert.AreEqual(createdChat.id, modifiedChat.id);
-            Assert.AreEqual(1, modifiedChat.participants_count);
+            Assert.AreEqual(1, modifiedChat.participantsCount);
         }
 
         [TestMethod]
@@ -334,29 +287,29 @@ namespace Telegram.Net.Tests
 
             var updatesStateRequest = new GetUpdatesStateRequest();
             await client.SendRpcRequest(updatesStateRequest);
-            var initialState = updatesStateRequest.updates as Updates_stateConstructor;
+            var initialState = updatesStateRequest.updatesState as UpdatesStateConstructor;
 
             Assert.IsNotNull(initialState);
 
             var request = new GetUpdatesDifferenceRequest(initialState.pts, initialState.date, initialState.qts);
             await client.SendRpcRequest(request);
             Assert.IsNotNull(request.updatesDifference);
-            Assert.AreEqual(request.updatesDifference.Constructor, Constructor.updates_differenceEmpty);
+            Assert.AreEqual(request.updatesDifference.constructor, Constructor.UpdatesDifferenceEmpty);
 
-            var userIdToSendMessage = await ImportAndGetUserId(client, NumberToSendMessage);
-            await client.SendDirectMessage(userIdToSendMessage, "test");
+            var importedUser = await ImportAndGetUser(client, numberToSendMessage);
+            await client.SendDirectMessage(importedUser.userId, "test");
 
             var differenceRequestAfterMessage = new GetUpdatesDifferenceRequest(initialState.pts, initialState.date, initialState.qts);
             await client.SendRpcRequest(differenceRequestAfterMessage);
 
             Assert.IsNotNull(differenceRequestAfterMessage.updatesDifference);
-            Assert.AreEqual(differenceRequestAfterMessage.updatesDifference.Constructor, Constructor.updates_difference);
+            Assert.AreEqual(differenceRequestAfterMessage.updatesDifference.constructor, Constructor.UpdatesDifference);
 
-            var differenceUpdate = differenceRequestAfterMessage.updatesDifference as Updates_differenceConstructor;
+            var differenceUpdate = differenceRequestAfterMessage.updatesDifference as UpdatesDifferenceConstructor;
             Assert.IsNotNull(differenceUpdate);
-            Assert.AreEqual(1, differenceUpdate.new_messages.Count);
+            Assert.AreEqual(1, differenceUpdate.newMessages.Count);
 
-            var messageUpdate = differenceUpdate.new_messages[0] as MessageConstructor;
+            var messageUpdate = differenceUpdate.newMessages[0] as MessageConstructor;
             Assert.IsNotNull(messageUpdate);
 
             Assert.AreEqual("test", messageUpdate.message);
@@ -368,10 +321,10 @@ namespace Telegram.Net.Tests
             var phoneForDc5 = GetTestPhoneOfDc(5);
 
             var store = new FakeSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
             await client.Connect();
 
-            var codeRequest = await client.SendCodeRequest(phoneForDc5);
+            var codeRequest = await client.SendCode(phoneForDc5, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
         }
 
@@ -395,33 +348,36 @@ namespace Telegram.Net.Tests
             var upd = await updateTask;
         }*/
 
-        private ChatConstructor GetChatFromStatedMessage(Messages_statedMessageConstructor message)
+        private ChatConstructor GetChatFromStatedMessage(MessagesStatedMessage message)
         {
-            var serviceMessage = message.message as MessageServiceConstructor;
+            var constructor = message as MessagesStatedMessageConstructor;
+            Assert.IsNotNull(constructor);
+
+            var serviceMessage = constructor.message as MessageServiceConstructor;
             Assert.IsNotNull(serviceMessage);
 
             var peerChat = serviceMessage.toId as PeerChatConstructor;
             Assert.IsNotNull(peerChat);
 
-            var createdChatId = peerChat.chat_id;
-            return message.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
+            var createdChatId = peerChat.chatId;
+            return constructor.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
         }
 
         private async Task<TelegramClient> InitializeClient()
         {
             var store = new FileSessionStore();
-            var client = new TelegramClient(store, ApiId, ApiHash);
+            var client = new TelegramClient(store, apiId, apiHash);
             await client.Connect();
 
             if (!client.IsUserAuthorized())
             {
-                var codeRequest = await client.SendCodeRequest(NumberToAuthenticate);
+                var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
                 var hash = codeRequest.phoneCodeHash;
 
                 var code = ""; // you can change code in debugger
                 Debugger.Break();
 
-                await client.MakeAuth(NumberToAuthenticate, hash, code);
+                await client.SignIn(numberToAuthenticate, hash, code);
             }
 
             Assert.IsTrue(client.IsUserAuthorized());
@@ -429,7 +385,7 @@ namespace Telegram.Net.Tests
             return client;
         }
 
-        private async Task<int> ImportAndGetUserId(TelegramClient client, string phoneNumber)
+        private async Task<ImportedContactConstructor> ImportAndGetUser(TelegramClient client, string phoneNumber)
         {
             var contacts = await client.ImportContactByPhoneNumber(phoneNumber, phoneNumber, "Contact");
 
@@ -439,7 +395,7 @@ namespace Telegram.Net.Tests
             var importedContact = contacts.importedContacts[0] as ImportedContactConstructor;
             Assert.IsNotNull(importedContact);
 
-            return importedContact.user_id;
+            return importedContact;
         }
 
         private string GetTestPhoneOfDc(int dcNumber)

@@ -6,39 +6,39 @@ namespace Telegram.Net.Core.Requests
 {
     public class AuthSignUpRequest : MTProtoRequest
     {
-        private readonly string _phoneNumber;
-        private readonly string _phoneCodeHash;
-        private readonly string _code;
-        private readonly string _firstName;
-        private readonly string _lastName;
-        
-        public User user;
-        public int SessionExpires;
+        public readonly string phoneNumber;
+        public readonly string phoneCodeHash;
+        public readonly string code;
+        public readonly string firstName;
+        public readonly string lastName;
+
+        public AuthAuthorization authorization { get; private set; }
 
         public AuthSignUpRequest(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
         {
-            _phoneNumber = phoneNumber;
-            _phoneCodeHash = phoneCodeHash;
-            _code = code;
-            _firstName = firstName;
-            _lastName = lastName; 
+            this.phoneNumber = phoneNumber;
+            this.phoneCodeHash = phoneCodeHash;
+            this.code = code;
+            this.firstName = firstName;
+            this.lastName = lastName; 
         }
+
+        protected override uint requestCode => 0x1b067634;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x1b067634);
-            Serializers.String.Write(writer, _phoneNumber);
-            Serializers.String.Write(writer, _phoneCodeHash);
-            Serializers.String.Write(writer, _code);
-            Serializers.String.Write(writer, _firstName);
-            Serializers.String.Write(writer, _lastName);
+            writer.Write(requestCode);
+
+            Serializers.String.Write(writer, phoneNumber);
+            Serializers.String.Write(writer, phoneCodeHash);
+            Serializers.String.Write(writer, code);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var dataCode = reader.ReadUInt32(); //0xf6b673a4
-            var expires = reader.ReadInt32();
-            user = TL.Parse<User>(reader);
+            authorization = TLObject.Read<AuthAuthorization>(reader);
         }
 
         public override void OnException(Exception exception)

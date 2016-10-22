@@ -6,16 +6,18 @@ namespace Telegram.Net.Core.Requests
 {
     public class GetUpdatesStateRequest : MTProtoRequest
     {
-        public updates_State updates { get; private set; }
+        public UpdatesState updatesState { get; private set; }
+
+        protected override uint requestCode => 0xedd4882a;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0xedd4882a);
+            writer.Write(requestCode);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            updates = TL.Parse<updates_State>(reader);
+            updatesState = TLObject.Read<UpdatesState>(reader);
         }
 
         public override void OnException(Exception exception)

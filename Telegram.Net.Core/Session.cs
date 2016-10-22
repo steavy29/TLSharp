@@ -60,16 +60,16 @@ namespace Telegram.Net.Core
 
     public class Session
     {
-        public string ServerAddress { get; set; }
-        public int Port { get; set; }
-        public AuthKey AuthKey { get; set; }
-        public ulong Id { get; set; }
-        public int Sequence { get; set; }
-        public ulong Salt { get; set; }
-        public int TimeOffset { get; set; }
-        public long LastMessageId { get; set; }
-        public int SessionExpires { get; set; }
-        public User User { get; set; }
+        public string serverAddress;
+        public int port;
+        public AuthKey authKey;
+        public ulong id;
+        public int sequence;
+        public ulong salt;
+        public int timeOffset;
+        public long lastMessageId;
+        public int sessionExpires;
+        public User user;
         private readonly Random random;
 
         private readonly ISessionStore store;
@@ -85,26 +85,26 @@ namespace Telegram.Net.Core
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
-                writer.Write(Id);
-                writer.Write(Sequence);
-                writer.Write(Salt);
-                writer.Write(LastMessageId);
-                writer.Write(TimeOffset);
-                Serializers.String.Write(writer, ServerAddress);
-                writer.Write(Port);
+                writer.Write(id);
+                writer.Write(sequence);
+                writer.Write(salt);
+                writer.Write(lastMessageId);
+                writer.Write(timeOffset);
+                Serializers.String.Write(writer, serverAddress);
+                writer.Write(port);
 
-                if (User != null)
+                if (user != null)
                 {
                     writer.Write(1);
-                    writer.Write(SessionExpires);
-                    User.Write(writer);
+                    writer.Write(sessionExpires);
+                    user.Write(writer);
                 }
                 else
                 {
                     writer.Write(0);
                 }
 
-                Serializers.Bytes.Write(writer, AuthKey.Data);
+                Serializers.Bytes.Write(writer, authKey.Data);
 
                 return stream.ToArray();
             }
@@ -129,23 +129,23 @@ namespace Telegram.Net.Core
                 if (isAuthExsist)
                 {
                     sessionExpires = reader.ReadInt32();
-                    user = TL.Parse<User>(reader);
+                    user = TLObject.Read<User>(reader);
                 }
 
                 var authData = Serializers.Bytes.Read(reader);
 
                 return new Session(store)
                 {
-                    AuthKey = new AuthKey(authData),
-                    Id = id,
-                    Salt = salt,
-                    Sequence = sequence,
-                    LastMessageId = lastMessageId,
-                    TimeOffset = timeOffset,
-                    SessionExpires = sessionExpires,
-                    User = user,
-                    ServerAddress = serverAddress,
-                    Port = port
+                    authKey = new AuthKey(authData),
+                    id = id,
+                    salt = salt,
+                    sequence = sequence,
+                    lastMessageId = lastMessageId,
+                    timeOffset = timeOffset,
+                    sessionExpires = sessionExpires,
+                    user = user,
+                    serverAddress = serverAddress,
+                    port = port
                 };
             }
         }
@@ -159,9 +159,9 @@ namespace Telegram.Net.Core
         {
             return store.Load() ?? new Session(store)
             {
-                Id = GenerateRandomUlong(),
-                ServerAddress = serverAddress,
-                Port = port
+                id = GenerateRandomUlong(),
+                serverAddress = serverAddress,
+                port = port
             };
         }
 
@@ -175,17 +175,17 @@ namespace Telegram.Net.Core
         public long GetNewMessageId()
         {
             long time = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
-            long newMessageId = ((time / 1000 + TimeOffset) << 32) |
+            long newMessageId = ((time / 1000 + timeOffset) << 32) |
                                 ((time % 1000) << 22) |
                                 (random.Next(524288) << 2); // 2^19
                                                             // [ unix timestamp : 32 bit] [ milliseconds : 10 bit ] [ buffer space : 1 bit ] [ random : 19 bit ] [ msg_id type : 2 bit ] = [ msg_id : 64 bit ]
 
-            if (LastMessageId >= newMessageId)
+            if (lastMessageId >= newMessageId)
             {
-                newMessageId = LastMessageId + 4;
+                newMessageId = lastMessageId + 4;
             }
 
-            LastMessageId = newMessageId;
+            lastMessageId = newMessageId;
             return newMessageId;
         }
     }

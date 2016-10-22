@@ -23,9 +23,12 @@ namespace Telegram.Net.Core.Requests
             this.langCode = langCode;
         }
 
+        protected override uint requestCode => 0x768d5f4d;
+
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x768d5f4d);
+            writer.Write(requestCode);
+
             Serializers.String.Write(writer, phoneNumber);
             writer.Write(smsType);
             writer.Write(apiId);
@@ -35,7 +38,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            sentCode = TL.Parse<AuthSentCode>(reader);
+            sentCode = TLObject.Read<AuthSentCode>(reader);
         }
 
         public override void OnException(Exception exception)

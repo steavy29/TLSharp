@@ -6,9 +6,11 @@ namespace Telegram.Net.Core.Requests
 {
     public abstract class MTProtoRequest
     {
+        protected abstract uint requestCode { get; }
+
         protected MTProtoRequest()
         {
-            Sended = false;
+            Sent = false;
         }
 
         public RpcRequestError Error { get; private set; }
@@ -19,7 +21,7 @@ namespace Telegram.Net.Core.Requests
 
         public bool Dirty { get; set; }
 
-        public bool Sended { get; private set; }
+        public bool Sent { get; private set; }
         public DateTime SendTime { get; private set; }
         public bool ConfirmReceived { get; set; }
         public abstract void OnSend(BinaryWriter writer);
@@ -36,7 +38,7 @@ namespace Telegram.Net.Core.Requests
         public virtual void OnSendSuccess()
         {
             SendTime = DateTime.Now;
-            Sended = true;
+            Sent = true;
         }
 
         public virtual void OnConfirm()

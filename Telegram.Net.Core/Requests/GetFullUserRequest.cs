@@ -4,27 +4,28 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class ResolveUsernameRequest : MTProtoRequest
+    public class GetFullUserRequest : MTProtoRequest
     {
-        private readonly string username;
-        public User user { get; private set; }
+        public readonly InputUser inputUser;
 
-        public ResolveUsernameRequest(string username)
+        public UserFull userFull { get; private set; }
+
+        public GetFullUserRequest(InputUser inputUser)
         {
-            this.username = username;
+            this.inputUser = inputUser;
         }
 
-        protected override uint requestCode => 0xbf0131c;
+        protected override uint requestCode => 0xca30a5b1;
 
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(requestCode);
-            Serializers.String.Write(writer, username);
+            inputUser.Write(writer);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            user = TLObject.Read<User>(reader);
+            userFull = TLObject.Read<UserFull>(reader);
         }
 
         public override void OnException(Exception exception)
@@ -32,7 +33,8 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
         public override bool Responded { get; }
+
+        public override bool Confirmed => true;
     }
 }

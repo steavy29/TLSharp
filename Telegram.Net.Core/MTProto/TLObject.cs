@@ -5,292 +5,20 @@ using System.Reflection;
 
 namespace Telegram.Net.Core.MTProto
 {
-
     public abstract class TLObject
     {
-        public abstract Constructor Constructor { get; }
+        public static readonly uint boolFalse = 0xbc799737;
+        public static readonly uint boolTrue = 0x997275b5;
+        public static readonly uint vectorCode = 0x1cb5c415;
+        
+        public abstract Constructor constructor { get; }
+
         public abstract void Write(BinaryWriter writer);
         public abstract void Read(BinaryReader reader);
-    }
 
-    // all constructor types
+        #region Static Context
 
-    public enum Constructor
-    {
-        messageUndelivered,
-        error,
-        inputPeerEmpty,
-        inputPeerSelf,
-        inputPeerContact,
-        inputPeerForeign,
-        inputPeerChat,
-        inputUserEmpty,
-        inputUserSelf,
-        inputUserContact,
-        inputUserForeign,
-        inputPhoneContact,
-        inputFile,
-        inputMediaEmpty,
-        inputMediaUploadedPhoto,
-        inputMediaPhoto,
-        inputMediaGeoPoint,
-        inputMediaContact,
-        inputMediaUploadedVideo,
-        inputMediaUploadedThumbVideo,
-        inputMediaVideo,
-        inputChatPhotoEmpty,
-        inputChatUploadedPhoto,
-        inputChatPhoto,
-        inputGeoPointEmpty,
-        inputGeoPoint,
-        inputPhotoEmpty,
-        inputPhoto,
-        inputVideoEmpty,
-        inputVideo,
-        inputFileLocation,
-        inputVideoFileLocation,
-        inputPhotoCropAuto,
-        inputPhotoCrop,
-        inputAppEvent,
-        peerUser,
-        peerChat,
-        storage_fileUnknown,
-        storage_fileJpeg,
-        storage_fileGif,
-        storage_filePng,
-        storage_fileMp3,
-        storage_fileMov,
-        storage_filePartial,
-        storage_fileMp4,
-        storage_fileWebp,
-        fileLocationUnavailable,
-        fileLocation,
-        userEmpty,
-        userSelf,
-        userContact,
-        userRequest,
-        userForeign,
-        userDeleted,
-        userProfilePhotoEmpty,
-        userProfilePhoto,
-        userStatusEmpty,
-        userStatusOnline,
-        userStatusOffline,
-        chatEmpty,
-        chat,
-        chatForbidden,
-        chatFull,
-        chatParticipant,
-        chatParticipantsForbidden,
-        chatParticipants,
-        chatPhotoEmpty,
-        chatPhoto,
-        messageEmpty,
-        message,
-        messageForwarded,
-        messageService,
-        messageMediaEmpty,
-        messageMediaPhoto,
-        messageMediaVideo,
-        messageMediaGeo,
-        messageMediaContact,
-        messageMediaUnsupported,
-        messageActionEmpty,
-        messageActionChatCreate,
-        messageActionChatEditTitle,
-        messageActionChatEditPhoto,
-        messageActionChatDeletePhoto,
-        messageActionChatAddUser,
-        messageActionChatDeleteUser,
-        dialog,
-        photoEmpty,
-        photo,
-        photoSizeEmpty,
-        photoSize,
-        photoCachedSize,
-        videoEmpty,
-        video,
-        geoPointEmpty,
-        geoPoint,
-        auth_checkedPhone,
-        authSentCode,
-        authSentAppCode,
-        auth_authorization,
-        auth_exportedAuthorization,
-        inputNotifyPeer,
-        inputNotifyUsers,
-        inputNotifyChats,
-        inputNotifyAll,
-        inputPeerNotifyEventsEmpty,
-        inputPeerNotifyEventsAll,
-        inputPeerNotifySettings,
-        peerNotifyEventsEmpty,
-        peerNotifyEventsAll,
-        peerNotifySettingsEmpty,
-        peerNotifySettings,
-        wallPaper,
-        userFull,
-        contact,
-        importedContact,
-        contactBlocked,
-        contactFound,
-        contactSuggested,
-        contactStatus,
-        chatLocated,
-        contacts_foreignLinkUnknown,
-        contacts_foreignLinkRequested,
-        contacts_foreignLinkMutual,
-        contacts_myLinkEmpty,
-        contacts_myLinkRequested,
-        contacts_myLinkContact,
-        contacts_link,
-        contacts_contacts,
-        contacts_contactsNotModified,
-        contacts_importedContacts,
-        contacts_blocked,
-        contacts_blockedSlice,
-        contacts_found,
-        contacts_suggested,
-        messages_dialogs,
-        messages_dialogsSlice,
-        messages_messages,
-        messages_messagesSlice,
-        messages_messageEmpty,
-        messages_message,
-        messages_statedMessages,
-        messages_statedMessage,
-        messages_sentMessage,
-        messages_chat,
-        messages_chats,
-        messages_chatFull,
-        messages_affectedHistory,
-        inputMessagesFilterEmpty,
-        inputMessagesFilterPhotos,
-        inputMessagesFilterVideo,
-        inputMessagesFilterPhotoVideo,
-        updateNewMessage,
-        updateMessageID,
-        updateReadMessages,
-        updateDeleteMessages,
-        updateRestoreMessages,
-        updateUserTyping,
-        updateChatUserTyping,
-        updateChatParticipants,
-        updateUserStatus,
-        updateUserName,
-        updateUserPhoto,
-        updateContactRegistered,
-        updateContactLink,
-        updateActivation,
-        updateNewAuthorization,
-        updates_state,
-        updates_differenceEmpty,
-        updates_difference,
-        updates_differenceSlice,
-        updatesTooLong,
-        updateShortMessage,
-        updateShortChatMessage,
-        updateShort,
-        updatesCombined,
-        updates,
-        photos_photos,
-        photos_photosSlice,
-        photos_photo,
-        upload_file,
-        dcOption,
-        config,
-        nearestDc,
-        help_appUpdate,
-        help_noAppUpdate,
-        help_inviteText,
-        messages_statedMessagesLinks,
-        messages_statedMessageLink,
-        messages_sentMessageLink,
-        inputGeoChat,
-        inputNotifyGeoChatPeer,
-        geoChat,
-        geoChatMessageEmpty,
-        geoChatMessage,
-        geoChatMessageService,
-        geochats_statedMessage,
-        geochats_located,
-        geochats_messages,
-        geochats_messagesSlice,
-        messageActionGeoChatCreate,
-        messageActionGeoChatCheckin,
-        updateNewGeoChatMessage,
-        wallPaperSolid,
-        updateNewEncryptedMessage,
-        updateEncryptedChatTyping,
-        updateEncryption,
-        updateEncryptedMessagesRead,
-        encryptedChatEmpty,
-        encryptedChatWaiting,
-        encryptedChatRequested,
-        encryptedChat,
-        encryptedChatDiscarded,
-        inputEncryptedChat,
-        encryptedFileEmpty,
-        encryptedFile,
-        inputEncryptedFileEmpty,
-        inputEncryptedFileUploaded,
-        inputEncryptedFile,
-        inputEncryptedFileLocation,
-        encryptedMessage,
-        encryptedMessageService,
-        decryptedMessageLayer,
-        decryptedMessage,
-        decryptedMessageService,
-        decryptedMessageMediaEmpty,
-        decryptedMessageMediaPhoto,
-        decryptedMessageMediaVideo,
-        decryptedMessageMediaGeoPoint,
-        decryptedMessageMediaContact,
-        decryptedMessageActionSetMessageTTL,
-        messages_dhConfigNotModified,
-        messages_dhConfig,
-        messages_sentEncryptedMessage,
-        messages_sentEncryptedFile,
-        inputFileBig,
-        inputEncryptedFileBigUploaded,
-        updateChatParticipantAdd,
-        updateChatParticipantDelete,
-        updateDcOptions,
-        updateUserBlocked,
-        updateNotifySettings,
-        updateServiceNotification,
-        updatePrivacy,
-        updateUserPhone,
-        inputMediaUploadedAudio,
-        inputMediaAudio,
-        inputMediaUploadedDocument,
-        inputMediaUploadedThumbDocument,
-        inputMediaDocument,
-        messageMediaDocument,
-        messageMediaAudio,
-        inputAudioEmpty,
-        inputAudio,
-        inputDocumentEmpty,
-        inputDocument,
-        inputAudioFileLocation,
-        inputDocumentFileLocation,
-        decryptedMessageMediaDocument,
-        decryptedMessageMediaAudio,
-        audioEmpty,
-        audio,
-        documentEmpty,
-        document,
-        documentAttributeImageSize,
-        documentAttributeAnimated,
-        documentAttributeSticker,
-        documentAttributeVideo,
-        documentAttributeAudio,
-        documentAttributeFilename
-    }
-
-    public class TL
-    {
-        private static readonly Dictionary<uint, Type> constructors = new Dictionary<uint, Type>
+        protected static readonly Dictionary<uint, Type> constructors = new Dictionary<uint, Type>
         {
             {0xc4b9f9bb, typeof (ErrorConstructor)},
             {0x7f3b18ea, typeof (InputPeerEmptyConstructor)},
@@ -328,15 +56,15 @@ namespace Telegram.Net.Core.MTProto
             {0x770656a8, typeof (InputAppEventConstructor)},
             {0x9db1bc6d, typeof (PeerUserConstructor)},
             {0xbad0e5bb, typeof (PeerChatConstructor)},
-            {0xaa963b05, typeof (Storage_fileUnknownConstructor)},
-            {0x007efe0e, typeof (Storage_fileJpegConstructor)},
-            {0xcae1aadf, typeof (Storage_fileGifConstructor)},
-            {0x0a4f63c0, typeof (Storage_filePngConstructor)},
-            {0x528a0677, typeof (Storage_fileMp3Constructor)},
-            {0x4b09ebbc, typeof (Storage_fileMovConstructor)},
-            {0x40bc6f52, typeof (Storage_filePartialConstructor)},
-            {0xb3cea0e4, typeof (Storage_fileMp4Constructor)},
-            {0x1081464c, typeof (Storage_fileWebpConstructor)},
+            {0xaa963b05, typeof (StorageFileUnknownConstructor)},
+            {0x007efe0e, typeof (StorageFileJpegConstructor)},
+            {0xcae1aadf, typeof (StorageFileGifConstructor)},
+            {0x0a4f63c0, typeof (StorageFilePngConstructor)},
+            {0x528a0677, typeof (StorageFileMp3Constructor)},
+            {0x4b09ebbc, typeof (StorageFileMovConstructor)},
+            {0x40bc6f52, typeof (StorageFilePartialConstructor)},
+            {0xb3cea0e4, typeof (StorageFileMp4Constructor)},
+            {0x1081464c, typeof (StorageFileWebpConstructor)},
             {0x7c596b46, typeof (FileLocationUnavailableConstructor)},
             {0x53d69076, typeof (FileLocationConstructor)},
             {0x200250ba, typeof (UserEmptyConstructor)},
@@ -387,11 +115,11 @@ namespace Telegram.Net.Core.MTProto
             {0x5a04a49f, typeof (VideoConstructor)},
             {0x1117dd5f, typeof (GeoPointEmptyConstructor)},
             {0x2049d70c, typeof (GeoPointConstructor)},
-            {0xe300cc3b, typeof (Auth_checkedPhoneConstructor)},
+            {0xe300cc3b, typeof (AuthCheckedPhoneConstructor)},
             {0xefed51d9, typeof (AuthSentCodeConstructor)},
             {0xe325edcf, typeof (AuthSentAppCodeConstructor)},
-            {0xf6b673a4, typeof (Auth_authorizationConstructor)},
-            {0xdf969c2d, typeof (Auth_exportedAuthorizationConstructor)},
+            {0xf6b673a4, typeof (AuthAuthorizationConstructor)},
+            {0xdf969c2d, typeof (AuthExportedAuthorizationConstructor)},
             {0xb8bc5b0c, typeof (InputNotifyPeerConstructor)},
             {0x193b4417, typeof (InputNotifyUsersConstructor)},
             {0x4a95e84e, typeof (InputNotifyChatsConstructor)},
@@ -412,39 +140,39 @@ namespace Telegram.Net.Core.MTProto
             {0x3de191a1, typeof (ContactSuggestedConstructor)},
             {0xaa77b873, typeof (ContactStatusConstructor)},
             {0x3631cf4c, typeof (ChatLocatedConstructor)},
-            {0x133421f8, typeof (Contacts_foreignLinkUnknownConstructor)},
-            {0xa7801f47, typeof (Contacts_foreignLinkRequestedConstructor)},
-            {0x1bea8ce1, typeof (Contacts_foreignLinkMutualConstructor)},
-            {0xd22a1c60, typeof (Contacts_myLinkEmptyConstructor)},
-            {0x6c69efee, typeof (Contacts_myLinkRequestedConstructor)},
-            {0xc240ebd9, typeof (Contacts_myLinkContactConstructor)},
-            {0xeccea3f5, typeof (Contacts_linkConstructor)},
-            {0xb74ba9d2, typeof (Contacts_contactsNotModifiedConstructor)},
-            {0x6f8b8cb2, typeof (Contacts_contactsConstructor)},
+            {0x133421f8, typeof (ContactsForeignLinkUnknownConstructor)},
+            {0xa7801f47, typeof (ContactsForeignLinkRequestedConstructor)},
+            {0x1bea8ce1, typeof (ContactsForeignLinkMutualConstructor)},
+            {0xd22a1c60, typeof (ContactsMyLinkEmptyConstructor)},
+            {0x6c69efee, typeof (ContactsMyLinkRequestedConstructor)},
+            {0xc240ebd9, typeof (ContactsMyLinkContactConstructor)},
+            {0xeccea3f5, typeof (ContactsLinkConstructor)},
+            {0xb74ba9d2, typeof (ÑontactsContactsNotModifiedConstructor)},
+            {0x6f8b8cb2, typeof (ÑontactsContactsConstructor)},
             {0xad524315, typeof (ContactsImportedContactsConstructor)},
-            {0x1c138d15, typeof (Contacts_blockedConstructor)},
-            {0x900802a1, typeof (Contacts_blockedSliceConstructor)},
-            {0x0566000e, typeof (Contacts_foundConstructor)},
-            {0x5649dcc5, typeof (Contacts_suggestedConstructor)},
-            {0x15ba6c40, typeof (Messages_dialogsConstructor)},
-            {0x71e094f3, typeof (Messages_dialogsSliceConstructor)},
-            {0x8c718e87, typeof (Messages_messagesConstructor)},
-            {0x0b446ae3, typeof (Messages_messagesSliceConstructor)},
-            {0x3f4e0648, typeof (Messages_messageEmptyConstructor)},
-            {0xff90c417, typeof (Messages_messageConstructor)},
-            {0x969478bb, typeof (Messages_statedMessagesConstructor)},
-            {0xd07ae726, typeof (Messages_statedMessageConstructor)},
+            {0x1c138d15, typeof (ContactsBlockedConstructor)},
+            {0x900802a1, typeof (ContactsBlockedSliceConstructor)},
+            {0x0566000e, typeof (ContactsFoundConstructor)},
+            {0x5649dcc5, typeof (ContactsSuggestedConstructor)},
+            {0x15ba6c40, typeof (MessagesDialogsConstructor)},
+            {0x71e094f3, typeof (MessagesDialogsSliceConstructor)},
+            {0x8c718e87, typeof (MessagesMessagesConstructor)},
+            {0x0b446ae3, typeof (MessagesMessagesSliceConstructor)},
+            {0x3f4e0648, typeof (MessagesMessageEmptyConstructor)},
+            {0xff90c417, typeof (MessagesMessageConstructor)},
+            {0x969478bb, typeof (MessagesStatedMessagesConstructor)},
+            {0xd07ae726, typeof (MessagesStatedMessageConstructor)},
             {0xd1f4d35c, typeof (SentMessageConstructor)},
-            {0x40e9002a, typeof (Messages_chatConstructor)},
-            {0x8150cbd8, typeof (Messages_chatsConstructor)},
-            {0xe5d7d19c, typeof (Messages_chatFullConstructor)},
-            {0xb7de36f2, typeof (Messages_affectedHistoryConstructor)},
+            {0x40e9002a, typeof (MessagesChatConstructor)},
+            {0x8150cbd8, typeof (MessagesChatsConstructor)},
+            {0xe5d7d19c, typeof (MessagesChatFullConstructor)},
+            {0xb7de36f2, typeof (MessagesAffectedHistoryConstructor)},
             {0x57e2f66c, typeof (InputMessagesFilterEmptyConstructor)},
             {0x9609a51c, typeof (InputMessagesFilterPhotosConstructor)},
             {0x9fc00e65, typeof (InputMessagesFilterVideoConstructor)},
             {0x56e9f0e4, typeof (InputMessagesFilterPhotoVideoConstructor)},
             {0x013abdb3, typeof (UpdateNewMessageConstructor)},
-            {0x4e90bfd6, typeof (UpdateMessageIDConstructor)},
+            {0x4e90bfd6, typeof (UpdateMessageIdConstructor)},
             {0xc6649e31, typeof (UpdateReadMessagesConstructor)},
             {0xa92bfe26, typeof (UpdateDeleteMessagesConstructor)},
             {0xd15de04d, typeof (UpdateRestoreMessagesConstructor)},
@@ -458,28 +186,28 @@ namespace Telegram.Net.Core.MTProto
             {0x51a48a9a, typeof (UpdateContactLinkConstructor)},
             {0x6f690963, typeof (UpdateActivationConstructor)},
             {0x8f06529a, typeof (UpdateNewAuthorizationConstructor)},
-            {0xa56c2a3e, typeof (Updates_stateConstructor)},
-            {0x5d75a138, typeof (Updates_differenceEmptyConstructor)},
-            {0x00f49ca0, typeof (Updates_differenceConstructor)},
-            {0xa8fb1981, typeof (Updates_differenceSliceConstructor)},
+            {0xa56c2a3e, typeof (UpdatesStateConstructor)},
+            {0x5d75a138, typeof (UpdatesDifferenceEmptyConstructor)},
+            {0x00f49ca0, typeof (UpdatesDifferenceConstructor)},
+            {0xa8fb1981, typeof (UpdatesDifferenceSliceConstructor)},
             {0xe317af7e, typeof (UpdatesTooLongConstructor)},
             {0xd3f45784, typeof (UpdateShortMessageConstructor)},
             {0x2b2fbd4e, typeof (UpdateShortChatMessageConstructor)},
             {0x78d4dec1, typeof (UpdateShortConstructor)},
             {0x725b04c3, typeof (UpdatesCombinedConstructor)},
             {0x74ae4240, typeof (UpdatesConstructor)},
-            {0x8dca6aa5, typeof (Photos_photosConstructor)},
-            {0x15051f54, typeof (Photos_photosSliceConstructor)},
-            {0x20212ca8, typeof (Photos_photoConstructor)},
-            {0x096a18d5, typeof (Upload_fileConstructor)},
+            {0x8dca6aa5, typeof (PhotosPhotosConstructor)},
+            {0x15051f54, typeof (PhotosPhotosSliceConstructor)},
+            {0x20212ca8, typeof (PhotosPhotoConstructor)},
+            {0x096a18d5, typeof (UploadFileConstructor)},
             {0x2ec2a43c, typeof (DcOptionConstructor)},
-            {0x232d5905, typeof (ConfigConstructor)},
+            {0x7dae33e0, typeof (ConfigConstructor)},
             {0x8e1a1775, typeof (NearestDcConstructor)},
-            {0x8987f311, typeof (Help_appUpdateConstructor)},
-            {0xc45a6536, typeof (Help_noAppUpdateConstructor)},
-            {0x18cb9f78, typeof (Help_inviteTextConstructor)},
-            {0x3e74f5c6, typeof (Messages_statedMessagesLinksConstructor)},
-            {0xa9af2881, typeof (Messages_statedMessageLinkConstructor)},
+            {0x8987f311, typeof (HelpAppUpdateConstructor)},
+            {0xc45a6536, typeof (HelpNoAppUpdateConstructor)},
+            {0x18cb9f78, typeof (HelpInviteTextConstructor)},
+            {0x3e74f5c6, typeof (MessagesStatedMessagesLinksConstructor)},
+            {0xa9af2881, typeof (MessagesStatedMessageLinkConstructor)},
             {0xe9db4a3f, typeof (SentMessageLinkConstructor)},
             {0x74d456fa, typeof (InputGeoChatConstructor)},
             {0x4d8ddec8, typeof (InputNotifyGeoChatPeerConstructor)},
@@ -487,10 +215,10 @@ namespace Telegram.Net.Core.MTProto
             {0x60311a9b, typeof (GeoChatMessageEmptyConstructor)},
             {0x4505f8e1, typeof (GeoChatMessageConstructor)},
             {0xd34fa24e, typeof (GeoChatMessageServiceConstructor)},
-            {0x17b1578b, typeof (Geochats_statedMessageConstructor)},
-            {0x48feb267, typeof (Geochats_locatedConstructor)},
-            {0xd1526db1, typeof (Geochats_messagesConstructor)},
-            {0xbc5863e8, typeof (Geochats_messagesSliceConstructor)},
+            {0x17b1578b, typeof (GeochatsStatedMessageConstructor)},
+            {0x48feb267, typeof (GeochatsLocatedConstructor)},
+            {0xd1526db1, typeof (GeochatsMessagesConstructor)},
+            {0xbc5863e8, typeof (GeochatsMessagesSliceConstructor)},
             {0x6f038ebc, typeof (MessageActionGeoChatCreateConstructor)},
             {0x0c7d53de, typeof (MessageActionGeoChatCheckinConstructor)},
             {0x5a68e3f7, typeof (UpdateNewGeoChatMessageConstructor)},
@@ -521,11 +249,11 @@ namespace Telegram.Net.Core.MTProto
             {0x4cee6ef3, typeof (DecryptedMessageMediaVideoConstructor)},
             {0x35480a59, typeof (DecryptedMessageMediaGeoPointConstructor)},
             {0x588a0a97, typeof (DecryptedMessageMediaContactConstructor)},
-            {0xa1733aec, typeof (DecryptedMessageActionSetMessageTTLConstructor)},
-            {0xc0e24635, typeof (Messages_dhConfigNotModifiedConstructor)},
-            {0x2c221edd, typeof (Messages_dhConfigConstructor)},
-            {0x560f8935, typeof (Messages_sentEncryptedMessageConstructor)},
-            {0x9493ff32, typeof (Messages_sentEncryptedFileConstructor)},
+            {0xa1733aec, typeof (DecryptedMessageActionSetMessageTtlConstructor)},
+            {0xc0e24635, typeof (MessagesDhConfigNotModifiedConstructor)},
+            {0x2c221edd, typeof (MessagesDhConfigConstructor)},
+            {0x560f8935, typeof (MessagesSentEncryptedMessageConstructor)},
+            {0x9493ff32, typeof (MessagesSentEncryptedFileConstructor)},
             {0xfa4f0bb5, typeof (InputFileBigConstructor)},
             {0x2dc173c8, typeof (InputEncryptedFileBigUploadedConstructor)},
             {0x3a0eeb22, typeof (UpdateChatParticipantAddConstructor)},
@@ -563,16 +291,30 @@ namespace Telegram.Net.Core.MTProto
             {0xfb0a5727, typeof (DocumentAttributeStickerConstructor)},
             {0x5910cccb, typeof (DocumentAttributeVideoConstructor)},
             {0x51448e5, typeof (DocumentAttributeAudioConstructor)},
-            {0x15590068, typeof (DocumentAttributeFilenameConstructor)}
+            {0x15590068, typeof (DocumentAttributeFilenameConstructor)},
+            {0xae636f24, typeof(DisabledFeature)}
         };
 
-        public static T Parse<T>(BinaryReader reader)
+        public static bool ReadBool(BinaryReader reader)
         {
             uint dataCode = reader.ReadUInt32();
-            return Parse<T>(reader, dataCode);
+            if (dataCode != boolTrue && dataCode != boolFalse)
+                throw new Exception("Invalid bool dataCode");
+
+            return dataCode == boolTrue;
+        }
+        public static void WriteBool(BinaryWriter writer, bool value)
+        {
+            writer.Write(value ? boolTrue : boolFalse);
         }
 
-        public static T Parse<T>(BinaryReader reader, uint dataCode)
+        public static T Read<T>(BinaryReader reader)
+        {
+            uint dataCode = reader.ReadUInt32();
+            return Read<T>(reader, dataCode);
+        }
+
+        public static T Read<T>(BinaryReader reader, uint dataCode)
         {
             if (dataCode == 0x997275b5)
             {
@@ -607,15 +349,23 @@ namespace Telegram.Net.Core.MTProto
             throw new Exception("unknown return type");
         }
 
-        public static List<T> ParseVector<T>(BinaryReader reader, bool readVectorDataCode = true) where T : TLObject
+        public static List<T> ReadVector<T>(BinaryReader reader, bool readVectorDataCode = true) where T : TLObject
         {
-            return ParseVector(reader, () => Parse<T>(reader), readVectorDataCode);
+            return ReadVector(reader, () => Read<T>(reader), readVectorDataCode);
+        }
+        public static void WriteVector<T>(BinaryWriter writer, List<T> vector) where T : TLObject
+        {
+            WriteVector(writer, vector, i => i.Write(writer));
         }
 
-        public static List<T> ParseVector<T>(BinaryReader reader, Func<T> readNextFunc, bool readVectorDataCode = true)
+        public static List<T> ReadVector<T>(BinaryReader reader, Func<T> readNextFunc, bool readVectorDataCode = true)
         {
             if (readVectorDataCode)
-                reader.ReadInt32(); // vector code
+            {
+                var readVectorCode = reader.ReadInt32(); // vector code
+                if (readVectorCode != vectorCode)
+                    throw new Exception("Invalid vector code");
+            }
 
             int count = reader.ReadInt32();
             var result = new List<T>(count);
@@ -626,10 +376,298 @@ namespace Telegram.Net.Core.MTProto
 
             return result;
         }
+        public static void WriteVector<T>(BinaryWriter writer, List<T> vector, Action<T> writeNextFunc)
+        {
+            writer.Write(vectorCode);
+
+            writer.Write(vector.Count);
+            foreach (var item in vector)
+            {
+                writeNextFunc(item);
+            }
+        }
+
+        #endregion
+    }
+
+    // all constructor types
+
+    public enum Constructor
+    {
+        MessageUndelivered,
+        Error,
+        InputPeerEmpty,
+        InputPeerSelf,
+        InputPeerContact,
+        InputPeerForeign,
+        InputPeerChat,
+        InputUserEmpty,
+        InputUserSelf,
+        InputUserContact,
+        InputUserForeign,
+        InputPhoneContact,
+        InputFile,
+        InputMediaEmpty,
+        InputMediaUploadedPhoto,
+        InputMediaPhoto,
+        InputMediaGeoPoint,
+        InputMediaContact,
+        InputMediaUploadedVideo,
+        InputMediaUploadedThumbVideo,
+        InputMediaVideo,
+        InputChatPhotoEmpty,
+        InputChatUploadedPhoto,
+        InputChatPhoto,
+        InputGeoPointEmpty,
+        InputGeoPoint,
+        InputPhotoEmpty,
+        InputPhoto,
+        InputVideoEmpty,
+        InputVideo,
+        InputFileLocation,
+        InputVideoFileLocation,
+        InputPhotoCropAuto,
+        InputPhotoCrop,
+        InputAppEvent,
+        PeerUser,
+        PeerChat,
+        StorageFileUnknown,
+        StorageFileJpeg,
+        StorageFileGif,
+        StorageFilePng,
+        StorageFileMp3,
+        StorageFileMov,
+        StorageFilePartial,
+        StorageFileMp4,
+        StorageFileWebp,
+        FileLocationUnavailable,
+        FileLocation,
+        UserEmpty,
+        UserSelf,
+        UserContact,
+        UserRequest,
+        UserForeign,
+        UserDeleted,
+        UserProfilePhotoEmpty,
+        UserProfilePhoto,
+        UserStatusEmpty,
+        UserStatusOnline,
+        UserStatusOffline,
+        ChatEmpty,
+        Chat,
+        ChatForbidden,
+        ChatFull,
+        ChatParticipant,
+        ChatParticipantsForbidden,
+        ChatParticipants,
+        ChatPhotoEmpty,
+        ChatPhoto,
+        MessageEmpty,
+        Message,
+        MessageForwarded,
+        MessageService,
+        MessageMediaEmpty,
+        MessageMediaPhoto,
+        MessageMediaVideo,
+        MessageMediaGeo,
+        MessageMediaContact,
+        MessageMediaUnsupported,
+        MessageActionEmpty,
+        MessageActionChatCreate,
+        MessageActionChatEditTitle,
+        MessageActionChatEditPhoto,
+        MessageActionChatDeletePhoto,
+        MessageActionChatAddUser,
+        MessageActionChatDeleteUser,
+        Dialog,
+        PhotoEmpty,
+        Photo,
+        PhotoSizeEmpty,
+        PhotoSize,
+        PhotoCachedSize,
+        VideoEmpty,
+        Video,
+        GeoPointEmpty,
+        GeoPoint,
+        AuthCheckedPhone,
+        AuthSentCode,
+        AuthSentAppCode,
+        AuthAuthorization,
+        AuthExportedAuthorization,
+        InputNotifyPeer,
+        InputNotifyUsers,
+        InputNotifyChats,
+        InputNotifyAll,
+        InputPeerNotifyEventsEmpty,
+        InputPeerNotifyEventsAll,
+        InputPeerNotifySettings,
+        PeerNotifyEventsEmpty,
+        PeerNotifyEventsAll,
+        PeerNotifySettingsEmpty,
+        PeerNotifySettings,
+        WallPaper,
+        UserFull,
+        Contact,
+        ImportedContact,
+        ContactBlocked,
+        ContactFound,
+        ContactSuggested,
+        ContactStatus,
+        ChatLocated,
+        ContactsForeignLinkUnknown,
+        ContactsForeignLinkRequested,
+        ContactsForeignLinkMutual,
+        ContactsMyLinkEmpty,
+        ContactsMyLinkRequested,
+        ContactsMyLinkContact,
+        ContactsLink,
+        ContactsContacts,
+        ContactsContactsNotModified,
+        ContactsImportedContacts,
+        ContactsBlocked,
+        ContactsBlockedSlice,
+        ContactsFound,
+        ContactsSuggested,
+        MessagesDialogs,
+        MessagesDialogsSlice,
+        MessagesMessages,
+        MessagesMessagesSlice,
+        MessagesMessageEmpty,
+        MessagesMessage,
+        MessagesStatedMessages,
+        MessagesStatedMessage,
+        MessagesSentMessage,
+        MessagesChat,
+        MessagesChats,
+        MessagesChatFull,
+        MessagesAffectedHistory,
+        InputMessagesFilterEmpty,
+        InputMessagesFilterPhotos,
+        InputMessagesFilterVideo,
+        InputMessagesFilterPhotoVideo,
+        UpdateNewMessage,
+        UpdateMessageId,
+        UpdateReadMessages,
+        UpdateDeleteMessages,
+        UpdateRestoreMessages,
+        UpdateUserTyping,
+        UpdateChatUserTyping,
+        UpdateChatParticipants,
+        UpdateUserStatus,
+        UpdateUserName,
+        UpdateUserPhoto,
+        UpdateContactRegistered,
+        UpdateContactLink,
+        UpdateActivation,
+        UpdateNewAuthorization,
+        UpdatesState,
+        UpdatesDifferenceEmpty,
+        UpdatesDifference,
+        UpdatesDifferenceSlice,
+        UpdatesTooLong,
+        UpdateShortMessage,
+        UpdateShortChatMessage,
+        UpdateShort,
+        UpdatesCombined,
+        Updates,
+        PhotosPhotos,
+        PhotosPhotosSlice,
+        PhotosPhoto,
+        UploadFile,
+        DcOption,
+        Config,
+        NearestDc,
+        HelpAppUpdate,
+        HelpNoAppUpdate,
+        HelpInviteText,
+        MessagesStatedMessagesLinks,
+        MessagesStatedMessageLink,
+        MessagesSentMessageLink,
+        InputGeoChat,
+        InputNotifyGeoChatPeer,
+        GeoChat,
+        GeoChatMessageEmpty,
+        GeoChatMessage,
+        GeoChatMessageService,
+        GeochatsStatedMessage,
+        GeochatsLocated,
+        GeochatsMessages,
+        GeochatsMessagesSlice,
+        MessageActionGeoChatCreate,
+        MessageActionGeoChatCheckin,
+        UpdateNewGeoChatMessage,
+        WallPaperSolid,
+        UpdateNewEncryptedMessage,
+        UpdateEncryptedChatTyping,
+        UpdateEncryption,
+        UpdateEncryptedMessagesRead,
+        EncryptedChatEmpty,
+        EncryptedChatWaiting,
+        EncryptedChatRequested,
+        EncryptedChat,
+        EncryptedChatDiscarded,
+        InputEncryptedChat,
+        EncryptedFileEmpty,
+        EncryptedFile,
+        InputEncryptedFileEmpty,
+        InputEncryptedFileUploaded,
+        InputEncryptedFile,
+        InputEncryptedFileLocation,
+        EncryptedMessage,
+        EncryptedMessageService,
+        DecryptedMessageLayer,
+        DecryptedMessage,
+        DecryptedMessageService,
+        DecryptedMessageMediaEmpty,
+        DecryptedMessageMediaPhoto,
+        DecryptedMessageMediaVideo,
+        DecryptedMessageMediaGeoPoint,
+        DecryptedMessageMediaContact,
+        DecryptedMessageActionSetMessageTtl,
+        MessagesDhConfigNotModified,
+        MessagesDhConfig,
+        MessagesSentEncryptedMessage,
+        MessagesSentEncryptedFile,
+        InputFileBig,
+        InputEncryptedFileBigUploaded,
+        UpdateChatParticipantAdd,
+        UpdateChatParticipantDelete,
+        UpdateDcOptions,
+        UpdateUserBlocked,
+        UpdateNotifySettings,
+        UpdateServiceNotification,
+        UpdatePrivacy,
+        UpdateUserPhone,
+        InputMediaUploadedAudio,
+        InputMediaAudio,
+        InputMediaUploadedDocument,
+        InputMediaUploadedThumbDocument,
+        InputMediaDocument,
+        MessageMediaDocument,
+        MessageMediaAudio,
+        InputAudioEmpty,
+        InputAudio,
+        InputDocumentEmpty,
+        InputDocument,
+        InputAudioFileLocation,
+        InputDocumentFileLocation,
+        DecryptedMessageMediaDocument,
+        DecryptedMessageMediaAudio,
+        AudioEmpty,
+        Audio,
+        DocumentEmpty,
+        Document,
+        DocumentAttributeImageSize,
+        DocumentAttributeAnimated,
+        DocumentAttributeSticker,
+        DocumentAttributeVideo,
+        DocumentAttributeAudio,
+        DocumentAttributeFilename,
+        DisabledFeature
     }
 
     // abstract types
-    public abstract class contacts_ImportedContacts : TLObject
+    public abstract class ContactsImportedContacts : TLObject
     {
 
     }
@@ -644,7 +682,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class help_InviteText : TLObject
+    public abstract class HelpInviteText : TLObject
     {
 
     }
@@ -669,7 +707,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class help_AppUpdate : TLObject
+    public abstract class HelpAppUpdate : TLObject
     {
 
     }
@@ -699,7 +737,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_SentEncryptedMessage : TLObject
+    public abstract class MessagesSentEncryptedMessage : TLObject
     {
 
     }
@@ -734,7 +772,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_ChatFull : TLObject
+    public abstract class MessagesChatFull : TLObject
     {
 
     }
@@ -764,7 +802,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_ForeignLink : TLObject
+    public abstract class ContactsForeignLink : TLObject
     {
 
     }
@@ -779,7 +817,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_Message : TLObject
+    public abstract class MessagesMessage : TLObject
     {
 
     }
@@ -789,7 +827,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class photos_Photos : TLObject
+    public abstract class PhotosPhotos : TLObject
     {
 
     }
@@ -799,7 +837,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_Suggested : TLObject
+    public abstract class ContactsSuggested : TLObject
     {
 
     }
@@ -829,12 +867,12 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class auth_Authorization : TLObject
+    public abstract class AuthAuthorization : TLObject
     {
 
     }
 
-    public abstract class auth_CheckedPhone : TLObject
+    public abstract class AuthCheckedPhone : TLObject
     {
 
     }
@@ -844,37 +882,37 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_Chats : TLObject
+    public abstract class MessagesChats : TLObject
     {
 
     }
 
-    public abstract class contacts_Link : TLObject
+    public abstract class ContactsLink : TLObject
     {
 
     }
 
-    public abstract class messages_StatedMessage : TLObject
+    public abstract class MessagesStatedMessage : TLObject
     {
 
     }
 
-    public abstract class geochats_Located : TLObject
+    public abstract class GeochatsLocated : TLObject
     {
 
     }
 
-    public abstract class updates_State : TLObject
+    public abstract class UpdatesState : TLObject
     {
 
     }
 
-    public abstract class storage_FileType : TLObject
+    public abstract class StorageFileType : TLObject
     {
 
     }
 
-    public abstract class geochats_StatedMessage : TLObject
+    public abstract class GeochatsStatedMessage : TLObject
     {
 
     }
@@ -894,7 +932,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class photos_Photo : TLObject
+    public abstract class PhotosPhoto : TLObject
     {
 
     }
@@ -904,7 +942,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class auth_ExportedAuthorization : TLObject
+    public abstract class AuthExportedAuthorization : TLObject
     {
 
     }
@@ -924,17 +962,17 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_Blocked : TLObject
+    public abstract class ContactsBlocked : TLObject
     {
 
     }
 
-    public abstract class messages_AffectedHistory : TLObject
+    public abstract class MessagesAffectedHistory : TLObject
     {
 
     }
 
-    public abstract class messages_Chat : TLObject
+    public abstract class MessagesChat : TLObject
     {
 
     }
@@ -954,12 +992,12 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_Messages : TLObject
+    public abstract class MessagesMessages : TLObject
     {
 
     }
 
-    public abstract class messages_Dialogs : TLObject
+    public abstract class MessagesDialogs : TLObject
     {
 
     }
@@ -974,7 +1012,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_MyLink : TLObject
+    public abstract class ContactsMyLink : TLObject
     {
 
     }
@@ -989,7 +1027,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_StatedMessages : TLObject
+    public abstract class MessagesStatedMessages : TLObject
     {
 
     }
@@ -1069,6 +1107,8 @@ namespace Telegram.Net.Core.MTProto
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x2215bcbd);
+            writer.Write(0x2215bcbd);
+
             writer.Write(phoneRegistered ? 0x997275b5 : 0xbc799737);
             Serializers.String.Write(writer, phoneCodeHash);
             writer.Write(sendCallTimeout);
@@ -1089,7 +1129,7 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-    public abstract class geochats_Messages : TLObject
+    public abstract class GeochatsMessages : TLObject
     {
 
     }
@@ -1104,7 +1144,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_Contacts : TLObject
+    public abstract class ContactsContacts : TLObject
     {
 
     }
@@ -1119,7 +1159,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class contacts_Found : TLObject
+    public abstract class ContactsFound : TLObject
     {
 
     }
@@ -1134,7 +1174,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class messages_DhConfig : TLObject
+    public abstract class MessagesDhConfig : TLObject
     {
 
     }
@@ -1144,7 +1184,7 @@ namespace Telegram.Net.Core.MTProto
 
     }
 
-    public abstract class upload_File : TLObject
+    public abstract class UploadFile : TLObject
     {
 
     }
@@ -1157,6 +1197,11 @@ namespace Telegram.Net.Core.MTProto
     public abstract class ContactSuggested : TLObject
     {
 
+    }
+
+    public abstract class DisabledFeature : TLObject
+    {
+        
     }
 
     // types implementations
@@ -1178,8 +1223,7 @@ namespace Telegram.Net.Core.MTProto
             this.text = text;
         }
 
-
-        public override Constructor Constructor => Constructor.error;
+        public override Constructor constructor => Constructor.Error;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1200,18 +1244,9 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputPeerEmptyConstructor : InputPeer
     {
-
-        public InputPeerEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPeerEmpty;
+        public override Constructor constructor => Constructor.InputPeerEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1228,18 +1263,9 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputPeerSelfConstructor : InputPeer
     {
-
-        public InputPeerSelfConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPeerSelf;
+        public override Constructor constructor => Constructor.InputPeerSelf;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1256,127 +1282,112 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputPeerContactConstructor : InputPeer
     {
-        public int user_id;
+        public int userId;
 
         public InputPeerContactConstructor()
         {
 
         }
 
-        public InputPeerContactConstructor(int user_id)
+        public InputPeerContactConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
-
-        public override Constructor Constructor => Constructor.inputPeerContact;
+        public override Constructor constructor => Constructor.InputPeerContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x1023dbe8);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(inputPeerContact user_id:{user_id})";
+            return $"(inputPeerContact userId:{userId})";
         }
     }
 
-
     public class InputPeerForeignConstructor : InputPeer
     {
-        public int user_id;
-        public long access_hash;
+        public int userId;
+        public long accessHash;
 
         public InputPeerForeignConstructor()
         {
 
         }
 
-        public InputPeerForeignConstructor(int user_id, long access_hash)
+        public InputPeerForeignConstructor(int userId, long accessHash)
         {
-            this.user_id = user_id;
-            this.access_hash = access_hash;
+            this.userId = userId;
+            this.accessHash = accessHash;
         }
 
-
-        public override Constructor Constructor => Constructor.inputPeerForeign;
+        public override Constructor constructor => Constructor.InputPeerForeign;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x9b447325);
-            writer.Write(user_id);
-            writer.Write(access_hash);
+            writer.Write(userId);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            userId = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputPeerForeign user_id:{user_id} access_hash:{access_hash})";
+            return $"(inputPeerForeign userId:{userId} accessHash:{accessHash})";
         }
     }
 
-
     public class InputPeerChatConstructor : InputPeer
     {
-        public int chat_id;
+        public int chatId;
 
         public InputPeerChatConstructor()
         {
 
         }
 
-        public InputPeerChatConstructor(int chat_id)
+        public InputPeerChatConstructor(int chatId)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
         }
 
-
-        public override Constructor Constructor => Constructor.inputPeerChat;
+        public override Constructor constructor => Constructor.InputPeerChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x179be863);
-            writer.Write(chat_id);
+            writer.Write(chatId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(inputPeerChat chat_id:{chat_id})";
+            return $"(inputPeerChat chatId:{chatId})";
         }
     }
 
-
     public class InputUserEmptyConstructor : InputUser
     {
-
-        public InputUserEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputUserEmpty;
+        public override Constructor constructor => Constructor.InputUserEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1393,18 +1404,9 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputUserSelfConstructor : InputUser
     {
-
-        public InputUserSelfConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputUserSelf;
+        public override Constructor constructor => Constructor.InputUserSelf;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1421,151 +1423,143 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputUserContactConstructor : InputUser
     {
-        public int user_id;
+        public int userId;
 
         public InputUserContactConstructor()
         {
 
         }
 
-        public InputUserContactConstructor(int user_id)
+        public InputUserContactConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
-
-        public override Constructor Constructor => Constructor.inputUserContact;
+        public override Constructor constructor => Constructor.InputUserContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x86e94f65);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(inputUserContact user_id:{user_id})";
+            return $"(inputUserContact userId:{userId})";
         }
     }
 
-
     public class InputUserForeignConstructor : InputUser
     {
-        public int user_id;
-        public long access_hash;
+        public int userId;
+        public long accessHash;
 
         public InputUserForeignConstructor()
         {
 
         }
 
-        public InputUserForeignConstructor(int user_id, long access_hash)
+        public InputUserForeignConstructor(int userId, long accessHash)
         {
-            this.user_id = user_id;
-            this.access_hash = access_hash;
+            this.userId = userId;
+            this.accessHash = accessHash;
         }
 
-
-        public override Constructor Constructor => Constructor.inputUserForeign;
+        public override Constructor constructor => Constructor.InputUserForeign;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x655e74ff);
-            writer.Write(user_id);
-            writer.Write(access_hash);
+            writer.Write(userId);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            userId = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputUserForeign user_id:{user_id} access_hash:{access_hash})";
+            return $"(inputUserForeign userId:{userId} accessHash:{accessHash})";
         }
     }
 
-
     public class InputPhoneContactConstructor : InputContact
     {
-        public long client_id;
+        public long clientId;
         public string phone;
-        public string first_name;
-        public string last_name;
+        public string firstName;
+        public string lastName;
 
         public InputPhoneContactConstructor()
         {
 
         }
 
-        public InputPhoneContactConstructor(long client_id, string phone, string first_name, string last_name)
+        public InputPhoneContactConstructor(long clientId, string phone, string firstName, string lastName)
         {
-            this.client_id = client_id;
+            this.clientId = clientId;
             this.phone = phone;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstName = firstName;
+            this.lastName = lastName;
         }
 
-
-        public override Constructor Constructor => Constructor.inputPhoneContact;
+        public override Constructor constructor => Constructor.InputPhoneContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf392b7f4);
-            writer.Write(client_id);
+            writer.Write(clientId);
             Serializers.String.Write(writer, phone);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
         }
 
         public override void Read(BinaryReader reader)
         {
-            client_id = reader.ReadInt64();
+            clientId = reader.ReadInt64();
             phone = Serializers.String.Read(reader);
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(inputPhoneContact client_id:{client_id} phone:'{phone}' first_name:'{first_name}' last_name:'{last_name}')";
+                $"(inputPhoneContact clientId:{clientId} phone:'{phone}' firstName:'{firstName}' lastName:'{lastName}')";
         }
     }
-
 
     public class InputFileConstructor : InputFile
     {
         public long id;
         public int parts;
         public string name;
-        public string md5_checksum;
+        public string md5Checksum;
 
         public InputFileConstructor()
         {
 
         }
 
-        public InputFileConstructor(long id, int parts, string name, string md5_checksum)
+        public InputFileConstructor(long id, int parts, string name, string md5Checksum)
         {
             this.id = id;
             this.parts = parts;
             this.name = name;
-            this.md5_checksum = md5_checksum;
+            this.md5Checksum = md5Checksum;
         }
 
-
-        public override Constructor Constructor => Constructor.inputFile;
+        public override Constructor constructor => Constructor.InputFile;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1573,7 +1567,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(id);
             writer.Write(parts);
             Serializers.String.Write(writer, name);
-            Serializers.String.Write(writer, md5_checksum);
+            Serializers.String.Write(writer, md5Checksum);
         }
 
         public override void Read(BinaryReader reader)
@@ -1581,27 +1575,18 @@ namespace Telegram.Net.Core.MTProto
             id = reader.ReadInt64();
             parts = reader.ReadInt32();
             name = Serializers.String.Read(reader);
-            md5_checksum = Serializers.String.Read(reader);
+            md5Checksum = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
-            return $"(inputFile id:{id} parts:{parts} name:'{name}' md5_checksum:'{md5_checksum}')";
+            return $"(inputFile id:{id} parts:{parts} name:'{name}' md5Checksum:'{md5Checksum}')";
         }
     }
 
-
     public class InputMediaEmptyConstructor : InputMedia
     {
-
-        public InputMediaEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputMediaEmpty;
+        public override Constructor constructor => Constructor.InputMediaEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1618,7 +1603,6 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputMediaUploadedPhotoConstructor : InputMedia
     {
         public InputFile file;
@@ -1633,8 +1617,7 @@ namespace Telegram.Net.Core.MTProto
             this.file = file;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaUploadedPhoto;
+        public override Constructor constructor => Constructor.InputMediaUploadedPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1644,7 +1627,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
+            file = Read<InputFile>(reader);
         }
 
         public override string ToString()
@@ -1652,7 +1635,6 @@ namespace Telegram.Net.Core.MTProto
             return $"(inputMediaUploadedPhoto file:{file})";
         }
     }
-
 
     public class InputMediaPhotoConstructor : InputMedia
     {
@@ -1668,8 +1650,7 @@ namespace Telegram.Net.Core.MTProto
             this.id = id;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaPhoto;
+        public override Constructor constructor => Constructor.InputMediaPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1679,7 +1660,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            id = TL.Parse<InputPhoto>(reader);
+            id = Read<InputPhoto>(reader);
         }
 
         public override string ToString()
@@ -1688,85 +1669,80 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputMediaGeoPointConstructor : InputMedia
     {
-        public InputGeoPoint geo_point;
+        public InputGeoPoint geoPoint;
 
         public InputMediaGeoPointConstructor()
         {
 
         }
 
-        public InputMediaGeoPointConstructor(InputGeoPoint geo_point)
+        public InputMediaGeoPointConstructor(InputGeoPoint geoPoint)
         {
-            this.geo_point = geo_point;
+            this.geoPoint = geoPoint;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaGeoPoint;
+        public override Constructor constructor => Constructor.InputMediaGeoPoint;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf9c44144);
-            geo_point.Write(writer);
+            geoPoint.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            geo_point = TL.Parse<InputGeoPoint>(reader);
+            geoPoint = Read<InputGeoPoint>(reader);
         }
 
         public override string ToString()
         {
-            return $"(inputMediaGeoPoint geo_point:{geo_point})";
+            return $"(inputMediaGeoPoint geoPoint:{geoPoint})";
         }
     }
 
-
     public class InputMediaContactConstructor : InputMedia
     {
-        public string phone_number;
-        public string first_name;
-        public string last_name;
+        public string phoneNumber;
+        public string firstName;
+        public string lastName;
 
         public InputMediaContactConstructor()
         {
 
         }
 
-        public InputMediaContactConstructor(string phone_number, string first_name, string last_name)
+        public InputMediaContactConstructor(string phoneNumber, string firstName, string lastName)
         {
-            this.phone_number = phone_number;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.phoneNumber = phoneNumber;
+            this.firstName = firstName;
+            this.lastName = lastName;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaContact;
+        public override Constructor constructor => Constructor.InputMediaContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa6e45987);
-            Serializers.String.Write(writer, phone_number);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, phoneNumber);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
         }
 
         public override void Read(BinaryReader reader)
         {
-            phone_number = Serializers.String.Read(reader);
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            phoneNumber = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(inputMediaContact phone_number:'{phone_number}' first_name:'{first_name}' last_name:'{last_name}')";
+                $"(inputMediaContact phoneNumber:'{phoneNumber}' firstName:'{firstName}' lastName:'{lastName}')";
         }
     }
-
 
     public class InputMediaUploadedVideoConstructor : InputMedia
     {
@@ -1788,8 +1764,7 @@ namespace Telegram.Net.Core.MTProto
             this.h = h;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaUploadedVideo;
+        public override Constructor constructor => Constructor.InputMediaUploadedVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1802,7 +1777,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
+            file = Read<InputFile>(reader);
             duration = reader.ReadInt32();
             w = reader.ReadInt32();
             h = reader.ReadInt32();
@@ -1813,7 +1788,6 @@ namespace Telegram.Net.Core.MTProto
             return $"(inputMediaUploadedVideo file:{file} duration:{duration} w:{w} h:{h})";
         }
     }
-
 
     public class InputMediaUploadedThumbVideoConstructor : InputMedia
     {
@@ -1838,7 +1812,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaUploadedThumbVideo;
+        public override Constructor constructor => Constructor.InputMediaUploadedThumbVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1852,8 +1826,8 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
-            thumb = TL.Parse<InputFile>(reader);
+            file = Read<InputFile>(reader);
+            thumb = Read<InputFile>(reader);
             duration = reader.ReadInt32();
             w = reader.ReadInt32();
             h = reader.ReadInt32();
@@ -1864,7 +1838,6 @@ namespace Telegram.Net.Core.MTProto
             return $"(inputMediaUploadedThumbVideo file:{file} thumb:{thumb} duration:{duration} w:{w} h:{h})";
         }
     }
-
 
     public class InputMediaVideoConstructor : InputMedia
     {
@@ -1880,8 +1853,7 @@ namespace Telegram.Net.Core.MTProto
             this.id = id;
         }
 
-
-        public override Constructor Constructor => Constructor.inputMediaVideo;
+        public override Constructor constructor => Constructor.InputMediaVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1891,7 +1863,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            id = TL.Parse<InputVideo>(reader);
+            id = Read<InputVideo>(reader);
         }
 
         public override string ToString()
@@ -1900,18 +1872,9 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
-
     public class InputChatPhotoEmptyConstructor : InputChatPhoto
     {
-
-        public InputChatPhotoEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputChatPhotoEmpty;
+        public override Constructor constructor => Constructor.InputChatPhotoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1927,7 +1890,6 @@ namespace Telegram.Net.Core.MTProto
             return "(inputChatPhotoEmpty)";
         }
     }
-
 
     public class InputChatUploadedPhotoConstructor : InputChatPhoto
     {
@@ -1945,8 +1907,7 @@ namespace Telegram.Net.Core.MTProto
             this.crop = crop;
         }
 
-
-        public override Constructor Constructor => Constructor.inputChatUploadedPhoto;
+        public override Constructor constructor => Constructor.InputChatUploadedPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1957,8 +1918,8 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
-            crop = TL.Parse<InputPhotoCrop>(reader);
+            file = Read<InputFile>(reader);
+            crop = Read<InputPhotoCrop>(reader);
         }
 
         public override string ToString()
@@ -1966,7 +1927,6 @@ namespace Telegram.Net.Core.MTProto
             return $"(inputChatUploadedPhoto file:{file} crop:{crop})";
         }
     }
-
 
     public class InputChatPhotoConstructor : InputChatPhoto
     {
@@ -1984,8 +1944,7 @@ namespace Telegram.Net.Core.MTProto
             this.crop = crop;
         }
 
-
-        public override Constructor Constructor => Constructor.inputChatPhoto;
+        public override Constructor constructor => Constructor.InputChatPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -1996,8 +1955,8 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            id = TL.Parse<InputPhoto>(reader);
-            crop = TL.Parse<InputPhotoCrop>(reader);
+            id = Read<InputPhoto>(reader);
+            crop = Read<InputPhotoCrop>(reader);
         }
 
         public override string ToString()
@@ -2009,15 +1968,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputGeoPointEmptyConstructor : InputGeoPoint
     {
-
-        public InputGeoPointEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputGeoPointEmpty;
+        public override Constructor constructor => Constructor.InputGeoPointEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2052,7 +2003,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputGeoPoint;
+        public override Constructor constructor => Constructor.InputGeoPoint;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2076,15 +2027,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputPhotoEmptyConstructor : InputPhoto
     {
-
-        public InputPhotoEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPhotoEmpty;
+        public override Constructor constructor => Constructor.InputPhotoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2105,53 +2048,45 @@ namespace Telegram.Net.Core.MTProto
     public class InputPhotoConstructor : InputPhoto
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputPhotoConstructor()
         {
 
         }
 
-        public InputPhotoConstructor(long id, long access_hash)
+        public InputPhotoConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputPhoto;
+        public override Constructor constructor => Constructor.InputPhoto;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xfb95c6c4);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputPhoto id:{id} access_hash:{access_hash})";
+            return $"(inputPhoto id:{id} accessHash:{accessHash})";
         }
     }
 
 
     public class InputVideoEmptyConstructor : InputVideo
     {
-
-        public InputVideoEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputVideoEmpty;
+        public override Constructor constructor => Constructor.InputVideoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2172,46 +2107,46 @@ namespace Telegram.Net.Core.MTProto
     public class InputVideoConstructor : InputVideo
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputVideoConstructor()
         {
 
         }
 
-        public InputVideoConstructor(long id, long access_hash)
+        public InputVideoConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputVideo;
+        public override Constructor constructor => Constructor.InputVideo;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xee579652);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputVideo id:{id} access_hash:{access_hash})";
+            return $"(inputVideo id:{id} accessHash:{accessHash})";
         }
     }
 
 
     public class InputFileLocationConstructor : InputFileLocation
     {
-        public long volume_id;
-        public int local_id;
+        public long volumeId;
+        public int localId;
         public long secret;
 
         public InputFileLocationConstructor()
@@ -2219,34 +2154,34 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public InputFileLocationConstructor(long volume_id, int local_id, long secret)
+        public InputFileLocationConstructor(long volumeId, int localId, long secret)
         {
-            this.volume_id = volume_id;
-            this.local_id = local_id;
+            this.volumeId = volumeId;
+            this.localId = localId;
             this.secret = secret;
         }
 
 
-        public override Constructor Constructor => Constructor.inputFileLocation;
+        public override Constructor constructor => Constructor.InputFileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x14637196);
-            writer.Write(volume_id);
-            writer.Write(local_id);
+            writer.Write(volumeId);
+            writer.Write(localId);
             writer.Write(secret);
         }
 
         public override void Read(BinaryReader reader)
         {
-            volume_id = reader.ReadInt64();
-            local_id = reader.ReadInt32();
+            volumeId = reader.ReadInt64();
+            localId = reader.ReadInt32();
             secret = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputFileLocation volume_id:{volume_id} local_id:{local_id} secret:{secret})";
+            return $"(inputFileLocation volume_id:{volumeId} local_id:{localId} secret:{secret})";
         }
     }
 
@@ -2254,53 +2189,45 @@ namespace Telegram.Net.Core.MTProto
     public class InputVideoFileLocationConstructor : InputFileLocation
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputVideoFileLocationConstructor()
         {
 
         }
 
-        public InputVideoFileLocationConstructor(long id, long access_hash)
+        public InputVideoFileLocationConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputVideoFileLocation;
+        public override Constructor constructor => Constructor.InputVideoFileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3d0364ec);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputVideoFileLocation id:{id} access_hash:{access_hash})";
+            return $"(inputVideoFileLocation id:{id} accessHash:{accessHash})";
         }
     }
 
 
     public class InputPhotoCropAutoConstructor : InputPhotoCrop
     {
-
-        public InputPhotoCropAutoConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPhotoCropAuto;
+        public override Constructor constructor => Constructor.InputPhotoCropAuto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2320,43 +2247,43 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputPhotoCropConstructor : InputPhotoCrop
     {
-        public double crop_left;
-        public double crop_top;
-        public double crop_width;
+        public double cropLeft;
+        public double cropTop;
+        public double cropWidth;
 
         public InputPhotoCropConstructor()
         {
 
         }
 
-        public InputPhotoCropConstructor(double crop_left, double crop_top, double crop_width)
+        public InputPhotoCropConstructor(double cropLeft, double cropTop, double cropWidth)
         {
-            this.crop_left = crop_left;
-            this.crop_top = crop_top;
-            this.crop_width = crop_width;
+            this.cropLeft = cropLeft;
+            this.cropTop = cropTop;
+            this.cropWidth = cropWidth;
         }
 
 
-        public override Constructor Constructor => Constructor.inputPhotoCrop;
+        public override Constructor constructor => Constructor.InputPhotoCrop;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd9915325);
-            writer.Write(crop_left);
-            writer.Write(crop_top);
-            writer.Write(crop_width);
+            writer.Write(cropLeft);
+            writer.Write(cropTop);
+            writer.Write(cropWidth);
         }
 
         public override void Read(BinaryReader reader)
         {
-            crop_left = reader.ReadDouble();
-            crop_top = reader.ReadDouble();
-            crop_width = reader.ReadDouble();
+            cropLeft = reader.ReadDouble();
+            cropTop = reader.ReadDouble();
+            cropWidth = reader.ReadDouble();
         }
 
         public override string ToString()
         {
-            return $"(inputPhotoCrop crop_left:{crop_left} crop_top:{crop_top} crop_width:{crop_width})";
+            return $"(inputPhotoCrop crop_left:{cropLeft} crop_top:{cropTop} crop_width:{cropWidth})";
         }
     }
 
@@ -2382,7 +2309,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputAppEvent;
+        public override Constructor constructor => Constructor.InputAppEvent;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2410,85 +2337,77 @@ namespace Telegram.Net.Core.MTProto
 
     public class PeerUserConstructor : Peer
     {
-        public int user_id;
+        public int userId;
 
         public PeerUserConstructor()
         {
 
         }
 
-        public PeerUserConstructor(int user_id)
+        public PeerUserConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.peerUser;
+        public override Constructor constructor => Constructor.PeerUser;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x9db1bc6d);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(peerUser user_id:{user_id})";
+            return $"(peerUser userId:{userId})";
         }
     }
 
 
     public class PeerChatConstructor : Peer
     {
-        public int chat_id;
+        public int chatId;
 
         public PeerChatConstructor()
         {
 
         }
 
-        public PeerChatConstructor(int chat_id)
+        public PeerChatConstructor(int chatId)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
         }
 
 
-        public override Constructor Constructor => Constructor.peerChat;
+        public override Constructor constructor => Constructor.PeerChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xbad0e5bb);
-            writer.Write(chat_id);
+            writer.Write(chatId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(peerChat chat_id:{chat_id})";
+            return $"(peerChat chatId:{chatId})";
         }
     }
 
 
-    public class Storage_fileUnknownConstructor : storage_FileType
+    public class StorageFileUnknownConstructor : StorageFileType
     {
-
-        public Storage_fileUnknownConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileUnknown;
+        public override Constructor constructor => Constructor.StorageFileUnknown;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2506,17 +2425,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileJpegConstructor : storage_FileType
+    public class StorageFileJpegConstructor : StorageFileType
     {
-
-        public Storage_fileJpegConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileJpeg;
+        public override Constructor constructor => Constructor.StorageFileJpeg;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2534,17 +2445,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileGifConstructor : storage_FileType
+    public class StorageFileGifConstructor : StorageFileType
     {
-
-        public Storage_fileGifConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileGif;
+        public override Constructor constructor => Constructor.StorageFileGif;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2562,17 +2465,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_filePngConstructor : storage_FileType
+    public class StorageFilePngConstructor : StorageFileType
     {
-
-        public Storage_filePngConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_filePng;
+        public override Constructor constructor => Constructor.StorageFilePng;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2590,17 +2485,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileMp3Constructor : storage_FileType
+    public class StorageFileMp3Constructor : StorageFileType
     {
-
-        public Storage_fileMp3Constructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileMp3;
+        public override Constructor constructor => Constructor.StorageFileMp3;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2618,17 +2505,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileMovConstructor : storage_FileType
+    public class StorageFileMovConstructor : StorageFileType
     {
-
-        public Storage_fileMovConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileMov;
+        public override Constructor constructor => Constructor.StorageFileMov;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2646,17 +2525,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_filePartialConstructor : storage_FileType
+    public class StorageFilePartialConstructor : StorageFileType
     {
-
-        public Storage_filePartialConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_filePartial;
+        public override Constructor constructor => Constructor.StorageFilePartial;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2674,17 +2545,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileMp4Constructor : storage_FileType
+    public class StorageFileMp4Constructor : StorageFileType
     {
-
-        public Storage_fileMp4Constructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileMp4;
+        public override Constructor constructor => Constructor.StorageFileMp4;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2702,17 +2565,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Storage_fileWebpConstructor : storage_FileType
+    public class StorageFileWebpConstructor : StorageFileType
     {
-
-        public Storage_fileWebpConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.storage_fileWebp;
+        public override Constructor constructor => Constructor.StorageFileWebp;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2732,8 +2587,8 @@ namespace Telegram.Net.Core.MTProto
 
     public class FileLocationUnavailableConstructor : FileLocation
     {
-        public long volume_id;
-        public int local_id;
+        public long volumeId;
+        public int localId;
         public long secret;
 
         public FileLocationUnavailableConstructor()
@@ -2741,43 +2596,43 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public FileLocationUnavailableConstructor(long volume_id, int local_id, long secret)
+        public FileLocationUnavailableConstructor(long volumeId, int localId, long secret)
         {
-            this.volume_id = volume_id;
-            this.local_id = local_id;
+            this.volumeId = volumeId;
+            this.localId = localId;
             this.secret = secret;
         }
 
 
-        public override Constructor Constructor => Constructor.fileLocationUnavailable;
+        public override Constructor constructor => Constructor.FileLocationUnavailable;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x7c596b46);
-            writer.Write(volume_id);
-            writer.Write(local_id);
+            writer.Write(volumeId);
+            writer.Write(localId);
             writer.Write(secret);
         }
 
         public override void Read(BinaryReader reader)
         {
-            volume_id = reader.ReadInt64();
-            local_id = reader.ReadInt32();
+            volumeId = reader.ReadInt64();
+            localId = reader.ReadInt32();
             secret = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(fileLocationUnavailable volume_id:{volume_id} local_id:{local_id} secret:{secret})";
+            return $"(fileLocationUnavailable volume_id:{volumeId} local_id:{localId} secret:{secret})";
         }
     }
 
 
     public class FileLocationConstructor : FileLocation
     {
-        public int dc_id;
-        public long volume_id;
-        public int local_id;
+        public int dcId;
+        public long volumeId;
+        public int localId;
         public long secret;
 
         public FileLocationConstructor()
@@ -2785,37 +2640,37 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public FileLocationConstructor(int dc_id, long volume_id, int local_id, long secret)
+        public FileLocationConstructor(int dcId, long volumeId, int localId, long secret)
         {
-            this.dc_id = dc_id;
-            this.volume_id = volume_id;
-            this.local_id = local_id;
+            this.dcId = dcId;
+            this.volumeId = volumeId;
+            this.localId = localId;
             this.secret = secret;
         }
 
 
-        public override Constructor Constructor => Constructor.fileLocation;
+        public override Constructor constructor => Constructor.FileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x53d69076);
-            writer.Write(dc_id);
-            writer.Write(volume_id);
-            writer.Write(local_id);
+            writer.Write(dcId);
+            writer.Write(volumeId);
+            writer.Write(localId);
             writer.Write(secret);
         }
 
         public override void Read(BinaryReader reader)
         {
-            dc_id = reader.ReadInt32();
-            volume_id = reader.ReadInt64();
-            local_id = reader.ReadInt32();
+            dcId = reader.ReadInt32();
+            volumeId = reader.ReadInt64();
+            localId = reader.ReadInt32();
             secret = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(fileLocation dc_id:{dc_id} volume_id:{volume_id} local_id:{local_id} secret:{secret})";
+            return $"(fileLocation dc_id:{dcId} volume_id:{volumeId} local_id:{localId} secret:{secret})";
         }
     }
 
@@ -2835,7 +2690,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.userEmpty;
+        public override Constructor constructor => Constructor.UserEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2858,8 +2713,8 @@ namespace Telegram.Net.Core.MTProto
     public class UserSelfConstructor : User //userSelf#7007b451 id:int first_name:string last_name:string username:string phone:string photo:UserProfilePhoto status:UserStatus inactive:Bool = User;
     {
         public int id;
-        public string first_name;
-        public string last_name;
+        public string firstName;
+        public string lastName;
         public string username;
         public string phone;
         public UserProfilePhoto photo;
@@ -2871,12 +2726,12 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UserSelfConstructor(int id, string first_name, string last_name, string username, string phone, UserProfilePhoto photo,
+        public UserSelfConstructor(int id, string firstName, string lastName, string username, string phone, UserProfilePhoto photo,
             UserStatus status, bool inactive)
         {
             this.id = id;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstName = firstName;
+            this.lastName = lastName;
             this.username = username;
             this.phone = phone;
             this.photo = photo;
@@ -2885,14 +2740,14 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.userSelf;
+        public override Constructor constructor => Constructor.UserSelf;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x720535ec);
             writer.Write(id);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
             Serializers.String.Write(writer, username);
             Serializers.String.Write(writer, phone);
             photo.Write(writer);
@@ -2903,19 +2758,19 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
             username = Serializers.String.Read(reader);
             phone = Serializers.String.Read(reader);
-            photo = TL.Parse<UserProfilePhoto>(reader);
-            status = TL.Parse<UserStatus>(reader);
+            photo = Read<UserProfilePhoto>(reader);
+            status = Read<UserStatus>(reader);
             inactive = reader.ReadUInt32() == 0x997275b5;
         }
 
         public override string ToString()
         {
             return
-                $"(userSelf id:{id} first_name:'{first_name}' last_name:'{last_name}' username: '{username}' phone:'{phone}' photo:{photo} status:{status} inactive:{inactive})";
+                $"(userSelf id:{id} firstName:'{firstName}' lastName:'{lastName}' username: '{username}' phone:'{phone}' photo:{photo} status:{status} inactive:{inactive})";
         }
     }
 
@@ -2926,7 +2781,7 @@ namespace Telegram.Net.Core.MTProto
         public string firstName;
         public string lastName;
         public string username;
-        public long access_hash;
+        public long accessHash;
         public string phone;
         public UserProfilePhoto photo;
         public UserStatus status;
@@ -2936,21 +2791,21 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UserContactConstructor(int id, string firstName, string lastName, string username, long access_hash, string phone,
+        public UserContactConstructor(int id, string firstName, string lastName, string username, long accessHash, string phone,
             UserProfilePhoto photo, UserStatus status)
         {
             this.id = id;
             this.firstName = firstName;
             this.lastName = lastName;
             this.username = username;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.phone = phone;
             this.photo = photo;
             this.status = status;
         }
 
 
-        public override Constructor Constructor => Constructor.userContact;
+        public override Constructor constructor => Constructor.UserContact;
 
         public override void Write(BinaryWriter writer)
         {
@@ -2959,7 +2814,7 @@ namespace Telegram.Net.Core.MTProto
             Serializers.String.Write(writer, firstName);
             Serializers.String.Write(writer, lastName);
             Serializers.String.Write(writer, username);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             Serializers.String.Write(writer, phone);
             photo.Write(writer);
             status.Write(writer);
@@ -2971,16 +2826,16 @@ namespace Telegram.Net.Core.MTProto
             firstName = Serializers.String.Read(reader);
             lastName = Serializers.String.Read(reader);
             username = Serializers.String.Read(reader);
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             phone = Serializers.String.Read(reader);
-            photo = TL.Parse<UserProfilePhoto>(reader);
-            status = TL.Parse<UserStatus>(reader);
+            photo = Read<UserProfilePhoto>(reader);
+            status = Read<UserStatus>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(userContact id:{id} first_name:'{firstName}' last_name:'{lastName}' username: '{username}' access_hash:{access_hash} phone:'{phone}' photo:{photo} status:{status})";
+                $"(userContact id:{id} firstName:'{firstName}' lastName:'{lastName}' username: '{username}' accessHash:{accessHash} phone:'{phone}' photo:{photo} status:{status})";
         }
     }
 
@@ -2988,10 +2843,10 @@ namespace Telegram.Net.Core.MTProto
     public class UserRequestConstructor : User //userRequest#d9ccc4ef id:int first_name:string last_name:string username:string access_hash:long phone:string photo:UserProfilePhoto status:UserStatus = User;
     {
         public int id;
-        public string first_name;
-        public string last_name;
+        public string firstName;
+        public string lastName;
         public string username;
-        public long access_hash;
+        public long accessHash;
         public string phone;
         public UserProfilePhoto photo;
         public UserStatus status;
@@ -3001,30 +2856,30 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UserRequestConstructor(int id, string first_name, string last_name, string username, long access_hash, string phone,
+        public UserRequestConstructor(int id, string firstName, string lastName, string username, long accessHash, string phone,
             UserProfilePhoto photo, UserStatus status)
         {
             this.id = id;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstName = firstName;
+            this.lastName = lastName;
             this.username = username;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.phone = phone;
             this.photo = photo;
             this.status = status;
         }
 
 
-        public override Constructor Constructor => Constructor.userRequest;
+        public override Constructor constructor => Constructor.UserRequest;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x22e8ceb0);
             writer.Write(id);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
             Serializers.String.Write(writer, username);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             Serializers.String.Write(writer, phone);
             photo.Write(writer);
             status.Write(writer);
@@ -3033,19 +2888,19 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
             username = Serializers.String.Read(reader);
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             phone = Serializers.String.Read(reader);
-            photo = TL.Parse<UserProfilePhoto>(reader);
-            status = TL.Parse<UserStatus>(reader);
+            photo = Read<UserProfilePhoto>(reader);
+            status = Read<UserStatus>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(userRequest id:{id} first_name:'{first_name}' last_name:'{last_name}' username:'{username}' access_hash:{access_hash} phone:'{phone}' photo:{photo} status:{status})";
+                $"(userRequest id:{id} firstName:'{firstName}' lastName:'{lastName}' username:'{username}' accessHash:{accessHash} phone:'{phone}' photo:{photo} status:{status})";
         }
     }
 
@@ -3053,10 +2908,10 @@ namespace Telegram.Net.Core.MTProto
     public class UserForeignConstructor : User //userForeign#75cf7a8 id:int first_name:string last_name:string username:string access_hash:long photo:UserProfilePhoto status:UserStatus = User;
     {
         public int id;
-        public string first_name;
-        public string last_name;
+        public string firstName;
+        public string lastName;
         public string username;
-        public long access_hash;
+        public long accessHash;
         public UserProfilePhoto photo;
         public UserStatus status;
 
@@ -3065,28 +2920,27 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UserForeignConstructor(int id, string first_name, string last_name, string username, long access_hash, UserProfilePhoto photo, UserStatus status)
+        public UserForeignConstructor(int id, string firstName, string lastName, string username, long accessHash, UserProfilePhoto photo, UserStatus status)
         {
             this.id = id;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstName = firstName;
+            this.lastName = lastName;
             this.username = username;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.photo = photo;
             this.status = status;
         }
 
-
-        public override Constructor Constructor => Constructor.userForeign;
+        public override Constructor constructor => Constructor.UserForeign;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5214c89d);
             writer.Write(id);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
             Serializers.String.Write(writer, username);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             photo.Write(writer);
             status.Write(writer);
         }
@@ -3094,28 +2948,26 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
             username = Serializers.String.Read(reader);
-            access_hash = reader.ReadInt64();
-            photo = TL.Parse<UserProfilePhoto>(reader);
-            status = TL.Parse<UserStatus>(reader);
-            long tamano = reader.BaseStream.Length;
+            accessHash = reader.ReadInt64();
+            photo = Read<UserProfilePhoto>(reader);
+            status = Read<UserStatus>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(userForeign id:{id} first_name:'{first_name}' last_name:'{last_name}' username:'{username}' access_hash:{access_hash} photo:{photo} status:{status})";
+                $"(userForeign id:{id} firstName:'{firstName}' lastName:'{lastName}' username:'{username}' accessHash:{accessHash} photo:{photo} status:{status})";
         }
     }
-
 
     public class UserDeletedConstructor : User //userDeleted#d6016d7a id:int first_name:string last_name:string username:string = User;
     {
         public int id;
-        public string first_name;
-        public string last_name;
+        public string firstName;
+        public string lastName;
         public string username;
 
         public UserDeletedConstructor()
@@ -3123,50 +2975,44 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UserDeletedConstructor(int id, string first_name, string last_name, string username)
+        public UserDeletedConstructor(int id, string firstName, string lastName, string username)
         {
             this.id = id;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstName = firstName;
+            this.lastName = lastName;
             this.username = username;
         }
 
 
-        public override Constructor Constructor => Constructor.userDeleted;
+        public override Constructor constructor => Constructor.UserDeleted;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xb29ad7cc);
             writer.Write(id);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
             Serializers.String.Write(writer, username);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
             username = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
-            return $"(userDeleted id:{id} first_name:'{first_name}' last_name:'{last_name}' username: '{username}')";
+            return $"(userDeleted id:{id} firstName:'{firstName}' lastName:'{lastName}' username:'{username}')";
         }
     }
 
 
     public class UserProfilePhotoEmptyConstructor : UserProfilePhoto
     {
-
-        public UserProfilePhotoEmptyConstructor()
-        {
-
-        }
-
-        public override Constructor Constructor => Constructor.userProfilePhotoEmpty;
+        public override Constructor constructor => Constructor.UserProfilePhotoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3186,58 +3032,50 @@ namespace Telegram.Net.Core.MTProto
 
     public class UserProfilePhotoConstructor : UserProfilePhoto
     {
-        public long photo_id;
-        public FileLocation photo_small;
-        public FileLocation photo_big;
+        public long photoId;
+        public FileLocation photoSmall;
+        public FileLocation photoBig;
 
         public UserProfilePhotoConstructor()
         {
 
         }
 
-        public UserProfilePhotoConstructor(long photo_id, FileLocation photo_small, FileLocation photo_big)
+        public UserProfilePhotoConstructor(long photoId, FileLocation photoSmall, FileLocation photoBig)
         {
-            this.photo_id = photo_id;
-            this.photo_small = photo_small;
-            this.photo_big = photo_big;
+            this.photoId = photoId;
+            this.photoSmall = photoSmall;
+            this.photoBig = photoBig;
         }
 
 
-        public override Constructor Constructor => Constructor.userProfilePhoto;
+        public override Constructor constructor => Constructor.UserProfilePhoto;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd559d8c8);
-            writer.Write(photo_id);
-            photo_small.Write(writer);
-            photo_big.Write(writer);
+            writer.Write(photoId);
+            photoSmall.Write(writer);
+            photoBig.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            photo_id = reader.ReadInt64();
-            photo_small = TL.Parse<FileLocation>(reader);
-            photo_big = TL.Parse<FileLocation>(reader);
+            photoId = reader.ReadInt64();
+            photoSmall = Read<FileLocation>(reader);
+            photoBig = Read<FileLocation>(reader);
         }
 
         public override string ToString()
         {
-            return $"(userProfilePhoto photo_id:{photo_id} photo_small:{photo_small} photo_big:{photo_big})";
+            return $"(userProfilePhoto photoId:{photoId} photoSmall:{photoSmall} photoBig:{photoBig})";
         }
     }
 
 
     public class UserStatusEmptyConstructor : UserStatus
     {
-
-        public UserStatusEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.userStatusEmpty;
+        public override Constructor constructor => Constructor.UserStatusEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3270,7 +3108,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.userStatusOnline;
+        public override Constructor constructor => Constructor.UserStatusOnline;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3292,35 +3130,35 @@ namespace Telegram.Net.Core.MTProto
 
     public class UserStatusOfflineConstructor : UserStatus
     {
-        public int was_online;
+        public int wasOnline;
 
         public UserStatusOfflineConstructor()
         {
 
         }
 
-        public UserStatusOfflineConstructor(int was_online)
+        public UserStatusOfflineConstructor(int wasOnline)
         {
-            this.was_online = was_online;
+            this.wasOnline = wasOnline;
         }
 
 
-        public override Constructor Constructor => Constructor.userStatusOffline;
+        public override Constructor constructor => Constructor.UserStatusOffline;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x008c703f);
-            writer.Write(was_online);
+            writer.Write(wasOnline);
         }
 
         public override void Read(BinaryReader reader)
         {
-            was_online = reader.ReadInt32();
+            wasOnline = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(userStatusOffline was_online:{was_online})";
+            return $"(userStatusOffline wasOnline:{wasOnline})";
         }
     }
 
@@ -3340,7 +3178,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.chatEmpty;
+        public override Constructor constructor => Constructor.ChatEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3365,7 +3203,7 @@ namespace Telegram.Net.Core.MTProto
         public int id;
         public string title;
         public ChatPhoto photo;
-        public int participants_count;
+        public int participantsCount;
         public int date;
         public bool left;
         public int version;
@@ -3375,19 +3213,19 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ChatConstructor(int id, string title, ChatPhoto photo, int participants_count, int date, bool left, int version)
+        public ChatConstructor(int id, string title, ChatPhoto photo, int participantsCount, int date, bool left, int version)
         {
             this.id = id;
             this.title = title;
             this.photo = photo;
-            this.participants_count = participants_count;
+            this.participantsCount = participantsCount;
             this.date = date;
             this.left = left;
             this.version = version;
         }
 
 
-        public override Constructor Constructor => Constructor.chat;
+        public override Constructor constructor => Constructor.Chat;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3395,7 +3233,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(id);
             Serializers.String.Write(writer, title);
             photo.Write(writer);
-            writer.Write(participants_count);
+            writer.Write(participantsCount);
             writer.Write(date);
             writer.Write(left ? 0x997275b5 : 0xbc799737);
             writer.Write(version);
@@ -3405,8 +3243,8 @@ namespace Telegram.Net.Core.MTProto
         {
             id = reader.ReadInt32();
             title = Serializers.String.Read(reader);
-            photo = TL.Parse<ChatPhoto>(reader);
-            participants_count = reader.ReadInt32();
+            photo = Read<ChatPhoto>(reader);
+            participantsCount = reader.ReadInt32();
             date = reader.ReadInt32();
             left = reader.ReadUInt32() == 0x997275b5;
             version = reader.ReadInt32();
@@ -3415,7 +3253,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(chat id:{id} title:'{title}' photo:{photo} participants_count:{participants_count} date:{date} left:{left} version:{version})";
+                $"(chat id:{id} title:'{title}' photo:{photo} participantsCount:{participantsCount} date:{date} left:{left} version:{version})";
         }
     }
 
@@ -3439,7 +3277,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.chatForbidden;
+        public override Constructor constructor => Constructor.ChatForbidden;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3467,54 +3305,54 @@ namespace Telegram.Net.Core.MTProto
     {
         public int id;
         public ChatParticipants participants;
-        public Photo chat_photo;
-        public PeerNotifySettings notify_settings;
+        public Photo chatPhoto;
+        public PeerNotifySettings notifySettings;
 
         public ChatFullConstructor()
         {
 
         }
 
-        public ChatFullConstructor(int id, ChatParticipants participants, Photo chat_photo, PeerNotifySettings notify_settings)
+        public ChatFullConstructor(int id, ChatParticipants participants, Photo chatPhoto, PeerNotifySettings notifySettings)
         {
             this.id = id;
             this.participants = participants;
-            this.chat_photo = chat_photo;
-            this.notify_settings = notify_settings;
+            this.chatPhoto = chatPhoto;
+            this.notifySettings = notifySettings;
         }
 
 
-        public override Constructor Constructor => Constructor.chatFull;
+        public override Constructor constructor => Constructor.ChatFull;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x630e61be);
             writer.Write(id);
             participants.Write(writer);
-            chat_photo.Write(writer);
-            notify_settings.Write(writer);
+            chatPhoto.Write(writer);
+            notifySettings.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            participants = TL.Parse<ChatParticipants>(reader);
-            chat_photo = TL.Parse<Photo>(reader);
-            notify_settings = TL.Parse<PeerNotifySettings>(reader);
+            participants = Read<ChatParticipants>(reader);
+            chatPhoto = Read<Photo>(reader);
+            notifySettings = Read<PeerNotifySettings>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(chatFull id:{id} participants:{participants} chat_photo:{chat_photo} notify_settings:{notify_settings})";
+                $"(chatFull id:{id} participants:{participants} chatPhoto:{chatPhoto} notifySettings:{notifySettings})";
         }
     }
 
 
     public class ChatParticipantConstructor : ChatParticipant
     {
-        public int user_id;
-        public int inviter_id;
+        public int userId;
+        public int inviterId;
         public int date;
 
         public ChatParticipantConstructor()
@@ -3522,69 +3360,69 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ChatParticipantConstructor(int user_id, int inviter_id, int date)
+        public ChatParticipantConstructor(int userId, int inviterId, int date)
         {
-            this.user_id = user_id;
-            this.inviter_id = inviter_id;
+            this.userId = userId;
+            this.inviterId = inviterId;
             this.date = date;
         }
 
 
-        public override Constructor Constructor => Constructor.chatParticipant;
+        public override Constructor constructor => Constructor.ChatParticipant;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xc8d7493e);
-            writer.Write(user_id);
-            writer.Write(inviter_id);
+            writer.Write(userId);
+            writer.Write(inviterId);
             writer.Write(date);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            inviter_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
+            inviterId = reader.ReadInt32();
             date = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(chatParticipant user_id:{user_id} inviter_id:{inviter_id} date:{date})";
+            return $"(chatParticipant userId:{userId} inviterId:{inviterId} date:{date})";
         }
     }
 
 
     public class ChatParticipantsForbiddenConstructor : ChatParticipants
     {
-        public int chat_id;
+        public int chatId;
 
         public ChatParticipantsForbiddenConstructor()
         {
 
         }
 
-        public ChatParticipantsForbiddenConstructor(int chat_id)
+        public ChatParticipantsForbiddenConstructor(int chatId)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
         }
 
 
-        public override Constructor Constructor => Constructor.chatParticipantsForbidden;
+        public override Constructor constructor => Constructor.ChatParticipantsForbidden;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x0fd2bb8a);
-            writer.Write(chat_id);
+            writer.Write(chatId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(chatParticipantsForbidden chat_id:{chat_id})";
+            return $"(chatParticipantsForbidden chatId:{chatId})";
         }
     }
 
@@ -3610,7 +3448,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.chatParticipants;
+        public override Constructor constructor => Constructor.ChatParticipants;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3619,9 +3457,9 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(adminId);
             writer.Write(0x1cb5c415);
             writer.Write(participants.Count);
-            foreach (ChatParticipant participants_element in participants)
+            foreach (ChatParticipant participantsElement in participants)
             {
-                participants_element.Write(writer);
+                participantsElement.Write(writer);
             }
             writer.Write(version);
         }
@@ -3631,13 +3469,12 @@ namespace Telegram.Net.Core.MTProto
             chatId = reader.ReadInt32();
             adminId = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int participants_len = reader.ReadInt32();
-            participants = new List<ChatParticipant>(participants_len);
-            for (int participants_index = 0; participants_index < participants_len; participants_index++)
+            int participantsLen = reader.ReadInt32();
+            participants = new List<ChatParticipant>(participantsLen);
+            for (int participantsIndex = 0; participantsIndex < participantsLen; participantsIndex++)
             {
-                ChatParticipant participants_element;
-                participants_element = TL.Parse<ChatParticipant>(reader);
-                participants.Add(participants_element);
+                var participantsElement = Read<ChatParticipant>(reader);
+                participants.Add(participantsElement);
             }
             version = reader.ReadInt32();
         }
@@ -3645,22 +3482,14 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(chatParticipants chat_id:{chatId} admin_id:{adminId} participants:{Serializers.VectorToString(participants)} version:{version})";
+                $"(chatParticipants chatId:{chatId} admin_id:{adminId} participants:{Serializers.VectorToString(participants)} version:{version})";
         }
     }
 
 
     public class ChatPhotoEmptyConstructor : ChatPhoto
     {
-
-        public ChatPhotoEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.chatPhotoEmpty;
+        public override Constructor constructor => Constructor.ChatPhotoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3680,39 +3509,39 @@ namespace Telegram.Net.Core.MTProto
 
     public class ChatPhotoConstructor : ChatPhoto
     {
-        public FileLocation photo_small;
-        public FileLocation photo_big;
+        public FileLocation photoSmall;
+        public FileLocation photoBig;
 
         public ChatPhotoConstructor()
         {
 
         }
 
-        public ChatPhotoConstructor(FileLocation photo_small, FileLocation photo_big)
+        public ChatPhotoConstructor(FileLocation photoSmall, FileLocation photoBig)
         {
-            this.photo_small = photo_small;
-            this.photo_big = photo_big;
+            this.photoSmall = photoSmall;
+            this.photoBig = photoBig;
         }
 
 
-        public override Constructor Constructor => Constructor.chatPhoto;
+        public override Constructor constructor => Constructor.ChatPhoto;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6153276a);
-            photo_small.Write(writer);
-            photo_big.Write(writer);
+            photoSmall.Write(writer);
+            photoBig.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            photo_small = TL.Parse<FileLocation>(reader);
-            photo_big = TL.Parse<FileLocation>(reader);
+            photoSmall = Read<FileLocation>(reader);
+            photoBig = Read<FileLocation>(reader);
         }
 
         public override string ToString()
         {
-            return $"(chatPhoto photo_small:{photo_small} photo_big:{photo_big})";
+            return $"(chatPhoto photoSmall:{photoSmall} photoBig:{photoBig})";
         }
     }
 
@@ -3732,7 +3561,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageEmpty;
+        public override Constructor constructor => Constructor.MessageEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3762,8 +3591,8 @@ namespace Telegram.Net.Core.MTProto
         public string message;
         public MessageMedia media;
 
-        public bool Unread => (flags & 0x1) > 0;
-        public bool SentByCurrentUser => (flags & 0x2) > 0;
+        public bool unread => (flags & 0x1) > 0;
+        public bool sentByCurrentUser => (flags & 0x2) > 0;
 
         public MessageConstructor()
         {
@@ -3781,7 +3610,7 @@ namespace Telegram.Net.Core.MTProto
             this.media = media;
         }
 
-        public override Constructor Constructor => Constructor.message;
+        public override Constructor constructor => Constructor.Message;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3801,15 +3630,15 @@ namespace Telegram.Net.Core.MTProto
             flags = reader.ReadInt32();
             id = reader.ReadInt32();
             fromId = reader.ReadInt32();
-            toId = TL.Parse<Peer>(reader);
+            toId = Read<Peer>(reader);
             date = reader.ReadInt32();
             message = Serializers.String.Read(reader);
-            media = TL.Parse<MessageMedia>(reader);
+            media = Read<MessageMedia>(reader);
         }
 
         public override string ToString()
         {
-            return $"(message) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
+            return $"(message) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {unread}, SentByCurrentUser: {sentByCurrentUser}";
         }
     }
 
@@ -3825,8 +3654,8 @@ namespace Telegram.Net.Core.MTProto
         public string message;
         public MessageMedia media;
 
-        public bool Unread => (flags & 0x1) > 0;
-        public bool SentByCurrentUser => (flags & 0x2) > 0;
+        public bool unread => (flags & 0x1) > 0;
+        public bool sentByCurrentUser => (flags & 0x2) > 0;
 
         public MessageForwardedConstructor()
         {
@@ -3846,7 +3675,7 @@ namespace Telegram.Net.Core.MTProto
             this.media = media;
         }
 
-        public override Constructor Constructor => Constructor.messageForwarded;
+        public override Constructor constructor => Constructor.MessageForwarded;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3869,15 +3698,15 @@ namespace Telegram.Net.Core.MTProto
             fwdFromId = reader.ReadInt32();
             fwdDate = reader.ReadInt32();
             fromId = reader.ReadInt32();
-            toId = TL.Parse<Peer>(reader);
+            toId = Read<Peer>(reader);
             date = reader.ReadInt32();
             message = Serializers.String.Read(reader);
-            media = TL.Parse<MessageMedia>(reader);
+            media = Read<MessageMedia>(reader);
         }
 
         public override string ToString()
         {
-            return $"(messageForwarded) Flags: {flags}, Id: {id}, FwdFromId: {fwdFromId}, FwdDate: {fwdDate}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
+            return $"(messageForwarded) Flags: {flags}, Id: {id}, FwdFromId: {fwdFromId}, FwdDate: {fwdDate}, FromId: {fromId}, ToId: {toId}, Date: {date}, Message: {message}, Media: {media}, Unread: {unread}, SentByCurrentUser: {sentByCurrentUser}";
         }
     }
 
@@ -3891,8 +3720,8 @@ namespace Telegram.Net.Core.MTProto
         public int date;
         public MessageAction action;
 
-        public bool Unread => (flags & 0x1) > 0;
-        public bool SentByCurrentUser => (flags & 0x2) > 0;
+        public bool unread => (flags & 0x1) > 0;
+        public bool sentByCurrentUser => (flags & 0x2) > 0;
 
         public MessageServiceConstructor() { }
 
@@ -3906,7 +3735,7 @@ namespace Telegram.Net.Core.MTProto
             this.action = action;
         }
 
-        public override Constructor Constructor => Constructor.messageService;
+        public override Constructor constructor => Constructor.MessageService;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3924,29 +3753,21 @@ namespace Telegram.Net.Core.MTProto
             flags = reader.ReadInt32();
             id = reader.ReadInt32();
             fromId = reader.ReadInt32();
-            toId = TL.Parse<Peer>(reader);
+            toId = Read<Peer>(reader);
             date = reader.ReadInt32();
-            action = TL.Parse<MessageAction>(reader);
+            action = Read<MessageAction>(reader);
         }
 
         public override string ToString()
         {
-            return $"(messageService) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Action: {action}, Unread: {Unread}, SentByCurrentUser: {SentByCurrentUser}, Constructor: {Constructor}";
+            return $"(messageService) Flags: {flags}, Id: {id}, FromId: {fromId}, ToId: {toId}, Date: {date}, Action: {action}, Unread: {unread}, SentByCurrentUser: {sentByCurrentUser}";
         }
     }
 
 
     public class MessageMediaEmptyConstructor : MessageMedia
     {
-
-        public MessageMediaEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.messageMediaEmpty;
+        public override Constructor constructor => Constructor.MessageMediaEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3979,7 +3800,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaPhoto;
+        public override Constructor constructor => Constructor.MessageMediaPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -3989,7 +3810,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            photo = TL.Parse<Photo>(reader);
+            photo = Read<Photo>(reader);
         }
 
         public override string ToString()
@@ -4014,7 +3835,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaVideo;
+        public override Constructor constructor => Constructor.MessageMediaVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4024,7 +3845,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            video = TL.Parse<Video>(reader);
+            video = Read<Video>(reader);
         }
 
         public override string ToString()
@@ -4049,7 +3870,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaGeo;
+        public override Constructor constructor => Constructor.MessageMediaGeo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4059,7 +3880,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            geo = TL.Parse<GeoPoint>(reader);
+            geo = Read<GeoPoint>(reader);
         }
 
         public override string ToString()
@@ -4071,48 +3892,48 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageMediaContactConstructor : MessageMedia
     {
-        public string phone_number;
-        public string first_name;
-        public string last_name;
-        public int user_id;
+        public string phoneNumber;
+        public string firstName;
+        public string lastName;
+        public int userId;
 
         public MessageMediaContactConstructor()
         {
 
         }
 
-        public MessageMediaContactConstructor(string phone_number, string first_name, string last_name, int user_id)
+        public MessageMediaContactConstructor(string phoneNumber, string firstName, string lastName, int userId)
         {
-            this.phone_number = phone_number;
-            this.first_name = first_name;
-            this.last_name = last_name;
-            this.user_id = user_id;
+            this.phoneNumber = phoneNumber;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaContact;
+        public override Constructor constructor => Constructor.MessageMediaContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5e7d2f39);
-            Serializers.String.Write(writer, phone_number);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
-            writer.Write(user_id);
+            Serializers.String.Write(writer, phoneNumber);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            phone_number = Serializers.String.Read(reader);
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
-            user_id = reader.ReadInt32();
+            phoneNumber = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(messageMediaContact phone_number:'{phone_number}' first_name:'{first_name}' last_name:'{last_name}' user_id:{user_id})";
+                $"(messageMediaContact phoneNumber:'{phoneNumber}' firstName:'{firstName}' lastName:'{lastName}' userId:{userId})";
         }
     }
 
@@ -4132,7 +3953,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaUnsupported;
+        public override Constructor constructor => Constructor.MessageMediaUnsupported;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4154,15 +3975,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageActionEmptyConstructor : MessageAction
     {
-
-        public MessageActionEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.messageActionEmpty;
+        public override Constructor constructor => Constructor.MessageActionEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4197,7 +4010,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionChatCreate;
+        public override Constructor constructor => Constructor.MessageActionChatCreate;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4205,9 +4018,9 @@ namespace Telegram.Net.Core.MTProto
             Serializers.String.Write(writer, title);
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (int users_element in users)
+            foreach (int usersElement in users)
             {
-                writer.Write(users_element);
+                writer.Write(usersElement);
             }
         }
 
@@ -4215,13 +4028,12 @@ namespace Telegram.Net.Core.MTProto
         {
             title = Serializers.String.Read(reader);
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<int>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<int>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                int users_element;
-                users_element = reader.ReadInt32();
-                users.Add(users_element);
+                var usersElement = reader.ReadInt32();
+                users.Add(usersElement);
             }
         }
 
@@ -4247,7 +4059,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionChatEditTitle;
+        public override Constructor constructor => Constructor.MessageActionChatEditTitle;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4282,7 +4094,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionChatEditPhoto;
+        public override Constructor constructor => Constructor.MessageActionChatEditPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4292,7 +4104,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            photo = TL.Parse<Photo>(reader);
+            photo = Read<Photo>(reader);
         }
 
         public override string ToString()
@@ -4304,15 +4116,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageActionChatDeletePhotoConstructor : MessageAction
     {
-
-        public MessageActionChatDeletePhotoConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.messageActionChatDeletePhoto;
+        public override Constructor constructor => Constructor.MessageActionChatDeletePhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4332,93 +4136,78 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageActionChatAddUserConstructor : MessageAction
     {
-        public int user_id;
+        public int userId;
 
         public MessageActionChatAddUserConstructor()
         {
 
         }
 
-        public MessageActionChatAddUserConstructor(int user_id)
+        public MessageActionChatAddUserConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionChatAddUser;
+        public override Constructor constructor => Constructor.MessageActionChatAddUser;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5e3cfc4b);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(messageActionChatAddUser user_id:{user_id})";
+            return $"(messageActionChatAddUser userId:{userId})";
         }
     }
 
 
     public class MessageActionChatDeleteUserConstructor : MessageAction
     {
-        public int user_id;
+        public int userId;
 
         public MessageActionChatDeleteUserConstructor()
         {
 
         }
 
-        public MessageActionChatDeleteUserConstructor(int user_id)
+        public MessageActionChatDeleteUserConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionChatDeleteUser;
+        public override Constructor constructor => Constructor.MessageActionChatDeleteUser;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xb2ae9b0c);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(messageActionChatDeleteUser user_id:{user_id})";
+            return $"(messageActionChatDeleteUser userId:{userId})";
         }
-    }
-
-    public class ContactsContacts
-    {
-        public IList<Contact> Contacts { get; set; }
-        public IList<User> Users { get; set; }
-    }
-
-    public class MessageDialogs
-    {
-        public int? Count { get; set; }
-        public List<Dialog> Dialogs { get; set; }
-        public List<Message> Messages { get; set; }
-        public List<Chat> Chats { get; set; }
-        public List<User> Users { get; set; }
     }
 
     public class DialogConstructor : Dialog
     {
         public Peer peer;
-        public int top_message;
-        public int unread_count;
+        public int topMessage;
+        public int unreadCount;
         public PeerNotifySettings peerNotifySettings;
 
         public DialogConstructor()
@@ -4426,37 +4215,37 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DialogConstructor(Peer peer, int top_message, int unread_count, PeerNotifySettings peerNotifySettings)
+        public DialogConstructor(Peer peer, int topMessage, int unreadCount, PeerNotifySettings peerNotifySettings)
         {
             this.peer = peer;
-            this.top_message = top_message;
-            this.unread_count = unread_count;
+            this.topMessage = topMessage;
+            this.unreadCount = unreadCount;
             this.peerNotifySettings = peerNotifySettings;
         }
 
 
-        public override Constructor Constructor => Constructor.dialog;
+        public override Constructor constructor => Constructor.Dialog;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xab3a99ac);
             peer.Write(writer);
-            writer.Write(top_message);
-            writer.Write(unread_count);
+            writer.Write(topMessage);
+            writer.Write(unreadCount);
             peerNotifySettings.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            peer = TL.Parse<Peer>(reader);
-            top_message = reader.ReadInt32();
-            unread_count = reader.ReadInt32();
-            peerNotifySettings = TL.Parse<PeerNotifySettings>(reader);
+            peer = Read<Peer>(reader);
+            topMessage = reader.ReadInt32();
+            unreadCount = reader.ReadInt32();
+            peerNotifySettings = Read<PeerNotifySettings>(reader);
         }
 
         public override string ToString()
         {
-            return $"(dialog peer:{peer} top_message:{top_message} unread_count:{unread_count})";
+            return $"(dialog peer:{peer} top_message:{topMessage} unread_count:{unreadCount})";
         }
     }
 
@@ -4476,7 +4265,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photoEmpty;
+        public override Constructor constructor => Constructor.PhotoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4499,8 +4288,8 @@ namespace Telegram.Net.Core.MTProto
     public class PhotoConstructor : Photo
     {
         public long id;
-        public long access_hash;
-        public int user_id;
+        public long accessHash;
+        public int userId;
         public int date;
         public string caption;
         public GeoPoint geo;
@@ -4511,12 +4300,12 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public PhotoConstructor(long id, long access_hash, int user_id, int date, string caption, GeoPoint geo,
+        public PhotoConstructor(long id, long accessHash, int userId, int date, string caption, GeoPoint geo,
             List<PhotoSize> sizes)
         {
             this.id = id;
-            this.access_hash = access_hash;
-            this.user_id = user_id;
+            this.accessHash = accessHash;
+            this.userId = userId;
             this.date = date;
             this.caption = caption;
             this.geo = geo;
@@ -4524,48 +4313,47 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photo;
+        public override Constructor constructor => Constructor.Photo;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x22b56751);
             writer.Write(id);
-            writer.Write(access_hash);
-            writer.Write(user_id);
+            writer.Write(accessHash);
+            writer.Write(userId);
             writer.Write(date);
             Serializers.String.Write(writer, caption);
             geo.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(sizes.Count);
-            foreach (PhotoSize sizes_element in sizes)
+            foreach (PhotoSize sizesElement in sizes)
             {
-                sizes_element.Write(writer);
+                sizesElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
-            user_id = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
             caption = Serializers.String.Read(reader);
-            geo = TL.Parse<GeoPoint>(reader);
+            geo = Read<GeoPoint>(reader);
             reader.ReadInt32(); // vector code
-            int sizes_len = reader.ReadInt32();
-            sizes = new List<PhotoSize>(sizes_len);
-            for (int sizes_index = 0; sizes_index < sizes_len; sizes_index++)
+            int sizesLen = reader.ReadInt32();
+            sizes = new List<PhotoSize>(sizesLen);
+            for (int sizesIndex = 0; sizesIndex < sizesLen; sizesIndex++)
             {
-                PhotoSize sizes_element;
-                sizes_element = TL.Parse<PhotoSize>(reader);
-                sizes.Add(sizes_element);
+                var sizesElement = Read<PhotoSize>(reader);
+                sizes.Add(sizesElement);
             }
         }
 
         public override string ToString()
         {
             return
-                $"(photo id:{id} access_hash:{access_hash} user_id:{user_id} date:{date} caption:'{caption}' geo:{geo} sizes:{Serializers.VectorToString(sizes)})";
+                $"(photo id:{id} accessHash:{accessHash} userId:{userId} date:{date} caption:'{caption}' geo:{geo} sizes:{Serializers.VectorToString(sizes)})";
         }
     }
 
@@ -4585,7 +4373,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photoSizeEmpty;
+        public override Constructor constructor => Constructor.PhotoSizeEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4628,7 +4416,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photoSize;
+        public override Constructor constructor => Constructor.PhotoSize;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4643,7 +4431,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             type = Serializers.String.Read(reader);
-            location = TL.Parse<FileLocation>(reader);
+            location = Read<FileLocation>(reader);
             w = reader.ReadInt32();
             h = reader.ReadInt32();
             size = reader.ReadInt32();
@@ -4679,7 +4467,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photoCachedSize;
+        public override Constructor constructor => Constructor.PhotoCachedSize;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4694,7 +4482,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             type = Serializers.String.Read(reader);
-            location = TL.Parse<FileLocation>(reader);
+            location = Read<FileLocation>(reader);
             w = reader.ReadInt32();
             h = reader.ReadInt32();
             bytes = Serializers.Bytes.Read(reader);
@@ -4723,7 +4511,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.videoEmpty;
+        public override Constructor constructor => Constructor.VideoEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4746,14 +4534,14 @@ namespace Telegram.Net.Core.MTProto
     public class VideoConstructor : Video
     {
         public long id;
-        public long access_hash;
-        public int user_id;
+        public long accessHash;
+        public int userId;
         public int date;
         public string caption;
         public int duration;
         public int size;
         public PhotoSize thumb;
-        public int dc_id;
+        public int dcId;
         public int w;
         public int h;
 
@@ -4762,37 +4550,37 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public VideoConstructor(long id, long access_hash, int user_id, int date, string caption, int duration, int size,
-            PhotoSize thumb, int dc_id, int w, int h)
+        public VideoConstructor(long id, long accessHash, int userId, int date, string caption, int duration, int size,
+            PhotoSize thumb, int dcId, int w, int h)
         {
             this.id = id;
-            this.access_hash = access_hash;
-            this.user_id = user_id;
+            this.accessHash = accessHash;
+            this.userId = userId;
             this.date = date;
             this.caption = caption;
             this.duration = duration;
             this.size = size;
             this.thumb = thumb;
-            this.dc_id = dc_id;
+            this.dcId = dcId;
             this.w = w;
             this.h = h;
         }
 
 
-        public override Constructor Constructor => Constructor.video;
+        public override Constructor constructor => Constructor.Video;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5a04a49f);
             writer.Write(id);
-            writer.Write(access_hash);
-            writer.Write(user_id);
+            writer.Write(accessHash);
+            writer.Write(userId);
             writer.Write(date);
             Serializers.String.Write(writer, caption);
             writer.Write(duration);
             writer.Write(size);
             thumb.Write(writer);
-            writer.Write(dc_id);
+            writer.Write(dcId);
             writer.Write(w);
             writer.Write(h);
         }
@@ -4800,14 +4588,14 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
-            user_id = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
             caption = Serializers.String.Read(reader);
             duration = reader.ReadInt32();
             size = reader.ReadInt32();
-            thumb = TL.Parse<PhotoSize>(reader);
-            dc_id = reader.ReadInt32();
+            thumb = Read<PhotoSize>(reader);
+            dcId = reader.ReadInt32();
             w = reader.ReadInt32();
             h = reader.ReadInt32();
         }
@@ -4815,22 +4603,14 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(video id:{id} access_hash:{access_hash} user_id:{user_id} date:{date} caption:'{caption}' duration:{duration} size:{size} thumb:{thumb} dc_id:{dc_id} w:{w} h:{h})";
+                $"(video id:{id} accessHash:{accessHash} userId:{userId} date:{date} caption:'{caption}' duration:{duration} size:{size} thumb:{thumb} dc_id:{dcId} w:{w} h:{h})";
         }
     }
 
 
     public class GeoPointEmptyConstructor : GeoPoint
     {
-
-        public GeoPointEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.geoPointEmpty;
+        public override Constructor constructor => Constructor.GeoPointEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4865,7 +4645,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.geoPoint;
+        public override Constructor constructor => Constructor.GeoPoint;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4887,73 +4667,73 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Auth_checkedPhoneConstructor : auth_CheckedPhone
+    public class AuthCheckedPhoneConstructor : AuthCheckedPhone
     {
-        public bool phone_registered;
-        public bool phone_invited;
+        public bool phoneRegistered;
+        public bool phoneInvited;
 
-        public Auth_checkedPhoneConstructor()
+        public AuthCheckedPhoneConstructor()
         {
 
         }
 
-        public Auth_checkedPhoneConstructor(bool phone_registered, bool phone_invited)
+        public AuthCheckedPhoneConstructor(bool phoneRegistered, bool phoneInvited)
         {
-            this.phone_registered = phone_registered;
-            this.phone_invited = phone_invited;
+            this.phoneRegistered = phoneRegistered;
+            this.phoneInvited = phoneInvited;
         }
 
 
-        public override Constructor Constructor => Constructor.auth_checkedPhone;
+        public override Constructor constructor => Constructor.AuthCheckedPhone;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xe300cc3b);
-            writer.Write(phone_registered ? 0x997275b5 : 0xbc799737);
-            writer.Write(phone_invited ? 0x997275b5 : 0xbc799737);
+            writer.Write(phoneRegistered ? 0x997275b5 : 0xbc799737);
+            writer.Write(phoneInvited ? 0x997275b5 : 0xbc799737);
         }
 
         public override void Read(BinaryReader reader)
         {
-            phone_registered = reader.ReadUInt32() == 0x997275b5;
-            phone_invited = reader.ReadUInt32() == 0x997275b5;
+            phoneRegistered = reader.ReadUInt32() == 0x997275b5;
+            phoneInvited = reader.ReadUInt32() == 0x997275b5;
         }
 
         public override string ToString()
         {
-            return $"(auth_checkedPhone phone_registered:{phone_registered} phone_invited:{phone_invited})";
+            return $"(auth_checkedPhone phone_registered:{phoneRegistered} phone_invited:{phoneInvited})";
         }
     }
 
 
     public class AuthSentCodeConstructor : AuthSentCode
     {
-        public override Constructor Constructor => Constructor.authSentCode;
+        public override Constructor constructor => Constructor.AuthSentCode;
     }
 
     public class AuthSentAppCodeConstructor : AuthSentCode
     {
-        public override Constructor Constructor => Constructor.authSentAppCode;
+        public override Constructor constructor => Constructor.AuthSentAppCode;
     }
 
-    public class Auth_authorizationConstructor : auth_Authorization
+    public class AuthAuthorizationConstructor : AuthAuthorization
     {
         public int expires;
         public User user;
 
-        public Auth_authorizationConstructor()
+        public AuthAuthorizationConstructor()
         {
 
         }
 
-        public Auth_authorizationConstructor(int expires, User user)
+        public AuthAuthorizationConstructor(int expires, User user)
         {
             this.expires = expires;
             this.user = user;
         }
 
 
-        public override Constructor Constructor => Constructor.auth_authorization;
+        public override Constructor constructor => Constructor.AuthAuthorization;
 
         public override void Write(BinaryWriter writer)
         {
@@ -4965,7 +4745,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             expires = reader.ReadInt32();
-            user = TL.Parse<User>(reader);
+            user = Read<User>(reader);
         }
 
         public override string ToString()
@@ -4975,24 +4755,24 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Auth_exportedAuthorizationConstructor : auth_ExportedAuthorization
+    public class AuthExportedAuthorizationConstructor : AuthExportedAuthorization
     {
         public int id;
         public byte[] bytes;
 
-        public Auth_exportedAuthorizationConstructor()
+        public AuthExportedAuthorizationConstructor()
         {
 
         }
 
-        public Auth_exportedAuthorizationConstructor(int id, byte[] bytes)
+        public AuthExportedAuthorizationConstructor(int id, byte[] bytes)
         {
             this.id = id;
             this.bytes = bytes;
         }
 
 
-        public override Constructor Constructor => Constructor.auth_exportedAuthorization;
+        public override Constructor constructor => Constructor.AuthExportedAuthorization;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5029,7 +4809,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputNotifyPeer;
+        public override Constructor constructor => Constructor.InputNotifyPeer;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5039,7 +4819,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            peer = TL.Parse<InputPeer>(reader);
+            peer = Read<InputPeer>(reader);
         }
 
         public override string ToString()
@@ -5051,15 +4831,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputNotifyUsersConstructor : InputNotifyPeer
     {
-
-        public InputNotifyUsersConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputNotifyUsers;
+        public override Constructor constructor => Constructor.InputNotifyUsers;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5079,15 +4851,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputNotifyChatsConstructor : InputNotifyPeer
     {
-
-        public InputNotifyChatsConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputNotifyChats;
+        public override Constructor constructor => Constructor.InputNotifyChats;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5107,15 +4871,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputNotifyAllConstructor : InputNotifyPeer
     {
-
-        public InputNotifyAllConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputNotifyAll;
+        public override Constructor constructor => Constructor.InputNotifyAll;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5135,15 +4891,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputPeerNotifyEventsEmptyConstructor : InputPeerNotifyEvents
     {
-
-        public InputPeerNotifyEventsEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPeerNotifyEventsEmpty;
+        public override Constructor constructor => Constructor.InputPeerNotifyEventsEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5163,15 +4911,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputPeerNotifyEventsAllConstructor : InputPeerNotifyEvents
     {
-
-        public InputPeerNotifyEventsAllConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputPeerNotifyEventsAll;
+        public override Constructor constructor => Constructor.InputPeerNotifyEventsAll;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5191,63 +4931,55 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputPeerNotifySettingsConstructor : InputPeerNotifySettings
     {
-        public int mute_until;
+        public int muteUntil;
         public string sound;
-        public bool show_previews;
-        public int events_mask;
+        public bool showPreviews;
+        public int eventsMask;
 
         public InputPeerNotifySettingsConstructor()
         {
 
         }
 
-        public InputPeerNotifySettingsConstructor(int mute_until, string sound, bool show_previews, int events_mask)
+        public InputPeerNotifySettingsConstructor(int muteUntil, string sound, bool showPreviews, int eventsMask)
         {
-            this.mute_until = mute_until;
+            this.muteUntil = muteUntil;
             this.sound = sound;
-            this.show_previews = show_previews;
-            this.events_mask = events_mask;
+            this.showPreviews = showPreviews;
+            this.eventsMask = eventsMask;
         }
 
 
-        public override Constructor Constructor => Constructor.inputPeerNotifySettings;
+        public override Constructor constructor => Constructor.InputPeerNotifySettings;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x46a2ce98);
-            writer.Write(mute_until);
+            writer.Write(muteUntil);
             Serializers.String.Write(writer, sound);
-            writer.Write(show_previews ? 0x997275b5 : 0xbc799737);
-            writer.Write(events_mask);
+            writer.Write(showPreviews ? 0x997275b5 : 0xbc799737);
+            writer.Write(eventsMask);
         }
 
         public override void Read(BinaryReader reader)
         {
-            mute_until = reader.ReadInt32();
+            muteUntil = reader.ReadInt32();
             sound = Serializers.String.Read(reader);
-            show_previews = reader.ReadUInt32() == 0x997275b5;
-            events_mask = reader.ReadInt32();
+            showPreviews = reader.ReadUInt32() == 0x997275b5;
+            eventsMask = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(inputPeerNotifySettings mute_until:{mute_until} sound:'{sound}' show_previews:{show_previews} events_mask:{events_mask})";
+                $"(inputPeerNotifySettings mute_until:{muteUntil} sound:'{sound}' show_previews:{showPreviews} events_mask:{eventsMask})";
         }
     }
 
 
     public class PeerNotifyEventsEmptyConstructor : PeerNotifyEvents
     {
-
-        public PeerNotifyEventsEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.peerNotifyEventsEmpty;
+        public override Constructor constructor => Constructor.PeerNotifyEventsEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5267,15 +4999,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class PeerNotifyEventsAllConstructor : PeerNotifyEvents
     {
-
-        public PeerNotifyEventsAllConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.peerNotifyEventsAll;
+        public override Constructor constructor => Constructor.PeerNotifyEventsAll;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5295,15 +5019,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class PeerNotifySettingsEmptyConstructor : PeerNotifySettings
     {
-
-        public PeerNotifySettingsEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.peerNotifySettingsEmpty;
+        public override Constructor constructor => Constructor.PeerNotifySettingsEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5323,48 +5039,48 @@ namespace Telegram.Net.Core.MTProto
 
     public class PeerNotifySettingsConstructor : PeerNotifySettings
     {
-        public int mute_until;
+        public int muteUntil;
         public string sound;
-        public bool show_previews;
-        public int events_mask;
+        public bool showPreviews;
+        public int eventsMask;
 
         public PeerNotifySettingsConstructor()
         {
 
         }
 
-        public PeerNotifySettingsConstructor(int mute_until, string sound, bool show_previews, int events_mask)
+        public PeerNotifySettingsConstructor(int muteUntil, string sound, bool showPreviews, int eventsMask)
         {
-            this.mute_until = mute_until;
+            this.muteUntil = muteUntil;
             this.sound = sound;
-            this.show_previews = show_previews;
-            this.events_mask = events_mask;
+            this.showPreviews = showPreviews;
+            this.eventsMask = eventsMask;
         }
 
 
-        public override Constructor Constructor => Constructor.peerNotifySettings;
+        public override Constructor constructor => Constructor.PeerNotifySettings;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8d5e11ee);
-            writer.Write(mute_until);
+            writer.Write(muteUntil);
             Serializers.String.Write(writer, sound);
-            writer.Write(show_previews ? 0x997275b5 : 0xbc799737);
-            writer.Write(events_mask);
+            writer.Write(showPreviews ? 0x997275b5 : 0xbc799737);
+            writer.Write(eventsMask);
         }
 
         public override void Read(BinaryReader reader)
         {
-            mute_until = reader.ReadInt32();
+            muteUntil = reader.ReadInt32();
             sound = Serializers.String.Read(reader);
-            show_previews = reader.ReadUInt32() == 0x997275b5;
-            events_mask = reader.ReadInt32();
+            showPreviews = reader.ReadUInt32() == 0x997275b5;
+            eventsMask = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(peerNotifySettings mute_until:{mute_until} sound:'{sound}' show_previews:{show_previews} events_mask:{events_mask})";
+                $"(peerNotifySettings mute_until:{muteUntil} sound:'{sound}' show_previews:{showPreviews} events_mask:{eventsMask})";
         }
     }
 
@@ -5390,7 +5106,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.wallPaper;
+        public override Constructor constructor => Constructor.WallPaper;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5399,9 +5115,9 @@ namespace Telegram.Net.Core.MTProto
             Serializers.String.Write(writer, title);
             writer.Write(0x1cb5c415);
             writer.Write(sizes.Count);
-            foreach (PhotoSize sizes_element in sizes)
+            foreach (PhotoSize sizesElement in sizes)
             {
-                sizes_element.Write(writer);
+                sizesElement.Write(writer);
             }
             writer.Write(color);
         }
@@ -5411,13 +5127,12 @@ namespace Telegram.Net.Core.MTProto
             id = reader.ReadInt32();
             title = Serializers.String.Read(reader);
             reader.ReadInt32(); // vector code
-            int sizes_len = reader.ReadInt32();
-            sizes = new List<PhotoSize>(sizes_len);
-            for (int sizes_index = 0; sizes_index < sizes_len; sizes_index++)
+            int sizesLen = reader.ReadInt32();
+            sizes = new List<PhotoSize>(sizesLen);
+            for (int sizesIndex = 0; sizesIndex < sizesLen; sizesIndex++)
             {
-                PhotoSize sizes_element;
-                sizes_element = TL.Parse<PhotoSize>(reader);
-                sizes.Add(sizes_element);
+                var sizesElement = Read<PhotoSize>(reader);
+                sizes.Add(sizesElement);
             }
             color = reader.ReadInt32();
         }
@@ -5432,43 +5147,43 @@ namespace Telegram.Net.Core.MTProto
     public class UserFullConstructor : UserFull //userFull#771095da user:User link:contacts.Link profile_photo:Photo notify_settings:PeerNotifySettings blocked:Bool real_first_name:string real_last_name:string = UserFull;
     {
         public User user;
-        public contacts_Link link;
-        public Photo profile_photo;
-        public PeerNotifySettings notify_settings;
+        public ContactsLink link;
+        public Photo profilePhoto;
+        public PeerNotifySettings notifySettings;
         public bool blocked;
-        public string real_first_name;
-        public string real_last_name;
+        public string realFirstName;
+        public string realLastName;
 
         public UserFullConstructor()
         {
 
         }
 
-        public UserFullConstructor(User user, contacts_Link link, Photo profile_photo, PeerNotifySettings notify_settings,
-            bool blocked, string real_first_name, string real_last_name)
+        public UserFullConstructor(User user, ContactsLink link, Photo profilePhoto, PeerNotifySettings notifySettings,
+            bool blocked, string realFirstName, string realLastName)
         {
             this.user = user;
             this.link = link;
-            this.profile_photo = profile_photo;
-            this.notify_settings = notify_settings;
+            this.profilePhoto = profilePhoto;
+            this.notifySettings = notifySettings;
             this.blocked = blocked;
-            this.real_first_name = real_first_name;
-            this.real_last_name = real_last_name;
+            this.realFirstName = realFirstName;
+            this.realLastName = realLastName;
         }
 
 
-        public override Constructor Constructor => Constructor.userFull;
+        public override Constructor constructor => Constructor.UserFull;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x771095da);
             user.Write(writer);
             link.Write(writer);
-            profile_photo.Write(writer);
-            notify_settings.Write(writer);
+            profilePhoto.Write(writer);
+            notifySettings.Write(writer);
             writer.Write(blocked ? 0x997275b5 : 0xbc799737);
-            Serializers.String.Write(writer, real_first_name);
-            Serializers.String.Write(writer, real_last_name);
+            Serializers.String.Write(writer, realFirstName);
+            Serializers.String.Write(writer, realLastName);
         }
 
         public override void Read(BinaryReader reader)
@@ -5482,25 +5197,25 @@ namespace Telegram.Net.Core.MTProto
                 user = new UserRequestConstructor();
             }
             user.Read(reader);
-            link = TL.Parse<contacts_Link>(reader);
-            profile_photo = TL.Parse<Photo>(reader);
-            notify_settings = TL.Parse<PeerNotifySettings>(reader);
+            link = Read<ContactsLink>(reader);
+            profilePhoto = Read<Photo>(reader);
+            notifySettings = Read<PeerNotifySettings>(reader);
             blocked = reader.ReadUInt32() == 0x997275b5;
-            real_first_name = Serializers.String.Read(reader);
-            real_last_name = Serializers.String.Read(reader);
+            realFirstName = Serializers.String.Read(reader);
+            realLastName = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(userFull user:{user} link:{link} profile_photo:{profile_photo} notify_settings:{notify_settings} blocked:{blocked} real_first_name:'{real_first_name}' real_last_name:'{real_last_name}')";
+                $"(userFull user:{user} link:{link} profile_photo:{profilePhoto} notify_settings:{notifySettings} blocked:{blocked} realFirstName:'{realFirstName}' realLastNames:'{realLastName}')";
         }
     }
 
 
     public class ContactConstructor : Contact
     {
-        public int user_id;
+        public int userId;
         public bool mutual;
 
         public ContactConstructor()
@@ -5508,77 +5223,77 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ContactConstructor(int user_id, bool mutual)
+        public ContactConstructor(int userId, bool mutual)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.mutual = mutual;
         }
 
 
-        public override Constructor Constructor => Constructor.contact;
+        public override Constructor constructor => Constructor.Contact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf911c994);
-            writer.Write(user_id);
+            writer.Write(userId);
             writer.Write(mutual ? 0x997275b5 : 0xbc799737);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
             mutual = reader.ReadUInt32() == 0x997275b5;
         }
 
         public override string ToString()
         {
-            return $"(contact user_id:{user_id} mutual:{mutual})";
+            return $"(contact userId:{userId} mutual:{mutual})";
         }
     }
 
 
     public class ImportedContactConstructor : ImportedContact
     {
-        public int user_id;
-        public long client_id;
+        public int userId;
+        public long clientId;
 
         public ImportedContactConstructor()
         {
 
         }
 
-        public ImportedContactConstructor(int user_id, long client_id)
+        public ImportedContactConstructor(int userId, long clientId)
         {
-            this.user_id = user_id;
-            this.client_id = client_id;
+            this.userId = userId;
+            this.clientId = clientId;
         }
 
 
-        public override Constructor Constructor => Constructor.importedContact;
+        public override Constructor constructor => Constructor.ImportedContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd0028438);
-            writer.Write(user_id);
-            writer.Write(client_id);
+            writer.Write(userId);
+            writer.Write(clientId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            client_id = reader.ReadInt64();
+            userId = reader.ReadInt32();
+            clientId = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(importedContact user_id:{user_id} client_id:{client_id})";
+            return $"(importedContact userId:{userId} clientId:{clientId})";
         }
     }
 
 
     public class ContactBlockedConstructor : ContactBlocked
     {
-        public int user_id;
+        public int userId;
         public int date;
 
         public ContactBlockedConstructor()
@@ -5586,112 +5301,112 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ContactBlockedConstructor(int user_id, int date)
+        public ContactBlockedConstructor(int userId, int date)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.date = date;
         }
 
 
-        public override Constructor Constructor => Constructor.contactBlocked;
+        public override Constructor constructor => Constructor.ContactBlocked;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x561bc879);
-            writer.Write(user_id);
+            writer.Write(userId);
             writer.Write(date);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(contactBlocked user_id:{user_id} date:{date})";
+            return $"(contactBlocked userId:{userId} date:{date})";
         }
     }
 
 
     public class ContactFoundConstructor : ContactFound
     {
-        public int user_id;
+        public int userId;
 
         public ContactFoundConstructor()
         {
 
         }
 
-        public ContactFoundConstructor(int user_id)
+        public ContactFoundConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.contactFound;
+        public override Constructor constructor => Constructor.ContactFound;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xea879f95);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(contactFound user_id:{user_id})";
+            return $"(contactFound userId:{userId})";
         }
     }
 
 
     public class ContactSuggestedConstructor : ContactSuggested
     {
-        public int user_id;
-        public int mutual_contacts;
+        public int userId;
+        public int mutualContacts;
 
         public ContactSuggestedConstructor()
         {
 
         }
 
-        public ContactSuggestedConstructor(int user_id, int mutual_contacts)
+        public ContactSuggestedConstructor(int userId, int mutualContacts)
         {
-            this.user_id = user_id;
-            this.mutual_contacts = mutual_contacts;
+            this.userId = userId;
+            this.mutualContacts = mutualContacts;
         }
 
 
-        public override Constructor Constructor => Constructor.contactSuggested;
+        public override Constructor constructor => Constructor.ContactSuggested;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3de191a1);
-            writer.Write(user_id);
-            writer.Write(mutual_contacts);
+            writer.Write(userId);
+            writer.Write(mutualContacts);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            mutual_contacts = reader.ReadInt32();
+            userId = reader.ReadInt32();
+            mutualContacts = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(contactSuggested user_id:{user_id} mutual_contacts:{mutual_contacts})";
+            return $"(contactSuggested userId:{userId} mutual_contacts:{mutualContacts})";
         }
     }
 
 
     public class ContactStatusConstructor : ContactStatus
     {
-        public int user_id;
+        public int userId;
         public int expires;
 
         public ContactStatusConstructor()
@@ -5699,38 +5414,38 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ContactStatusConstructor(int user_id, int expires)
+        public ContactStatusConstructor(int userId, int expires)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.expires = expires;
         }
 
 
-        public override Constructor Constructor => Constructor.contactStatus;
+        public override Constructor constructor => Constructor.ContactStatus;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xaa77b873);
-            writer.Write(user_id);
+            writer.Write(userId);
             writer.Write(expires);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
             expires = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(contactStatus user_id:{user_id} expires:{expires})";
+            return $"(contactStatus userId:{userId} expires:{expires})";
         }
     }
 
 
     public class ChatLocatedConstructor : ChatLocated
     {
-        public int chat_id;
+        public int chatId;
         public int distance;
 
         public ChatLocatedConstructor()
@@ -5738,46 +5453,38 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public ChatLocatedConstructor(int chat_id, int distance)
+        public ChatLocatedConstructor(int chatId, int distance)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
             this.distance = distance;
         }
 
 
-        public override Constructor Constructor => Constructor.chatLocated;
+        public override Constructor constructor => Constructor.ChatLocated;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3631cf4c);
-            writer.Write(chat_id);
+            writer.Write(chatId);
             writer.Write(distance);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
             distance = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(chatLocated chat_id:{chat_id} distance:{distance})";
+            return $"(chatLocated chatId:{chatId} distance:{distance})";
         }
     }
 
 
-    public class Contacts_foreignLinkUnknownConstructor : contacts_ForeignLink
+    public class ContactsForeignLinkUnknownConstructor : ContactsForeignLink
     {
-
-        public Contacts_foreignLinkUnknownConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.contacts_foreignLinkUnknown;
+        public override Constructor constructor => Constructor.ContactsForeignLinkUnknown;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5795,52 +5502,44 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_foreignLinkRequestedConstructor : contacts_ForeignLink
+    public class ContactsForeignLinkRequestedConstructor : ContactsForeignLink
     {
-        public bool has_phone;
+        public bool hasPhone;
 
-        public Contacts_foreignLinkRequestedConstructor()
+        public ContactsForeignLinkRequestedConstructor()
         {
 
         }
 
-        public Contacts_foreignLinkRequestedConstructor(bool has_phone)
+        public ContactsForeignLinkRequestedConstructor(bool hasPhone)
         {
-            this.has_phone = has_phone;
+            this.hasPhone = hasPhone;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_foreignLinkRequested;
+        public override Constructor constructor => Constructor.ContactsForeignLinkRequested;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa7801f47);
-            writer.Write(has_phone ? 0x997275b5 : 0xbc799737);
+            writer.Write(hasPhone ? 0x997275b5 : 0xbc799737);
         }
 
         public override void Read(BinaryReader reader)
         {
-            has_phone = reader.ReadUInt32() == 0x997275b5;
+            hasPhone = reader.ReadUInt32() == 0x997275b5;
         }
 
         public override string ToString()
         {
-            return $"(contacts_foreignLinkRequested has_phone:{has_phone})";
+            return $"(contacts_foreignLinkRequested has_phone:{hasPhone})";
         }
     }
 
 
-    public class Contacts_foreignLinkMutualConstructor : contacts_ForeignLink
+    public class ContactsForeignLinkMutualConstructor : ContactsForeignLink
     {
-
-        public Contacts_foreignLinkMutualConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.contacts_foreignLinkMutual;
+        public override Constructor constructor => Constructor.ContactsForeignLinkMutual;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5858,17 +5557,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_myLinkEmptyConstructor : contacts_MyLink
+    public class ContactsMyLinkEmptyConstructor : ContactsMyLink
     {
-
-        public Contacts_myLinkEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.contacts_myLinkEmpty;
+        public override Constructor constructor => Constructor.ContactsMyLinkEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5886,22 +5577,22 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_myLinkRequestedConstructor : contacts_MyLink
+    public class ContactsMyLinkRequestedConstructor : ContactsMyLink
     {
         public bool contact;
 
-        public Contacts_myLinkRequestedConstructor()
+        public ContactsMyLinkRequestedConstructor()
         {
 
         }
 
-        public Contacts_myLinkRequestedConstructor(bool contact)
+        public ContactsMyLinkRequestedConstructor(bool contact)
         {
             this.contact = contact;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_myLinkRequested;
+        public override Constructor constructor => Constructor.ContactsMyLinkRequested;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5921,17 +5612,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_myLinkContactConstructor : contacts_MyLink
+    public class ContactsMyLinkContactConstructor : ContactsMyLink
     {
-
-        public Contacts_myLinkContactConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.contacts_myLinkContact;
+        public override Constructor constructor => Constructor.ContactsMyLinkContact;
 
         public override void Write(BinaryWriter writer)
         {
@@ -5949,104 +5632,102 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_linkConstructor : contacts_Link
+    public class ContactsLinkConstructor : ContactsLink
     {
-        public contacts_MyLink my_link;
-        public contacts_ForeignLink foreign_link;
+        public ContactsMyLink myLink;
+        public ContactsForeignLink foreignLink;
         public User user;
 
-        public Contacts_linkConstructor()
+        public ContactsLinkConstructor()
         {
 
         }
 
-        public Contacts_linkConstructor(contacts_MyLink my_link, contacts_ForeignLink foreign_link, User user)
+        public ContactsLinkConstructor(ContactsMyLink myLink, ContactsForeignLink foreignLink, User user)
         {
-            this.my_link = my_link;
-            this.foreign_link = foreign_link;
+            this.myLink = myLink;
+            this.foreignLink = foreignLink;
             this.user = user;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_link;
+        public override Constructor constructor => Constructor.ContactsLink;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xeccea3f5);
-            my_link.Write(writer);
-            foreign_link.Write(writer);
+            myLink.Write(writer);
+            foreignLink.Write(writer);
             user.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            my_link = TL.Parse<contacts_MyLink>(reader);
-            foreign_link = TL.Parse<contacts_ForeignLink>(reader);
-            user = TL.Parse<User>(reader);
+            myLink = Read<ContactsMyLink>(reader);
+            foreignLink = Read<ContactsForeignLink>(reader);
+            user = Read<User>(reader);
         }
 
         public override string ToString()
         {
-            return $"(contacts_link my_link:{my_link} foreign_link:{foreign_link} user:{user})";
+            return $"(contacts_link my_link:{myLink} foreign_link:{foreignLink} user:{user})";
         }
     }
 
 
-    public class Contacts_contactsConstructor : contacts_Contacts
+    public class ÑontactsContactsConstructor : ContactsContacts
     {
         public List<Contact> contacts;
         public List<User> users;
 
-        public Contacts_contactsConstructor()
+        public ÑontactsContactsConstructor()
         {
 
         }
 
-        public Contacts_contactsConstructor(List<Contact> contacts, List<User> users)
+        public ÑontactsContactsConstructor(List<Contact> contacts, List<User> users)
         {
             this.contacts = contacts;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_contacts;
+        public override Constructor constructor => Constructor.ContactsContacts;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6f8b8cb2);
             writer.Write(0x1cb5c415);
             writer.Write(contacts.Count);
-            foreach (Contact contacts_element in contacts)
+            foreach (Contact contactsElement in contacts)
             {
-                contacts_element.Write(writer);
+                contactsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int contacts_len = reader.ReadInt32();
-            contacts = new List<Contact>(contacts_len);
-            for (int contacts_index = 0; contacts_index < contacts_len; contacts_index++)
+            int contactsLen = reader.ReadInt32();
+            contacts = new List<Contact>(contactsLen);
+            for (int contactsIndex = 0; contactsIndex < contactsLen; contactsIndex++)
             {
-                Contact contacts_element;
-                contacts_element = TL.Parse<Contact>(reader);
-                contacts.Add(contacts_element);
+                var contactsElement = Read<Contact>(reader);
+                contacts.Add(contactsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6058,17 +5739,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_contactsNotModifiedConstructor : contacts_Contacts
+    public class ÑontactsContactsNotModifiedConstructor : ContactsContacts
     {
-
-        public Contacts_contactsNotModifiedConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.contacts_contactsNotModified;
+        public override Constructor constructor => Constructor.ContactsContactsNotModified;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6086,88 +5759,89 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ContactsImportedContactsConstructor : contacts_ImportedContacts
+    public class ContactsImportedContactsConstructor : ContactsImportedContacts
     {
         public List<ImportedContact> importedContacts;
         public List<long> retryContacts;
         public List<User> users;
 
-        public override Constructor Constructor => Constructor.contacts_importedContacts;
+        public override Constructor constructor => Constructor.ContactsImportedContacts;
 
         public override void Write(BinaryWriter writer)
         {
-            throw new NotImplementedException();
+            writer.Write(0xad524315);
+            WriteVector(writer, importedContacts);
+            WriteVector(writer, retryContacts, writer.Write);
+            WriteVector(writer, users);
         }
 
         public override void Read(BinaryReader reader)
         {
-            importedContacts = TL.ParseVector<ImportedContact>(reader);
-            retryContacts = TL.ParseVector(reader, reader.ReadInt64);
-            users = TL.ParseVector<User>(reader);
+            importedContacts = ReadVector<ImportedContact>(reader);
+            retryContacts = ReadVector(reader, reader.ReadInt64);
+            users = ReadVector<User>(reader);
         }
 
         public override string ToString()
         {
-            return $"({Constructor}) ImportedContacts: {importedContacts}, RetryContacts: {retryContacts}, Users: {users}";
+            return $"({constructor}) ImportedContacts: {importedContacts}, RetryContacts: {retryContacts}, Users: {users}";
         }
     }
 
 
-    public class Contacts_blockedConstructor : contacts_Blocked
+    public class ContactsBlockedConstructor : ContactsBlocked
     {
         public List<ContactBlocked> blocked;
         public List<User> users;
 
-        public Contacts_blockedConstructor()
+        public ContactsBlockedConstructor()
         {
 
         }
 
-        public Contacts_blockedConstructor(List<ContactBlocked> blocked, List<User> users)
+        public ContactsBlockedConstructor(List<ContactBlocked> blocked, List<User> users)
         {
             this.blocked = blocked;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_blocked;
+        public override Constructor constructor => Constructor.ContactsBlocked;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x1c138d15);
             writer.Write(0x1cb5c415);
             writer.Write(blocked.Count);
-            foreach (ContactBlocked blocked_element in blocked)
+            foreach (ContactBlocked blockedElement in blocked)
             {
-                blocked_element.Write(writer);
+                blockedElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int blocked_len = reader.ReadInt32();
-            blocked = new List<ContactBlocked>(blocked_len);
-            for (int blocked_index = 0; blocked_index < blocked_len; blocked_index++)
+            int blockedLen = reader.ReadInt32();
+            blocked = new List<ContactBlocked>(blockedLen);
+            for (int blockedIndex = 0; blockedIndex < blockedLen; blockedIndex++)
             {
-                ContactBlocked blocked_element;
-                blocked_element = TL.Parse<ContactBlocked>(reader);
-                blocked.Add(blocked_element);
+                var blockedElement = Read<ContactBlocked>(reader);
+                blocked.Add(blockedElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6179,18 +5853,18 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_blockedSliceConstructor : contacts_Blocked
+    public class ContactsBlockedSliceConstructor : ContactsBlocked
     {
         public int count;
         public List<ContactBlocked> blocked;
         public List<User> users;
 
-        public Contacts_blockedSliceConstructor()
+        public ContactsBlockedSliceConstructor()
         {
 
         }
 
-        public Contacts_blockedSliceConstructor(int count, List<ContactBlocked> blocked, List<User> users)
+        public ContactsBlockedSliceConstructor(int count, List<ContactBlocked> blocked, List<User> users)
         {
             this.count = count;
             this.blocked = blocked;
@@ -6198,7 +5872,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_blockedSlice;
+        public override Constructor constructor => Constructor.ContactsBlockedSlice;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6206,15 +5880,15 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(count);
             writer.Write(0x1cb5c415);
             writer.Write(blocked.Count);
-            foreach (ContactBlocked blocked_element in blocked)
+            foreach (ContactBlocked blockedElement in blocked)
             {
-                blocked_element.Write(writer);
+                blockedElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
@@ -6222,22 +5896,20 @@ namespace Telegram.Net.Core.MTProto
         {
             count = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int blocked_len = reader.ReadInt32();
-            blocked = new List<ContactBlocked>(blocked_len);
-            for (int blocked_index = 0; blocked_index < blocked_len; blocked_index++)
+            int blockedLen = reader.ReadInt32();
+            blocked = new List<ContactBlocked>(blockedLen);
+            for (int blockedIndex = 0; blockedIndex < blockedLen; blockedIndex++)
             {
-                ContactBlocked blocked_element;
-                blocked_element = TL.Parse<ContactBlocked>(reader);
-                blocked.Add(blocked_element);
+                var blockedElement = Read<ContactBlocked>(reader);
+                blocked.Add(blockedElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6249,61 +5921,59 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_foundConstructor : contacts_Found
+    public class ContactsFoundConstructor : ContactsFound
     {
         public List<ContactFound> results;
         public List<User> users;
 
-        public Contacts_foundConstructor()
+        public ContactsFoundConstructor()
         {
 
         }
 
-        public Contacts_foundConstructor(List<ContactFound> results, List<User> users)
+        public ContactsFoundConstructor(List<ContactFound> results, List<User> users)
         {
             this.results = results;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_found;
+        public override Constructor constructor => Constructor.ContactsFound;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x0566000e);
             writer.Write(0x1cb5c415);
             writer.Write(results.Count);
-            foreach (ContactFound results_element in results)
+            foreach (ContactFound resultsElement in results)
             {
-                results_element.Write(writer);
+                resultsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int results_len = reader.ReadInt32();
-            results = new List<ContactFound>(results_len);
-            for (int results_index = 0; results_index < results_len; results_index++)
+            int resultsLen = reader.ReadInt32();
+            results = new List<ContactFound>(resultsLen);
+            for (int resultsIndex = 0; resultsIndex < resultsLen; resultsIndex++)
             {
-                ContactFound results_element;
-                results_element = TL.Parse<ContactFound>(reader);
-                results.Add(results_element);
+                var resultsElement = Read<ContactFound>(reader);
+                results.Add(resultsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6315,61 +5985,59 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Contacts_suggestedConstructor : contacts_Suggested
+    public class ContactsSuggestedConstructor : ContactsSuggested
     {
         public List<ContactSuggested> results;
         public List<User> users;
 
-        public Contacts_suggestedConstructor()
+        public ContactsSuggestedConstructor()
         {
 
         }
 
-        public Contacts_suggestedConstructor(List<ContactSuggested> results, List<User> users)
+        public ContactsSuggestedConstructor(List<ContactSuggested> results, List<User> users)
         {
             this.results = results;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.contacts_suggested;
+        public override Constructor constructor => Constructor.ContactsSuggested;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5649dcc5);
             writer.Write(0x1cb5c415);
             writer.Write(results.Count);
-            foreach (ContactSuggested results_element in results)
+            foreach (ContactSuggested resultsElement in results)
             {
-                results_element.Write(writer);
+                resultsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int results_len = reader.ReadInt32();
-            results = new List<ContactSuggested>(results_len);
-            for (int results_index = 0; results_index < results_len; results_index++)
+            int resultsLen = reader.ReadInt32();
+            results = new List<ContactSuggested>(resultsLen);
+            for (int resultsIndex = 0; resultsIndex < resultsLen; resultsIndex++)
             {
-                ContactSuggested results_element;
-                results_element = TL.Parse<ContactSuggested>(reader);
-                results.Add(results_element);
+                var resultsElement = Read<ContactSuggested>(reader);
+                results.Add(resultsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6381,19 +6049,19 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_dialogsConstructor : messages_Dialogs
+    public class MessagesDialogsConstructor : MessagesDialogs
     {
         public List<Dialog> dialogs;
         public List<Message> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_dialogsConstructor()
+        public MessagesDialogsConstructor()
         {
 
         }
 
-        public Messages_dialogsConstructor(List<Dialog> dialogs, List<Message> messages, List<Chat> chats, List<User> users)
+        public MessagesDialogsConstructor(List<Dialog> dialogs, List<Message> messages, List<Chat> chats, List<User> users)
         {
             this.dialogs = dialogs;
             this.messages = messages;
@@ -6402,75 +6070,24 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_dialogs;
+        public override Constructor constructor => Constructor.MessagesDialogs;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x15ba6c40);
-            writer.Write(0x1cb5c415);
-            writer.Write(dialogs.Count);
-            foreach (Dialog dialogs_element in dialogs)
-            {
-                dialogs_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
-            {
-                messages_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
-            {
-                chats_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(users.Count);
-            foreach (User users_element in users)
-            {
-                users_element.Write(writer);
-            }
+
+            WriteVector(writer, dialogs);
+            WriteVector(writer, messages);
+            WriteVector(writer, chats);
+            WriteVector(writer, users);
         }
 
         public override void Read(BinaryReader reader)
         {
-            reader.ReadInt32(); // vector code
-            int dialogs_len = reader.ReadInt32();
-            dialogs = new List<Dialog>(dialogs_len);
-            for (int dialogs_index = 0; dialogs_index < dialogs_len; dialogs_index++)
-            {
-                Dialog dialogs_element;
-                dialogs_element = TL.Parse<Dialog>(reader);
-                dialogs.Add(dialogs_element);
-            }
-            reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
-            {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
-            }
-            reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
-            {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
-            }
-            reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
-            {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
-            }
+            dialogs = ReadVector<Dialog>(reader);
+            messages = ReadVector<Message>(reader);
+            chats = ReadVector<Chat>(reader);
+            users = ReadVector<User>(reader);
         }
 
         public override string ToString()
@@ -6481,7 +6098,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_dialogsSliceConstructor : messages_Dialogs
+    public class MessagesDialogsSliceConstructor : MessagesDialogs
     {
         public int count;
         public List<Dialog> dialogs;
@@ -6489,12 +6106,12 @@ namespace Telegram.Net.Core.MTProto
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_dialogsSliceConstructor()
+        public MessagesDialogsSliceConstructor()
         {
 
         }
 
-        public Messages_dialogsSliceConstructor(int count, List<Dialog> dialogs, List<Message> messages, List<Chat> chats,
+        public MessagesDialogsSliceConstructor(int count, List<Dialog> dialogs, List<Message> messages, List<Chat> chats,
             List<User> users)
         {
             this.count = count;
@@ -6505,77 +6122,27 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_dialogsSlice;
+        public override Constructor constructor => Constructor.MessagesDialogsSlice;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x71e094f3);
             writer.Write(count);
-            writer.Write(0x1cb5c415);
-            writer.Write(dialogs.Count);
-            foreach (Dialog dialogs_element in dialogs)
-            {
-                dialogs_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
-            {
-                messages_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
-            {
-                chats_element.Write(writer);
-            }
-            writer.Write(0x1cb5c415);
-            writer.Write(users.Count);
-            foreach (User users_element in users)
-            {
-                users_element.Write(writer);
-            }
+
+            WriteVector(writer, dialogs);
+            WriteVector(writer, messages);
+            WriteVector(writer, chats);
+            WriteVector(writer, users);
         }
 
         public override void Read(BinaryReader reader)
         {
             count = reader.ReadInt32();
-            reader.ReadInt32(); // vector code
-            int dialogs_len = reader.ReadInt32();
-            dialogs = new List<Dialog>(dialogs_len);
-            for (int dialogs_index = 0; dialogs_index < dialogs_len; dialogs_index++)
-            {
-                Dialog dialogs_element;
-                dialogs_element = TL.Parse<Dialog>(reader);
-                dialogs.Add(dialogs_element);
-            }
-            reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
-            {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
-            }
-            reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
-            {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
-            }
-            reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
-            {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
-            }
+
+            dialogs = ReadVector<Dialog>(reader);
+            messages = ReadVector<Message>(reader);
+            chats = ReadVector<Chat>(reader);
+            users = ReadVector<User>(reader);
         }
 
         public override string ToString()
@@ -6586,18 +6153,18 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_messagesConstructor : messages_Messages
+    public class MessagesMessagesConstructor : MessagesMessages
     {
         public List<Message> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_messagesConstructor()
+        public MessagesMessagesConstructor()
         {
 
         }
 
-        public Messages_messagesConstructor(List<Message> messages, List<Chat> chats, List<User> users)
+        public MessagesMessagesConstructor(List<Message> messages, List<Chat> chats, List<User> users)
         {
             this.messages = messages;
             this.chats = chats;
@@ -6605,59 +6172,56 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_messages;
+        public override Constructor constructor => Constructor.MessagesMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8c718e87);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
+            foreach (Message messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<Message>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<Message>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6669,19 +6233,19 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_messagesSliceConstructor : messages_Messages
+    public class MessagesMessagesSliceConstructor : MessagesMessages
     {
         public int count;
         public List<Message> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_messagesSliceConstructor()
+        public MessagesMessagesSliceConstructor()
         {
 
         }
 
-        public Messages_messagesSliceConstructor(int count, List<Message> messages, List<Chat> chats, List<User> users)
+        public MessagesMessagesSliceConstructor(int count, List<Message> messages, List<Chat> chats, List<User> users)
         {
             this.count = count;
             this.messages = messages;
@@ -6690,7 +6254,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_messagesSlice;
+        public override Constructor constructor => Constructor.MessagesMessagesSlice;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6698,21 +6262,21 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(count);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
+            foreach (Message messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
@@ -6720,31 +6284,28 @@ namespace Telegram.Net.Core.MTProto
         {
             count = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<Message>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<Message>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6756,17 +6317,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_messageEmptyConstructor : messages_Message
+    public class MessagesMessageEmptyConstructor : MessagesMessage
     {
-
-        public Messages_messageEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.messages_messageEmpty;
+        public override Constructor constructor => Constructor.MessagesMessageEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6784,18 +6337,18 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_messageConstructor : messages_Message
+    public class MessagesMessageConstructor : MessagesMessage
     {
         public Message message;
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_messageConstructor()
+        public MessagesMessageConstructor()
         {
 
         }
 
-        public Messages_messageConstructor(Message message, List<Chat> chats, List<User> users)
+        public MessagesMessageConstructor(Message message, List<Chat> chats, List<User> users)
         {
             this.message = message;
             this.chats = chats;
@@ -6803,7 +6356,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_message;
+        public override Constructor constructor => Constructor.MessagesMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6811,38 +6364,36 @@ namespace Telegram.Net.Core.MTProto
             message.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<Message>(reader);
+            message = Read<Message>(reader);
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -6854,7 +6405,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_statedMessagesConstructor : messages_StatedMessages
+    public class MessagesStatedMessagesConstructor : MessagesStatedMessages
     {
         public List<Message> messages;
         public List<Chat> chats;
@@ -6862,12 +6413,12 @@ namespace Telegram.Net.Core.MTProto
         public int pts;
         public int seq;
 
-        public Messages_statedMessagesConstructor()
+        public MessagesStatedMessagesConstructor()
         {
 
         }
 
-        public Messages_statedMessagesConstructor(List<Message> messages, List<Chat> chats, List<User> users, int pts, int seq)
+        public MessagesStatedMessagesConstructor(List<Message> messages, List<Chat> chats, List<User> users, int pts, int seq)
         {
             this.messages = messages;
             this.chats = chats;
@@ -6877,28 +6428,28 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_statedMessages;
+        public override Constructor constructor => Constructor.MessagesStatedMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x969478bb);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
+            foreach (Message messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(pts);
             writer.Write(seq);
@@ -6907,31 +6458,28 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<Message>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<Message>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             pts = reader.ReadInt32();
             seq = reader.ReadInt32();
@@ -6945,7 +6493,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_statedMessageConstructor : messages_StatedMessage
+    public class MessagesStatedMessageConstructor : MessagesStatedMessage
     {
         public Message message;
         public List<Chat> chats;
@@ -6953,9 +6501,9 @@ namespace Telegram.Net.Core.MTProto
         public int pts;
         public int seq;
 
-        public Messages_statedMessageConstructor() { }
+        public MessagesStatedMessageConstructor() { }
 
-        public Messages_statedMessageConstructor(Message message, List<Chat> chats, List<User> users, int pts, int seq)
+        public MessagesStatedMessageConstructor(Message message, List<Chat> chats, List<User> users, int pts, int seq)
         {
             this.message = message;
             this.chats = chats;
@@ -6964,7 +6512,7 @@ namespace Telegram.Net.Core.MTProto
             this.seq = seq;
         }
 
-        public override Constructor Constructor => Constructor.messages_statedMessage;
+        public override Constructor constructor => Constructor.MessagesStatedMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -6972,15 +6520,15 @@ namespace Telegram.Net.Core.MTProto
             message.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(pts);
             writer.Write(seq);
@@ -6988,9 +6536,9 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<Message>(reader);
-            chats = TL.ParseVector<Chat>(reader);
-            users = TL.ParseVector<User>(reader);
+            message = Read<Message>(reader);
+            chats = ReadVector<Chat>(reader);
+            users = ReadVector<User>(reader);
 
             pts = reader.ReadInt32();
             seq = reader.ReadInt32();
@@ -7025,7 +6573,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_sentMessage;
+        public override Constructor constructor => Constructor.MessagesSentMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7051,24 +6599,24 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_chatConstructor : messages_Chat
+    public class MessagesChatConstructor : MessagesChat
     {
         public Chat chat;
         public List<User> users;
 
-        public Messages_chatConstructor()
+        public MessagesChatConstructor()
         {
 
         }
 
-        public Messages_chatConstructor(Chat chat, List<User> users)
+        public MessagesChatConstructor(Chat chat, List<User> users)
         {
             this.chat = chat;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_chat;
+        public override Constructor constructor => Constructor.MessagesChat;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7076,23 +6624,22 @@ namespace Telegram.Net.Core.MTProto
             chat.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat = TL.Parse<Chat>(reader);
+            chat = Read<Chat>(reader);
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -7103,61 +6650,59 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_chatsConstructor : messages_Chats
+    public class MessagesChatsConstructor : MessagesChats
     {
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_chatsConstructor()
+        public MessagesChatsConstructor()
         {
 
         }
 
-        public Messages_chatsConstructor(List<Chat> chats, List<User> users)
+        public MessagesChatsConstructor(List<Chat> chats, List<User> users)
         {
             this.chats = chats;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_chats;
+        public override Constructor constructor => Constructor.MessagesChats;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8150cbd8);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -7169,88 +6714,86 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_chatFullConstructor : messages_ChatFull
+    public class MessagesChatFullConstructor : MessagesChatFull
     {
-        public ChatFull full_chat;
+        public ChatFull fullChat;
         public List<Chat> chats;
         public List<User> users;
 
-        public Messages_chatFullConstructor()
+        public MessagesChatFullConstructor()
         {
 
         }
 
-        public Messages_chatFullConstructor(ChatFull full_chat, List<Chat> chats, List<User> users)
+        public MessagesChatFullConstructor(ChatFull fullChat, List<Chat> chats, List<User> users)
         {
-            this.full_chat = full_chat;
+            this.fullChat = fullChat;
             this.chats = chats;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_chatFull;
+        public override Constructor constructor => Constructor.MessagesChatFull;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xe5d7d19c);
-            full_chat.Write(writer);
+            fullChat.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
-            full_chat = TL.Parse<ChatFull>(reader);
+            fullChat = Read<ChatFull>(reader);
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
         public override string ToString()
         {
             return
-                $"(messages_chatFull full_chat:{full_chat} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)})";
+                $"(messages_chatFull full_chat:{fullChat} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)})";
         }
     }
 
 
-    public class Messages_affectedHistoryConstructor : messages_AffectedHistory
+    public class MessagesAffectedHistoryConstructor : MessagesAffectedHistory
     {
         public int pts;
         public int seq;
         public int offset;
 
-        public Messages_affectedHistoryConstructor()
+        public MessagesAffectedHistoryConstructor()
         {
 
         }
 
-        public Messages_affectedHistoryConstructor(int pts, int seq, int offset)
+        public MessagesAffectedHistoryConstructor(int pts, int seq, int offset)
         {
             this.pts = pts;
             this.seq = seq;
@@ -7258,7 +6801,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_affectedHistory;
+        public override Constructor constructor => Constructor.MessagesAffectedHistory;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7284,15 +6827,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputMessagesFilterEmptyConstructor : MessagesFilter
     {
-
-        public InputMessagesFilterEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputMessagesFilterEmpty;
+        public override Constructor constructor => Constructor.InputMessagesFilterEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7312,15 +6847,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputMessagesFilterPhotosConstructor : MessagesFilter
     {
-
-        public InputMessagesFilterPhotosConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputMessagesFilterPhotos;
+        public override Constructor constructor => Constructor.InputMessagesFilterPhotos;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7340,15 +6867,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputMessagesFilterVideoConstructor : MessagesFilter
     {
-
-        public InputMessagesFilterVideoConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputMessagesFilterVideo;
+        public override Constructor constructor => Constructor.InputMessagesFilterVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7368,15 +6887,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputMessagesFilterPhotoVideoConstructor : MessagesFilter
     {
-
-        public InputMessagesFilterPhotoVideoConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputMessagesFilterPhotoVideo;
+        public override Constructor constructor => Constructor.InputMessagesFilterPhotoVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7411,7 +6922,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateNewMessage;
+        public override Constructor constructor => Constructor.UpdateNewMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7422,7 +6933,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<Message>(reader);
+            message = Read<Message>(reader);
             pts = reader.ReadInt32();
         }
 
@@ -7433,41 +6944,41 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class UpdateMessageIDConstructor : Update
+    public class UpdateMessageIdConstructor : Update
     {
         public int id;
-        public long random_id;
+        public long randomId;
 
-        public UpdateMessageIDConstructor()
+        public UpdateMessageIdConstructor()
         {
 
         }
 
-        public UpdateMessageIDConstructor(int id, long random_id)
+        public UpdateMessageIdConstructor(int id, long randomId)
         {
             this.id = id;
-            this.random_id = random_id;
+            this.randomId = randomId;
         }
 
 
-        public override Constructor Constructor => Constructor.updateMessageID;
+        public override Constructor constructor => Constructor.UpdateMessageId;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4e90bfd6);
             writer.Write(id);
-            writer.Write(random_id);
+            writer.Write(randomId);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            random_id = reader.ReadInt64();
+            randomId = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(updateMessageID id:{id} random_id:{random_id})";
+            return $"(updateMessageID id:{id} randomId:{randomId})";
         }
     }
 
@@ -7489,16 +7000,16 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateReadMessages;
+        public override Constructor constructor => Constructor.UpdateReadMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xc6649e31);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (int messages_element in messages)
+            foreach (int messagesElement in messages)
             {
-                writer.Write(messages_element);
+                writer.Write(messagesElement);
             }
             writer.Write(pts);
         }
@@ -7506,13 +7017,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<int>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<int>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                int messages_element;
-                messages_element = reader.ReadInt32();
-                messages.Add(messages_element);
+                var messagesElement = reader.ReadInt32();
+                messages.Add(messagesElement);
             }
             pts = reader.ReadInt32();
         }
@@ -7541,16 +7051,16 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateDeleteMessages;
+        public override Constructor constructor => Constructor.UpdateDeleteMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa92bfe26);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (int messages_element in messages)
+            foreach (int messagesElement in messages)
             {
-                writer.Write(messages_element);
+                writer.Write(messagesElement);
             }
             writer.Write(pts);
         }
@@ -7558,13 +7068,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<int>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<int>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                int messages_element;
-                messages_element = reader.ReadInt32();
-                messages.Add(messages_element);
+                var messagesElement = reader.ReadInt32();
+                messages.Add(messagesElement);
             }
             pts = reader.ReadInt32();
         }
@@ -7593,16 +7102,16 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateRestoreMessages;
+        public override Constructor constructor => Constructor.UpdateRestoreMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd15de04d);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (int messages_element in messages)
+            foreach (int messagesElement in messages)
             {
-                writer.Write(messages_element);
+                writer.Write(messagesElement);
             }
             writer.Write(pts);
         }
@@ -7610,13 +7119,12 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<int>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<int>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                int messages_element;
-                messages_element = reader.ReadInt32();
-                messages.Add(messages_element);
+                var messagesElement = reader.ReadInt32();
+                messages.Add(messagesElement);
             }
             pts = reader.ReadInt32();
         }
@@ -7630,74 +7138,74 @@ namespace Telegram.Net.Core.MTProto
 
     public class UpdateUserTypingConstructor : Update
     {
-        public int user_id;
+        public int userId;
 
         public UpdateUserTypingConstructor()
         {
 
         }
 
-        public UpdateUserTypingConstructor(int user_id)
+        public UpdateUserTypingConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.updateUserTyping;
+        public override Constructor constructor => Constructor.UpdateUserTyping;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5c486927);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateUserTyping user_id:{user_id})";
+            return $"(updateUserTyping userId:{userId})";
         }
     }
 
 
     public class UpdateChatUserTypingConstructor : Update
     {
-        public int chat_id;
-        public int user_id;
+        public int chatId;
+        public int userId;
 
         public UpdateChatUserTypingConstructor()
         {
 
         }
 
-        public UpdateChatUserTypingConstructor(int chat_id, int user_id)
+        public UpdateChatUserTypingConstructor(int chatId, int userId)
         {
-            this.chat_id = chat_id;
-            this.user_id = user_id;
+            this.chatId = chatId;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.updateChatUserTyping;
+        public override Constructor constructor => Constructor.UpdateChatUserTyping;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x9a65ea1f);
-            writer.Write(chat_id);
-            writer.Write(user_id);
+            writer.Write(chatId);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            user_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateChatUserTyping chat_id:{chat_id} user_id:{user_id})";
+            return $"(updateChatUserTyping chatId:{chatId} userId:{userId})";
         }
     }
 
@@ -7717,7 +7225,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateChatParticipants;
+        public override Constructor constructor => Constructor.UpdateChatParticipants;
 
         public override void Write(BinaryWriter writer)
         {
@@ -7727,7 +7235,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            participants = TL.Parse<ChatParticipants>(reader);
+            participants = Read<ChatParticipants>(reader);
         }
 
         public override string ToString()
@@ -7739,7 +7247,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class UpdateUserStatusConstructor : Update
     {
-        public int user_id;
+        public int userId;
         public UserStatus status;
 
         public UpdateUserStatusConstructor()
@@ -7747,81 +7255,81 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateUserStatusConstructor(int user_id, UserStatus status)
+        public UpdateUserStatusConstructor(int userId, UserStatus status)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.status = status;
         }
 
 
-        public override Constructor Constructor => Constructor.updateUserStatus;
+        public override Constructor constructor => Constructor.UpdateUserStatus;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x1bfbd823);
-            writer.Write(user_id);
+            writer.Write(userId);
             status.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            status = TL.Parse<UserStatus>(reader);
+            userId = reader.ReadInt32();
+            status = Read<UserStatus>(reader);
         }
 
         public override string ToString()
         {
-            return $"(updateUserStatus user_id:{user_id} status:{status})";
+            return $"(updateUserStatus userId:{userId} status:{status})";
         }
     }
 
 
     public class UpdateUserNameConstructor : Update
     {
-        public int user_id;
-        public string first_name;
-        public string last_name;
+        public int userId;
+        public string firstName;
+        public string lastName;
 
         public UpdateUserNameConstructor()
         {
 
         }
 
-        public UpdateUserNameConstructor(int user_id, string first_name, string last_name)
+        public UpdateUserNameConstructor(int userId, string firstName, string lastName)
         {
-            this.user_id = user_id;
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.userId = userId;
+            this.firstName = firstName;
+            this.lastName = lastName;
         }
 
 
-        public override Constructor Constructor => Constructor.updateUserName;
+        public override Constructor constructor => Constructor.UpdateUserName;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa7332b73);
-            writer.Write(user_id);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
+            writer.Write(userId);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
+            userId = reader.ReadInt32();
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
-            return $"(updateUserName user_id:{user_id} first_name:'{first_name}' last_name:'{last_name}')";
+            return $"(updateUserName userId:{userId} firstName:'{firstName}' lastName:'{lastName}')";
         }
     }
 
 
     public class UpdateUserPhotoConstructor : Update
     {
-        public int user_id;
+        public int userId;
         public int date;
         public UserProfilePhoto photo;
         public bool previous;
@@ -7831,21 +7339,21 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateUserPhotoConstructor(int user_id, int date, UserProfilePhoto photo, bool previous)
+        public UpdateUserPhotoConstructor(int userId, int date, UserProfilePhoto photo, bool previous)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.date = date;
             this.photo = photo;
             this.previous = previous;
         }
 
 
-        public override Constructor Constructor => Constructor.updateUserPhoto;
+        public override Constructor constructor => Constructor.UpdateUserPhoto;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x95313b0c);
-            writer.Write(user_id);
+            writer.Write(userId);
             writer.Write(date);
             photo.Write(writer);
             writer.Write(previous ? 0x997275b5 : 0xbc799737);
@@ -7853,22 +7361,22 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
-            photo = TL.Parse<UserProfilePhoto>(reader);
+            photo = Read<UserProfilePhoto>(reader);
             previous = reader.ReadUInt32() == 0x997275b5;
         }
 
         public override string ToString()
         {
-            return $"(updateUserPhoto user_id:{user_id} date:{date} photo:{photo} previous:{previous})";
+            return $"(updateUserPhoto userId:{userId} date:{date} photo:{photo} previous:{previous})";
         }
     }
 
 
     public class UpdateContactRegisteredConstructor : Update
     {
-        public int user_id;
+        public int userId;
         public int date;
 
         public UpdateContactRegisteredConstructor()
@@ -7876,116 +7384,116 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateContactRegisteredConstructor(int user_id, int date)
+        public UpdateContactRegisteredConstructor(int userId, int date)
         {
-            this.user_id = user_id;
+            this.userId = userId;
             this.date = date;
         }
 
 
-        public override Constructor Constructor => Constructor.updateContactRegistered;
+        public override Constructor constructor => Constructor.UpdateContactRegistered;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x2575bbb9);
-            writer.Write(user_id);
+            writer.Write(userId);
             writer.Write(date);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateContactRegistered user_id:{user_id} date:{date})";
+            return $"(updateContactRegistered userId:{userId} date:{date})";
         }
     }
 
 
     public class UpdateContactLinkConstructor : Update
     {
-        public int user_id;
-        public contacts_MyLink my_link;
-        public contacts_ForeignLink foreign_link;
+        public int userId;
+        public ContactsMyLink myLink;
+        public ContactsForeignLink foreignLink;
 
         public UpdateContactLinkConstructor()
         {
 
         }
 
-        public UpdateContactLinkConstructor(int user_id, contacts_MyLink my_link, contacts_ForeignLink foreign_link)
+        public UpdateContactLinkConstructor(int userId, ContactsMyLink myLink, ContactsForeignLink foreignLink)
         {
-            this.user_id = user_id;
-            this.my_link = my_link;
-            this.foreign_link = foreign_link;
+            this.userId = userId;
+            this.myLink = myLink;
+            this.foreignLink = foreignLink;
         }
 
 
-        public override Constructor Constructor => Constructor.updateContactLink;
+        public override Constructor constructor => Constructor.UpdateContactLink;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x51a48a9a);
-            writer.Write(user_id);
-            my_link.Write(writer);
-            foreign_link.Write(writer);
+            writer.Write(userId);
+            myLink.Write(writer);
+            foreignLink.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
-            my_link = TL.Parse<contacts_MyLink>(reader);
-            foreign_link = TL.Parse<contacts_ForeignLink>(reader);
+            userId = reader.ReadInt32();
+            myLink = Read<ContactsMyLink>(reader);
+            foreignLink = Read<ContactsForeignLink>(reader);
         }
 
         public override string ToString()
         {
-            return $"(updateContactLink user_id:{user_id} my_link:{my_link} foreign_link:{foreign_link})";
+            return $"(updateContactLink userId:{userId} my_link:{myLink} foreign_link:{foreignLink})";
         }
     }
 
 
     public class UpdateActivationConstructor : Update
     {
-        public int user_id;
+        public int userId;
 
         public UpdateActivationConstructor()
         {
 
         }
 
-        public UpdateActivationConstructor(int user_id)
+        public UpdateActivationConstructor(int userId)
         {
-            this.user_id = user_id;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.updateActivation;
+        public override Constructor constructor => Constructor.UpdateActivation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6f690963);
-            writer.Write(user_id);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            user_id = reader.ReadInt32();
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateActivation user_id:{user_id})";
+            return $"(updateActivation userId:{userId})";
         }
     }
 
 
     public class UpdateNewAuthorizationConstructor : Update
     {
-        public long auth_key_id;
+        public long authKeyId;
         public int date;
         public string device;
         public string location;
@@ -7995,21 +7503,21 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateNewAuthorizationConstructor(long auth_key_id, int date, string device, string location)
+        public UpdateNewAuthorizationConstructor(long authKeyId, int date, string device, string location)
         {
-            this.auth_key_id = auth_key_id;
+            this.authKeyId = authKeyId;
             this.date = date;
             this.device = device;
             this.location = location;
         }
 
 
-        public override Constructor Constructor => Constructor.updateNewAuthorization;
+        public override Constructor constructor => Constructor.UpdateNewAuthorization;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8f06529a);
-            writer.Write(auth_key_id);
+            writer.Write(authKeyId);
             writer.Write(date);
             Serializers.String.Write(writer, device);
             Serializers.String.Write(writer, location);
@@ -8017,7 +7525,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            auth_key_id = reader.ReadInt64();
+            authKeyId = reader.ReadInt64();
             date = reader.ReadInt32();
             device = Serializers.String.Read(reader);
             location = Serializers.String.Read(reader);
@@ -8026,35 +7534,35 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(updateNewAuthorization auth_key_id:{auth_key_id} date:{date} device:'{device}' location:'{location}')";
+                $"(updateNewAuthorization authKeyId:{authKeyId} date:{date} device:'{device}' location:'{location}')";
         }
     }
 
 
-    public class Updates_stateConstructor : updates_State
+    public class UpdatesStateConstructor : UpdatesState
     {
         public int pts;
         public int qts;
         public int date;
         public int seq;
-        public int unread_count;
+        public int unreadCount;
 
-        public Updates_stateConstructor()
+        public UpdatesStateConstructor()
         {
 
         }
 
-        public Updates_stateConstructor(int pts, int qts, int date, int seq, int unread_count)
+        public UpdatesStateConstructor(int pts, int qts, int date, int seq, int unreadCount)
         {
             this.pts = pts;
             this.qts = qts;
             this.date = date;
             this.seq = seq;
-            this.unread_count = unread_count;
+            this.unreadCount = unreadCount;
         }
 
 
-        public override Constructor Constructor => Constructor.updates_state;
+        public override Constructor constructor => Constructor.UpdatesState;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8063,7 +7571,7 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(qts);
             writer.Write(date);
             writer.Write(seq);
-            writer.Write(unread_count);
+            writer.Write(unreadCount);
         }
 
         public override void Read(BinaryReader reader)
@@ -8072,34 +7580,34 @@ namespace Telegram.Net.Core.MTProto
             qts = reader.ReadInt32();
             date = reader.ReadInt32();
             seq = reader.ReadInt32();
-            unread_count = reader.ReadInt32();
+            unreadCount = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updates_state pts:{pts} qts:{qts} date:{date} seq:{seq} unread_count:{unread_count})";
+            return $"(updates_state pts:{pts} qts:{qts} date:{date} seq:{seq} unreadCount:{unreadCount})";
         }
     }
 
 
-    public class Updates_differenceEmptyConstructor : UpdatesDifference
+    public class UpdatesDifferenceEmptyConstructor : UpdatesDifference
     {
         public int date;
         public int seq;
 
-        public Updates_differenceEmptyConstructor()
+        public UpdatesDifferenceEmptyConstructor()
         {
 
         }
 
-        public Updates_differenceEmptyConstructor(int date, int seq)
+        public UpdatesDifferenceEmptyConstructor(int date, int seq)
         {
             this.date = date;
             this.seq = seq;
         }
 
 
-        public override Constructor Constructor => Constructor.updates_differenceEmpty;
+        public override Constructor constructor => Constructor.UpdatesDifferenceEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8121,66 +7629,66 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Updates_differenceConstructor : UpdatesDifference
+    public class UpdatesDifferenceConstructor : UpdatesDifference
     {
-        public List<Message> new_messages;
-        public List<EncryptedMessage> new_encrypted_messages;
-        public List<Update> other_updates;
+        public List<Message> newMessages;
+        public List<EncryptedMessage> newEncryptedMessages;
+        public List<Update> otherUpdates;
         public List<Chat> chats;
         public List<User> users;
-        public updates_State state;
+        public UpdatesState state;
 
-        public Updates_differenceConstructor()
+        public UpdatesDifferenceConstructor()
         {
 
         }
 
-        public Updates_differenceConstructor(List<Message> new_messages, List<EncryptedMessage> new_encrypted_messages,
-            List<Update> other_updates, List<Chat> chats, List<User> users, updates_State state)
+        public UpdatesDifferenceConstructor(List<Message> newMessages, List<EncryptedMessage> newEncryptedMessages,
+            List<Update> otherUpdates, List<Chat> chats, List<User> users, UpdatesState state)
         {
-            this.new_messages = new_messages;
-            this.new_encrypted_messages = new_encrypted_messages;
-            this.other_updates = other_updates;
+            this.newMessages = newMessages;
+            this.newEncryptedMessages = newEncryptedMessages;
+            this.otherUpdates = otherUpdates;
             this.chats = chats;
             this.users = users;
             this.state = state;
         }
 
 
-        public override Constructor Constructor => Constructor.updates_difference;
+        public override Constructor constructor => Constructor.UpdatesDifference;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x00f49ca0);
             writer.Write(0x1cb5c415);
-            writer.Write(new_messages.Count);
-            foreach (Message new_messages_element in new_messages)
+            writer.Write(newMessages.Count);
+            foreach (Message newMessagesElement in newMessages)
             {
-                new_messages_element.Write(writer);
+                newMessagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
-            writer.Write(new_encrypted_messages.Count);
-            foreach (EncryptedMessage new_encrypted_messages_element in new_encrypted_messages)
+            writer.Write(newEncryptedMessages.Count);
+            foreach (EncryptedMessage newEncryptedMessagesElement in newEncryptedMessages)
             {
-                new_encrypted_messages_element.Write(writer);
+                newEncryptedMessagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
-            writer.Write(other_updates.Count);
-            foreach (Update other_updates_element in other_updates)
+            writer.Write(otherUpdates.Count);
+            foreach (Update otherUpdatesElement in otherUpdates)
             {
-                other_updates_element.Write(writer);
+                otherUpdatesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             state.Write(writer);
         }
@@ -8188,198 +7696,180 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int new_messages_len = reader.ReadInt32();
-            new_messages = new List<Message>(new_messages_len);
-            for (int new_messages_index = 0; new_messages_index < new_messages_len; new_messages_index++)
+            int newMessagesLen = reader.ReadInt32();
+            newMessages = new List<Message>(newMessagesLen);
+            for (int newMessagesIndex = 0; newMessagesIndex < newMessagesLen; newMessagesIndex++)
             {
-                Message new_messages_element;
-                new_messages_element = TL.Parse<Message>(reader);
-                new_messages.Add(new_messages_element);
+                var newMessagesElement = Read<Message>(reader);
+                newMessages.Add(newMessagesElement);
             }
             reader.ReadInt32(); // vector code
-            int new_encrypted_messages_len = reader.ReadInt32();
-            new_encrypted_messages = new List<EncryptedMessage>(new_encrypted_messages_len);
-            for (int new_encrypted_messages_index = 0;
-                new_encrypted_messages_index < new_encrypted_messages_len;
-                new_encrypted_messages_index++)
+            int newEncryptedMessagesLen = reader.ReadInt32();
+            newEncryptedMessages = new List<EncryptedMessage>(newEncryptedMessagesLen);
+            for (int newEncryptedMessagesIndex = 0;
+                newEncryptedMessagesIndex < newEncryptedMessagesLen;
+                newEncryptedMessagesIndex++)
             {
-                EncryptedMessage new_encrypted_messages_element;
-                new_encrypted_messages_element = TL.Parse<EncryptedMessage>(reader);
-                new_encrypted_messages.Add(new_encrypted_messages_element);
+                var newEncryptedMessagesElement = Read<EncryptedMessage>(reader);
+                newEncryptedMessages.Add(newEncryptedMessagesElement);
             }
             reader.ReadInt32(); // vector code
-            int other_updates_len = reader.ReadInt32();
-            other_updates = new List<Update>(other_updates_len);
-            for (int other_updates_index = 0; other_updates_index < other_updates_len; other_updates_index++)
+            int otherUpdatesLen = reader.ReadInt32();
+            otherUpdates = new List<Update>(otherUpdatesLen);
+            for (int otherUpdatesIndex = 0; otherUpdatesIndex < otherUpdatesLen; otherUpdatesIndex++)
             {
-                Update other_updates_element;
-                other_updates_element = TL.Parse<Update>(reader);
-                other_updates.Add(other_updates_element);
+                var otherUpdatesElement = Read<Update>(reader);
+                otherUpdates.Add(otherUpdatesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
-            state = TL.Parse<updates_State>(reader);
+            state = Read<UpdatesState>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(updates_difference new_messages:{Serializers.VectorToString(new_messages)} new_encrypted_messages:{Serializers.VectorToString(new_encrypted_messages)} other_updates:{Serializers.VectorToString(other_updates)} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)} state:{state})";
+                $"(updates_difference newMessages:{Serializers.VectorToString(newMessages)} newEncryptedMessages:{Serializers.VectorToString(newEncryptedMessages)} other_updates:{Serializers.VectorToString(otherUpdates)} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)} state:{state})";
         }
     }
 
 
-    public class Updates_differenceSliceConstructor : UpdatesDifference
+    public class UpdatesDifferenceSliceConstructor : UpdatesDifference
     {
-        public List<Message> new_messages;
-        public List<EncryptedMessage> new_encrypted_messages;
-        public List<Update> other_updates;
+        public List<Message> newMessages;
+        public List<EncryptedMessage> newEncryptedMessages;
+        public List<Update> otherUpdates;
         public List<Chat> chats;
         public List<User> users;
-        public updates_State intermediate_state;
+        public UpdatesState intermediateState;
 
-        public Updates_differenceSliceConstructor()
+        public UpdatesDifferenceSliceConstructor()
         {
 
         }
 
-        public Updates_differenceSliceConstructor(List<Message> new_messages, List<EncryptedMessage> new_encrypted_messages,
-            List<Update> other_updates, List<Chat> chats, List<User> users, updates_State intermediate_state)
+        public UpdatesDifferenceSliceConstructor(List<Message> newMessages, List<EncryptedMessage> newEncryptedMessages,
+            List<Update> otherUpdates, List<Chat> chats, List<User> users, UpdatesState intermediateState)
         {
-            this.new_messages = new_messages;
-            this.new_encrypted_messages = new_encrypted_messages;
-            this.other_updates = other_updates;
+            this.newMessages = newMessages;
+            this.newEncryptedMessages = newEncryptedMessages;
+            this.otherUpdates = otherUpdates;
             this.chats = chats;
             this.users = users;
-            this.intermediate_state = intermediate_state;
+            this.intermediateState = intermediateState;
         }
 
 
-        public override Constructor Constructor => Constructor.updates_differenceSlice;
+        public override Constructor constructor => Constructor.UpdatesDifferenceSlice;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa8fb1981);
             writer.Write(0x1cb5c415);
-            writer.Write(new_messages.Count);
-            foreach (Message new_messages_element in new_messages)
+            writer.Write(newMessages.Count);
+            foreach (Message newMessagesElement in newMessages)
             {
-                new_messages_element.Write(writer);
+                newMessagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
-            writer.Write(new_encrypted_messages.Count);
-            foreach (EncryptedMessage new_encrypted_messages_element in new_encrypted_messages)
+            writer.Write(newEncryptedMessages.Count);
+            foreach (EncryptedMessage newEncryptedMessagesElement in newEncryptedMessages)
             {
-                new_encrypted_messages_element.Write(writer);
+                newEncryptedMessagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
-            writer.Write(other_updates.Count);
-            foreach (Update other_updates_element in other_updates)
+            writer.Write(otherUpdates.Count);
+            foreach (Update otherUpdatesElement in otherUpdates)
             {
-                other_updates_element.Write(writer);
+                otherUpdatesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
-            intermediate_state.Write(writer);
+            intermediateState.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int new_messages_len = reader.ReadInt32();
-            new_messages = new List<Message>(new_messages_len);
-            for (int new_messages_index = 0; new_messages_index < new_messages_len; new_messages_index++)
+            int newMessagesLen = reader.ReadInt32();
+            newMessages = new List<Message>(newMessagesLen);
+            for (int newMessagesIndex = 0; newMessagesIndex < newMessagesLen; newMessagesIndex++)
             {
-                Message new_messages_element;
-                new_messages_element = TL.Parse<Message>(reader);
-                new_messages.Add(new_messages_element);
+                var newMessagesElement = Read<Message>(reader);
+                newMessages.Add(newMessagesElement);
             }
             reader.ReadInt32(); // vector code
-            int new_encrypted_messages_len = reader.ReadInt32();
-            new_encrypted_messages = new List<EncryptedMessage>(new_encrypted_messages_len);
-            for (int new_encrypted_messages_index = 0;
-                new_encrypted_messages_index < new_encrypted_messages_len;
-                new_encrypted_messages_index++)
+            int newEncryptedMessagesLen = reader.ReadInt32();
+            newEncryptedMessages = new List<EncryptedMessage>(newEncryptedMessagesLen);
+            for (int newEncryptedMessagesIndex = 0;
+                newEncryptedMessagesIndex < newEncryptedMessagesLen;
+                newEncryptedMessagesIndex++)
             {
-                EncryptedMessage new_encrypted_messages_element;
-                new_encrypted_messages_element = TL.Parse<EncryptedMessage>(reader);
-                new_encrypted_messages.Add(new_encrypted_messages_element);
+                var newEncryptedMessagesElement = Read<EncryptedMessage>(reader);
+                newEncryptedMessages.Add(newEncryptedMessagesElement);
             }
             reader.ReadInt32(); // vector code
-            int other_updates_len = reader.ReadInt32();
-            other_updates = new List<Update>(other_updates_len);
-            for (int other_updates_index = 0; other_updates_index < other_updates_len; other_updates_index++)
+            int otherUpdatesLen = reader.ReadInt32();
+            otherUpdates = new List<Update>(otherUpdatesLen);
+            for (int otherUpdatesIndex = 0; otherUpdatesIndex < otherUpdatesLen; otherUpdatesIndex++)
             {
-                Update other_updates_element;
-                other_updates_element = TL.Parse<Update>(reader);
-                other_updates.Add(other_updates_element);
+                var otherUpdatesElement = Read<Update>(reader);
+                otherUpdates.Add(otherUpdatesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
-            intermediate_state = TL.Parse<updates_State>(reader);
+            intermediateState = Read<UpdatesState>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(updates_differenceSlice new_messages:{Serializers.VectorToString(new_messages)} new_encrypted_messages:{Serializers.VectorToString(new_encrypted_messages)} other_updates:{Serializers.VectorToString(other_updates)} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)} intermediate_state:{intermediate_state})";
+                $"(updates_differenceSlice newMessages:{Serializers.VectorToString(newMessages)} newEncryptedMessages:{Serializers.VectorToString(newEncryptedMessages)} other_updates:{Serializers.VectorToString(otherUpdates)} chats:{Serializers.VectorToString(chats)} users:{Serializers.VectorToString(users)} intermediate_state:{intermediateState})";
         }
     }
 
 
     public class UpdatesTooLongConstructor : Updates
     {
-
-        public UpdatesTooLongConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.updatesTooLong;
+        public override Constructor constructor => Constructor.UpdatesTooLong;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8400,7 +7890,7 @@ namespace Telegram.Net.Core.MTProto
     public class UpdateShortMessageConstructor : Updates
     {
         public int id;
-        public int from_id;
+        public int fromId;
         public string message;
         public int pts;
         public int date;
@@ -8411,10 +7901,10 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateShortMessageConstructor(int id, int from_id, string message, int pts, int date, int seq)
+        public UpdateShortMessageConstructor(int id, int fromId, string message, int pts, int date, int seq)
         {
             this.id = id;
-            this.from_id = from_id;
+            this.fromId = fromId;
             this.message = message;
             this.pts = pts;
             this.date = date;
@@ -8422,13 +7912,13 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateShortMessage;
+        public override Constructor constructor => Constructor.UpdateShortMessage;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd3f45784);
             writer.Write(id);
-            writer.Write(from_id);
+            writer.Write(fromId);
             Serializers.String.Write(writer, message);
             writer.Write(pts);
             writer.Write(date);
@@ -8438,7 +7928,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            from_id = reader.ReadInt32();
+            fromId = reader.ReadInt32();
             message = Serializers.String.Read(reader);
             pts = reader.ReadInt32();
             date = reader.ReadInt32();
@@ -8447,7 +7937,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override string ToString()
         {
-            return $"(updateShortMessage id:{id} from_id:{from_id} message:'{message}' pts:{pts} date:{date} seq:{seq})";
+            return $"(updateShortMessage id:{id} from_id:{fromId} message:'{message}' pts:{pts} date:{date} seq:{seq})";
         }
     }
 
@@ -8455,8 +7945,8 @@ namespace Telegram.Net.Core.MTProto
     public class UpdateShortChatMessageConstructor : Updates
     {
         public int id;
-        public int from_id;
-        public int chat_id;
+        public int fromId;
+        public int chatId;
         public string message;
         public int pts;
         public int date;
@@ -8467,11 +7957,11 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateShortChatMessageConstructor(int id, int from_id, int chat_id, string message, int pts, int date, int seq)
+        public UpdateShortChatMessageConstructor(int id, int fromId, int chatId, string message, int pts, int date, int seq)
         {
             this.id = id;
-            this.from_id = from_id;
-            this.chat_id = chat_id;
+            this.fromId = fromId;
+            this.chatId = chatId;
             this.message = message;
             this.pts = pts;
             this.date = date;
@@ -8479,14 +7969,14 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateShortChatMessage;
+        public override Constructor constructor => Constructor.UpdateShortChatMessage;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x2b2fbd4e);
             writer.Write(id);
-            writer.Write(from_id);
-            writer.Write(chat_id);
+            writer.Write(fromId);
+            writer.Write(chatId);
             Serializers.String.Write(writer, message);
             writer.Write(pts);
             writer.Write(date);
@@ -8496,8 +7986,8 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            from_id = reader.ReadInt32();
-            chat_id = reader.ReadInt32();
+            fromId = reader.ReadInt32();
+            chatId = reader.ReadInt32();
             message = Serializers.String.Read(reader);
             pts = reader.ReadInt32();
             date = reader.ReadInt32();
@@ -8507,7 +7997,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(updateShortChatMessage id:{id} from_id:{from_id} chat_id:{chat_id} message:'{message}' pts:{pts} date:{date} seq:{seq})";
+                $"(updateShortChatMessage id:{id} from_id:{fromId} chatId:{chatId} message:'{message}' pts:{pts} date:{date} seq:{seq})";
         }
     }
 
@@ -8529,7 +8019,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateShort;
+        public override Constructor constructor => Constructor.UpdateShort;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8540,7 +8030,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            update = TL.Parse<Update>(reader);
+            update = Read<Update>(reader);
             date = reader.ReadInt32();
         }
 
@@ -8557,7 +8047,7 @@ namespace Telegram.Net.Core.MTProto
         public List<User> users;
         public List<Chat> chats;
         public int date;
-        public int seq_start;
+        public int seqStart;
         public int seq;
 
         public UpdatesCombinedConstructor()
@@ -8565,84 +8055,81 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdatesCombinedConstructor(List<Update> updates, List<User> users, List<Chat> chats, int date, int seq_start,
+        public UpdatesCombinedConstructor(List<Update> updates, List<User> users, List<Chat> chats, int date, int seqStart,
             int seq)
         {
             this.updates = updates;
             this.users = users;
             this.chats = chats;
             this.date = date;
-            this.seq_start = seq_start;
+            this.seqStart = seqStart;
             this.seq = seq;
         }
 
 
-        public override Constructor Constructor => Constructor.updatesCombined;
+        public override Constructor constructor => Constructor.UpdatesCombined;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x725b04c3);
             writer.Write(0x1cb5c415);
             writer.Write(updates.Count);
-            foreach (Update updates_element in updates)
+            foreach (Update updatesElement in updates)
             {
-                updates_element.Write(writer);
+                updatesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(date);
-            writer.Write(seq_start);
+            writer.Write(seqStart);
             writer.Write(seq);
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int updates_len = reader.ReadInt32();
-            updates = new List<Update>(updates_len);
-            for (int updates_index = 0; updates_index < updates_len; updates_index++)
+            int updatesLen = reader.ReadInt32();
+            updates = new List<Update>(updatesLen);
+            for (int updatesIndex = 0; updatesIndex < updatesLen; updatesIndex++)
             {
-                Update updates_element;
-                updates_element = TL.Parse<Update>(reader);
-                updates.Add(updates_element);
+                var updatesElement = Read<Update>(reader);
+                updates.Add(updatesElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             date = reader.ReadInt32();
-            seq_start = reader.ReadInt32();
+            seqStart = reader.ReadInt32();
             seq = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(updatesCombined updates:{Serializers.VectorToString(updates)} users:{Serializers.VectorToString(users)} chats:{Serializers.VectorToString(chats)} date:{date} seq_start:{seq_start} seq:{seq})";
+                $"(updatesCombined updates:{Serializers.VectorToString(updates)} users:{Serializers.VectorToString(users)} chats:{Serializers.VectorToString(chats)} date:{date} seq_start:{seqStart} seq:{seq})";
         }
     }
 
@@ -8670,28 +8157,28 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updates;
+        public override Constructor constructor => Constructor.Updates;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x74ae4240);
             writer.Write(0x1cb5c415);
             writer.Write(updates.Count);
-            foreach (Update updates_element in updates)
+            foreach (Update updatesElement in updates)
             {
-                updates_element.Write(writer);
+                updatesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(date);
             writer.Write(seq);
@@ -8700,31 +8187,28 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int updates_len = reader.ReadInt32();
-            updates = new List<Update>(updates_len);
-            for (int updates_index = 0; updates_index < updates_len; updates_index++)
+            int updatesLen = reader.ReadInt32();
+            updates = new List<Update>(updatesLen);
+            for (int updatesIndex = 0; updatesIndex < updatesLen; updatesIndex++)
             {
-                Update updates_element;
-                updates_element = TL.Parse<Update>(reader);
-                updates.Add(updates_element);
+                var updatesElement = Read<Update>(reader);
+                updates.Add(updatesElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             date = reader.ReadInt32();
             seq = reader.ReadInt32();
@@ -8738,61 +8222,59 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Photos_photosConstructor : photos_Photos
+    public class PhotosPhotosConstructor : PhotosPhotos
     {
         public List<Photo> photos;
         public List<User> users;
 
-        public Photos_photosConstructor()
+        public PhotosPhotosConstructor()
         {
 
         }
 
-        public Photos_photosConstructor(List<Photo> photos, List<User> users)
+        public PhotosPhotosConstructor(List<Photo> photos, List<User> users)
         {
             this.photos = photos;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.photos_photos;
+        public override Constructor constructor => Constructor.PhotosPhotos;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8dca6aa5);
             writer.Write(0x1cb5c415);
             writer.Write(photos.Count);
-            foreach (Photo photos_element in photos)
+            foreach (Photo photosElement in photos)
             {
-                photos_element.Write(writer);
+                photosElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int photos_len = reader.ReadInt32();
-            photos = new List<Photo>(photos_len);
-            for (int photos_index = 0; photos_index < photos_len; photos_index++)
+            int photosLen = reader.ReadInt32();
+            photos = new List<Photo>(photosLen);
+            for (int photosIndex = 0; photosIndex < photosLen; photosIndex++)
             {
-                Photo photos_element;
-                photos_element = TL.Parse<Photo>(reader);
-                photos.Add(photos_element);
+                var photosElement = Read<Photo>(reader);
+                photos.Add(photosElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -8804,18 +8286,18 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Photos_photosSliceConstructor : photos_Photos
+    public class PhotosPhotosSliceConstructor : PhotosPhotos
     {
         public int count;
         public List<Photo> photos;
         public List<User> users;
 
-        public Photos_photosSliceConstructor()
+        public PhotosPhotosSliceConstructor()
         {
 
         }
 
-        public Photos_photosSliceConstructor(int count, List<Photo> photos, List<User> users)
+        public PhotosPhotosSliceConstructor(int count, List<Photo> photos, List<User> users)
         {
             this.count = count;
             this.photos = photos;
@@ -8823,7 +8305,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.photos_photosSlice;
+        public override Constructor constructor => Constructor.PhotosPhotosSlice;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8831,15 +8313,15 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(count);
             writer.Write(0x1cb5c415);
             writer.Write(photos.Count);
-            foreach (Photo photos_element in photos)
+            foreach (Photo photosElement in photos)
             {
-                photos_element.Write(writer);
+                photosElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
@@ -8847,22 +8329,20 @@ namespace Telegram.Net.Core.MTProto
         {
             count = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int photos_len = reader.ReadInt32();
-            photos = new List<Photo>(photos_len);
-            for (int photos_index = 0; photos_index < photos_len; photos_index++)
+            int photosLen = reader.ReadInt32();
+            photos = new List<Photo>(photosLen);
+            for (int photosIndex = 0; photosIndex < photosLen; photosIndex++)
             {
-                Photo photos_element;
-                photos_element = TL.Parse<Photo>(reader);
-                photos.Add(photos_element);
+                var photosElement = Read<Photo>(reader);
+                photos.Add(photosElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -8874,24 +8354,24 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Photos_photoConstructor : photos_Photo
+    public class PhotosPhotoConstructor : PhotosPhoto
     {
         public Photo photo;
         public List<User> users;
 
-        public Photos_photoConstructor()
+        public PhotosPhotoConstructor()
         {
 
         }
 
-        public Photos_photoConstructor(Photo photo, List<User> users)
+        public PhotosPhotoConstructor(Photo photo, List<User> users)
         {
             this.photo = photo;
             this.users = users;
         }
 
 
-        public override Constructor Constructor => Constructor.photos_photo;
+        public override Constructor constructor => Constructor.PhotosPhoto;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8899,23 +8379,22 @@ namespace Telegram.Net.Core.MTProto
             photo.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
-            photo = TL.Parse<Photo>(reader);
+            photo = Read<Photo>(reader);
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -8926,26 +8405,25 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Upload_fileConstructor : upload_File
+    public class UploadFileConstructor : UploadFile
     {
-        public storage_FileType type;
+        public StorageFileType type;
         public int mtime;
         public byte[] bytes;
 
-        public Upload_fileConstructor()
+        public UploadFileConstructor()
         {
 
         }
 
-        public Upload_fileConstructor(storage_FileType type, int mtime, byte[] bytes)
+        public UploadFileConstructor(StorageFileType type, int mtime, byte[] bytes)
         {
             this.type = type;
             this.mtime = mtime;
             this.bytes = bytes;
         }
 
-
-        public override Constructor Constructor => Constructor.upload_file;
+        public override Constructor constructor => Constructor.UploadFile;
 
         public override void Write(BinaryWriter writer)
         {
@@ -8957,7 +8435,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            type = TL.Parse<storage_FileType>(reader);
+            type = Read<StorageFileType>(reader);
             mtime = reader.ReadInt32();
             bytes = Serializers.Bytes.Read(reader);
         }
@@ -8973,7 +8451,7 @@ namespace Telegram.Net.Core.MTProto
     {
         public int id;
         public string hostname;
-        public string ip_address;
+        public string ipAddress;
         public int port;
 
         public DcOptionConstructor()
@@ -8981,23 +8459,23 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DcOptionConstructor(int id, string hostname, string ip_address, int port)
+        public DcOptionConstructor(int id, string hostname, string ipAddress, int port)
         {
             this.id = id;
             this.hostname = hostname;
-            this.ip_address = ip_address;
+            this.ipAddress = ipAddress;
             this.port = port;
         }
 
 
-        public override Constructor Constructor => Constructor.dcOption;
+        public override Constructor constructor => Constructor.DcOption;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x2ec2a43c);
             writer.Write(id);
             Serializers.String.Write(writer, hostname);
-            Serializers.String.Write(writer, ip_address);
+            Serializers.String.Write(writer, ipAddress);
             writer.Write(port);
         }
 
@@ -9005,13 +8483,13 @@ namespace Telegram.Net.Core.MTProto
         {
             id = reader.ReadInt32();
             hostname = Serializers.String.Read(reader);
-            ip_address = Serializers.String.Read(reader);
+            ipAddress = Serializers.String.Read(reader);
             port = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(dcOption id:{id} hostname:'{hostname}' ip_address:'{ip_address}' port:{port})";
+            return $"(dcOption id:{id} hostname:'{hostname}' ipAddress:'{ipAddress}' port:{port})";
         }
     }
 
@@ -9019,65 +8497,62 @@ namespace Telegram.Net.Core.MTProto
     public class ConfigConstructor : Config
     {
         public int date;
-        public bool test_mode;
-        public int this_dc;
-        public List<DcOption> dc_options;
-        public int chat_size_max;
+        public int expires;
+        public bool testMode;
+        public int thisDc;
+        public List<DcOption> dcOptions;
+        public int chatBigSize;
+        public int chatSizeMax;
+        public int broadcastSizeMax;
+        public List<DisabledFeature> disabledFeatures;
 
         public ConfigConstructor()
         {
 
         }
 
-        public ConfigConstructor(int date, bool test_mode, int this_dc, List<DcOption> dc_options, int chat_size_max)
+        public ConfigConstructor(int date, bool testMode, int thisDc, List<DcOption> dcOptions, int chatSizeMax)
         {
             this.date = date;
-            this.test_mode = test_mode;
-            this.this_dc = this_dc;
-            this.dc_options = dc_options;
-            this.chat_size_max = chat_size_max;
+            this.testMode = testMode;
+            this.thisDc = thisDc;
+            this.dcOptions = dcOptions;
+            this.chatSizeMax = chatSizeMax;
         }
 
-
-        public override Constructor Constructor => Constructor.config;
+        public override Constructor constructor => Constructor.Config;
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x232d5905);
+            writer.Write(0x7dae33e0);
             writer.Write(date);
-            writer.Write(test_mode ? 0x997275b5 : 0xbc799737);
-            writer.Write(this_dc);
-            writer.Write(0x1cb5c415);
-            writer.Write(dc_options.Count);
-            foreach (DcOption dc_options_element in dc_options)
-            {
-                dc_options_element.Write(writer);
-            }
-            writer.Write(chat_size_max);
+            writer.Write(expires);
+            WriteBool(writer, testMode);
+            writer.Write(thisDc);
+            WriteVector(writer, dcOptions);
+            writer.Write(chatBigSize);
+            writer.Write(chatSizeMax);
+            writer.Write(broadcastSizeMax);
+            WriteVector(writer, disabledFeatures);
         }
 
         public override void Read(BinaryReader reader)
         {
             date = reader.ReadInt32();
-            var expires = reader.ReadInt32();
-            test_mode = reader.ReadUInt32() == 0x997275b5;
-            this_dc = reader.ReadInt32();
-            reader.ReadInt32(); // vector code
-            int dc_options_len = reader.ReadInt32();
-            dc_options = new List<DcOption>(dc_options_len);
-            for (int dc_options_index = 0; dc_options_index < dc_options_len; dc_options_index++)
-            {
-                DcOption dc_options_element;
-                dc_options_element = TL.Parse<DcOption>(reader);
-                dc_options.Add(dc_options_element);
-            }
-            chat_size_max = reader.ReadInt32();
+            expires = reader.ReadInt32();
+            testMode = ReadBool(reader);
+            thisDc = reader.ReadInt32();
+            dcOptions = ReadVector<DcOption>(reader);
+            chatBigSize = reader.ReadInt32();
+            chatSizeMax = reader.ReadInt32();
+            broadcastSizeMax = reader.ReadInt32();
+            disabledFeatures = ReadVector<DisabledFeature>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(config date:{date} test_mode:{test_mode} this_dc:{this_dc} dc_options:{Serializers.VectorToString(dc_options)} chat_size_max:{chat_size_max})";
+                $"(config date:{date} testMode:{testMode} thisDc:{thisDc} dcOptions:{Serializers.VectorToString(dcOptions)} chatSizeMax:{chatSizeMax})";
         }
     }
 
@@ -9085,59 +8560,58 @@ namespace Telegram.Net.Core.MTProto
     public class NearestDcConstructor : NearestDc
     {
         public string country;
-        public int this_dc;
-        public int nearest_dc;
+        public int thisDc;
+        public int nearestDc;
 
         public NearestDcConstructor()
         {
 
         }
 
-        public NearestDcConstructor(string country, int this_dc, int nearest_dc)
+        public NearestDcConstructor(string country, int thisDc, int nearestDc)
         {
             this.country = country;
-            this.this_dc = this_dc;
-            this.nearest_dc = nearest_dc;
+            this.thisDc = thisDc;
+            this.nearestDc = nearestDc;
         }
 
-
-        public override Constructor Constructor => Constructor.nearestDc;
+        public override Constructor constructor => Constructor.NearestDc;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8e1a1775);
             Serializers.String.Write(writer, country);
-            writer.Write(this_dc);
-            writer.Write(nearest_dc);
+            writer.Write(thisDc);
+            writer.Write(nearestDc);
         }
 
         public override void Read(BinaryReader reader)
         {
             country = Serializers.String.Read(reader);
-            this_dc = reader.ReadInt32();
-            nearest_dc = reader.ReadInt32();
+            thisDc = reader.ReadInt32();
+            nearestDc = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(nearestDc country:'{country}' this_dc:{this_dc} nearest_dc:{nearest_dc})";
+            return $"(nearestDc country:'{country}' thisDc:{thisDc} nearestDc:{nearestDc})";
         }
     }
 
 
-    public class Help_appUpdateConstructor : help_AppUpdate
+    public class HelpAppUpdateConstructor : HelpAppUpdate
     {
         public int id;
         public bool critical;
         public string url;
         public string text;
 
-        public Help_appUpdateConstructor()
+        public HelpAppUpdateConstructor()
         {
 
         }
 
-        public Help_appUpdateConstructor(int id, bool critical, string url, string text)
+        public HelpAppUpdateConstructor(int id, bool critical, string url, string text)
         {
             this.id = id;
             this.critical = critical;
@@ -9145,8 +8619,7 @@ namespace Telegram.Net.Core.MTProto
             this.text = text;
         }
 
-
-        public override Constructor Constructor => Constructor.help_appUpdate;
+        public override Constructor constructor => Constructor.HelpAppUpdate;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9172,17 +8645,9 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Help_noAppUpdateConstructor : help_AppUpdate
+    public class HelpNoAppUpdateConstructor : HelpAppUpdate
     {
-
-        public Help_noAppUpdateConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.help_noAppUpdate;
+        public override Constructor constructor => Constructor.HelpNoAppUpdate;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9200,22 +8665,22 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Help_inviteTextConstructor : help_InviteText
+    public class HelpInviteTextConstructor : HelpInviteText
     {
         public string message;
 
-        public Help_inviteTextConstructor()
+        public HelpInviteTextConstructor()
         {
 
         }
 
-        public Help_inviteTextConstructor(string message)
+        public HelpInviteTextConstructor(string message)
         {
             this.message = message;
         }
 
 
-        public override Constructor Constructor => Constructor.help_inviteText;
+        public override Constructor constructor => Constructor.HelpInviteText;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9235,22 +8700,22 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_statedMessagesLinksConstructor : messages_StatedMessages
+    public class MessagesStatedMessagesLinksConstructor : MessagesStatedMessages
     {
         public List<Message> messages;
         public List<Chat> chats;
         public List<User> users;
-        public List<contacts_Link> links;
+        public List<ContactsLink> links;
         public int pts;
         public int seq;
 
-        public Messages_statedMessagesLinksConstructor()
+        public MessagesStatedMessagesLinksConstructor()
         {
 
         }
 
-        public Messages_statedMessagesLinksConstructor(List<Message> messages, List<Chat> chats, List<User> users,
-            List<contacts_Link> links, int pts, int seq)
+        public MessagesStatedMessagesLinksConstructor(List<Message> messages, List<Chat> chats, List<User> users,
+            List<ContactsLink> links, int pts, int seq)
         {
             this.messages = messages;
             this.chats = chats;
@@ -9261,34 +8726,34 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_statedMessagesLinks;
+        public override Constructor constructor => Constructor.MessagesStatedMessagesLinks;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3e74f5c6);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (Message messages_element in messages)
+            foreach (Message messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(links.Count);
-            foreach (contacts_Link links_element in links)
+            foreach (ContactsLink linksElement in links)
             {
-                links_element.Write(writer);
+                linksElement.Write(writer);
             }
             writer.Write(pts);
             writer.Write(seq);
@@ -9297,40 +8762,36 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<Message>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<Message>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                Message messages_element;
-                messages_element = TL.Parse<Message>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<Message>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             reader.ReadInt32(); // vector code
-            int links_len = reader.ReadInt32();
-            links = new List<contacts_Link>(links_len);
-            for (int links_index = 0; links_index < links_len; links_index++)
+            int linksLen = reader.ReadInt32();
+            links = new List<ContactsLink>(linksLen);
+            for (int linksIndex = 0; linksIndex < linksLen; linksIndex++)
             {
-                contacts_Link links_element;
-                links_element = TL.Parse<contacts_Link>(reader);
-                links.Add(links_element);
+                var linksElement = Read<ContactsLink>(reader);
+                links.Add(linksElement);
             }
             pts = reader.ReadInt32();
             seq = reader.ReadInt32();
@@ -9344,22 +8805,22 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_statedMessageLinkConstructor : messages_StatedMessage
+    public class MessagesStatedMessageLinkConstructor : MessagesStatedMessage
     {
         public Message message;
         public List<Chat> chats;
         public List<User> users;
-        public List<contacts_Link> links;
+        public List<ContactsLink> links;
         public int pts;
         public int seq;
 
-        public Messages_statedMessageLinkConstructor()
+        public MessagesStatedMessageLinkConstructor()
         {
 
         }
 
-        public Messages_statedMessageLinkConstructor(Message message, List<Chat> chats, List<User> users,
-            List<contacts_Link> links, int pts, int seq)
+        public MessagesStatedMessageLinkConstructor(Message message, List<Chat> chats, List<User> users,
+            List<ContactsLink> links, int pts, int seq)
         {
             this.message = message;
             this.chats = chats;
@@ -9370,7 +8831,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_statedMessageLink;
+        public override Constructor constructor => Constructor.MessagesStatedMessageLink;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9378,21 +8839,21 @@ namespace Telegram.Net.Core.MTProto
             message.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(links.Count);
-            foreach (contacts_Link links_element in links)
+            foreach (ContactsLink linksElement in links)
             {
-                links_element.Write(writer);
+                linksElement.Write(writer);
             }
             writer.Write(pts);
             writer.Write(seq);
@@ -9400,33 +8861,30 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<Message>(reader);
+            message = Read<Message>(reader);
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             reader.ReadInt32(); // vector code
-            int links_len = reader.ReadInt32();
-            links = new List<contacts_Link>(links_len);
-            for (int links_index = 0; links_index < links_len; links_index++)
+            int linksLen = reader.ReadInt32();
+            links = new List<ContactsLink>(linksLen);
+            for (int linksIndex = 0; linksIndex < linksLen; linksIndex++)
             {
-                contacts_Link links_element;
-                links_element = TL.Parse<contacts_Link>(reader);
-                links.Add(links_element);
+                var linksElement = Read<ContactsLink>(reader);
+                links.Add(linksElement);
             }
             pts = reader.ReadInt32();
             seq = reader.ReadInt32();
@@ -9446,14 +8904,14 @@ namespace Telegram.Net.Core.MTProto
         public int date;
         public int pts;
         public int seq;
-        public List<contacts_Link> links;
+        public List<ContactsLink> links;
 
         public SentMessageLinkConstructor()
         {
 
         }
 
-        public SentMessageLinkConstructor(int id, int date, int pts, int seq, List<contacts_Link> links)
+        public SentMessageLinkConstructor(int id, int date, int pts, int seq, List<ContactsLink> links)
         {
             this.id = id;
             this.date = date;
@@ -9463,7 +8921,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_sentMessageLink;
+        public override Constructor constructor => Constructor.MessagesSentMessageLink;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9474,9 +8932,9 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(seq);
             writer.Write(0x1cb5c415);
             writer.Write(links.Count);
-            foreach (contacts_Link links_element in links)
+            foreach (ContactsLink linksElement in links)
             {
-                links_element.Write(writer);
+                linksElement.Write(writer);
             }
         }
 
@@ -9487,13 +8945,12 @@ namespace Telegram.Net.Core.MTProto
             pts = reader.ReadInt32();
             seq = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int links_len = reader.ReadInt32();
-            links = new List<contacts_Link>(links_len);
-            for (int links_index = 0; links_index < links_len; links_index++)
+            int linksLen = reader.ReadInt32();
+            links = new List<ContactsLink>(linksLen);
+            for (int linksIndex = 0; linksIndex < linksLen; linksIndex++)
             {
-                contacts_Link links_element;
-                links_element = TL.Parse<contacts_Link>(reader);
-                links.Add(links_element);
+                var linksElement = Read<ContactsLink>(reader);
+                links.Add(linksElement);
             }
         }
 
@@ -9507,39 +8964,39 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputGeoChatConstructor : InputGeoChat
     {
-        public int chat_id;
-        public long access_hash;
+        public int chatId;
+        public long accessHash;
 
         public InputGeoChatConstructor()
         {
 
         }
 
-        public InputGeoChatConstructor(int chat_id, long access_hash)
+        public InputGeoChatConstructor(int chatId, long accessHash)
         {
-            this.chat_id = chat_id;
-            this.access_hash = access_hash;
+            this.chatId = chatId;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputGeoChat;
+        public override Constructor constructor => Constructor.InputGeoChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x74d456fa);
-            writer.Write(chat_id);
-            writer.Write(access_hash);
+            writer.Write(chatId);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            chatId = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputGeoChat chat_id:{chat_id} access_hash:{access_hash})";
+            return $"(inputGeoChat chatId:{chatId} accessHash:{accessHash})";
         }
     }
 
@@ -9559,7 +9016,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputNotifyGeoChatPeer;
+        public override Constructor constructor => Constructor.InputNotifyGeoChatPeer;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9569,7 +9026,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            peer = TL.Parse<InputGeoChat>(reader);
+            peer = Read<InputGeoChat>(reader);
         }
 
         public override string ToString()
@@ -9582,15 +9039,15 @@ namespace Telegram.Net.Core.MTProto
     public class GeoChatConstructor : Chat
     {
         public int id;
-        public long access_hash;
+        public long accessHash;
         public string title;
         public string address;
         public string venue;
         public GeoPoint geo;
         public ChatPhoto photo;
-        public int participants_count;
+        public int participantsCount;
         public int date;
-        public bool checked_in;
+        public bool checkedIn;
         public int version;
 
         public GeoChatConstructor()
@@ -9598,67 +9055,67 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public GeoChatConstructor(int id, long access_hash, string title, string address, string venue, GeoPoint geo,
-            ChatPhoto photo, int participants_count, int date, bool checked_in, int version)
+        public GeoChatConstructor(int id, long accessHash, string title, string address, string venue, GeoPoint geo,
+            ChatPhoto photo, int participantsCount, int date, bool checkedIn, int version)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.title = title;
             this.address = address;
             this.venue = venue;
             this.geo = geo;
             this.photo = photo;
-            this.participants_count = participants_count;
+            this.participantsCount = participantsCount;
             this.date = date;
-            this.checked_in = checked_in;
+            this.checkedIn = checkedIn;
             this.version = version;
         }
 
 
-        public override Constructor Constructor => Constructor.geoChat;
+        public override Constructor constructor => Constructor.GeoChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x75eaea5a);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             Serializers.String.Write(writer, title);
             Serializers.String.Write(writer, address);
             Serializers.String.Write(writer, venue);
             geo.Write(writer);
             photo.Write(writer);
-            writer.Write(participants_count);
+            writer.Write(participantsCount);
             writer.Write(date);
-            writer.Write(checked_in ? 0x997275b5 : 0xbc799737);
+            writer.Write(checkedIn ? 0x997275b5 : 0xbc799737);
             writer.Write(version);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             title = Serializers.String.Read(reader);
             address = Serializers.String.Read(reader);
             venue = Serializers.String.Read(reader);
-            geo = TL.Parse<GeoPoint>(reader);
-            photo = TL.Parse<ChatPhoto>(reader);
-            participants_count = reader.ReadInt32();
+            geo = Read<GeoPoint>(reader);
+            photo = Read<ChatPhoto>(reader);
+            participantsCount = reader.ReadInt32();
             date = reader.ReadInt32();
-            checked_in = reader.ReadUInt32() == 0x997275b5;
+            checkedIn = reader.ReadUInt32() == 0x997275b5;
             version = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(geoChat id:{id} access_hash:{access_hash} title:'{title}' address:'{address}' venue:'{venue}' geo:{geo} photo:{photo} participants_count:{participants_count} date:{date} checked_in:{checked_in} version:{version})";
+                $"(geoChat id:{id} accessHash:{accessHash} title:'{title}' address:'{address}' venue:'{venue}' geo:{geo} photo:{photo} participants_count:{participantsCount} date:{date} checked_in:{checkedIn} version:{version})";
         }
     }
 
 
     public class GeoChatMessageEmptyConstructor : GeoChatMessage
     {
-        public int chat_id;
+        public int chatId;
         public int id;
 
         public GeoChatMessageEmptyConstructor()
@@ -9666,40 +9123,40 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public GeoChatMessageEmptyConstructor(int chat_id, int id)
+        public GeoChatMessageEmptyConstructor(int chatId, int id)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
             this.id = id;
         }
 
 
-        public override Constructor Constructor => Constructor.geoChatMessageEmpty;
+        public override Constructor constructor => Constructor.GeoChatMessageEmpty;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x60311a9b);
-            writer.Write(chat_id);
+            writer.Write(chatId);
             writer.Write(id);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
             id = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(geoChatMessageEmpty chat_id:{chat_id} id:{id})";
+            return $"(geoChatMessageEmpty chatId:{chatId} id:{id})";
         }
     }
 
 
     public class GeoChatMessageConstructor : GeoChatMessage
     {
-        public int chat_id;
+        public int chatId;
         public int id;
-        public int from_id;
+        public int fromId;
         public int date;
         public string message;
         public MessageMedia media;
@@ -9709,25 +9166,25 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public GeoChatMessageConstructor(int chat_id, int id, int from_id, int date, string message, MessageMedia media)
+        public GeoChatMessageConstructor(int chatId, int id, int fromId, int date, string message, MessageMedia media)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
             this.id = id;
-            this.from_id = from_id;
+            this.fromId = fromId;
             this.date = date;
             this.message = message;
             this.media = media;
         }
 
 
-        public override Constructor Constructor => Constructor.geoChatMessage;
+        public override Constructor constructor => Constructor.GeoChatMessage;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4505f8e1);
-            writer.Write(chat_id);
+            writer.Write(chatId);
             writer.Write(id);
-            writer.Write(from_id);
+            writer.Write(fromId);
             writer.Write(date);
             Serializers.String.Write(writer, message);
             media.Write(writer);
@@ -9735,27 +9192,27 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
             id = reader.ReadInt32();
-            from_id = reader.ReadInt32();
+            fromId = reader.ReadInt32();
             date = reader.ReadInt32();
             message = Serializers.String.Read(reader);
-            media = TL.Parse<MessageMedia>(reader);
+            media = Read<MessageMedia>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(geoChatMessage chat_id:{chat_id} id:{id} from_id:{from_id} date:{date} message:'{message}' media:{media})";
+                $"(geoChatMessage chatId:{chatId} id:{id} from_id:{fromId} date:{date} message:'{message}' media:{media})";
         }
     }
 
 
     public class GeoChatMessageServiceConstructor : GeoChatMessage
     {
-        public int chat_id;
+        public int chatId;
         public int id;
-        public int from_id;
+        public int fromId;
         public int date;
         public MessageAction action;
 
@@ -9764,57 +9221,57 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public GeoChatMessageServiceConstructor(int chat_id, int id, int from_id, int date, MessageAction action)
+        public GeoChatMessageServiceConstructor(int chatId, int id, int fromId, int date, MessageAction action)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
             this.id = id;
-            this.from_id = from_id;
+            this.fromId = fromId;
             this.date = date;
             this.action = action;
         }
 
 
-        public override Constructor Constructor => Constructor.geoChatMessageService;
+        public override Constructor constructor => Constructor.GeoChatMessageService;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd34fa24e);
-            writer.Write(chat_id);
+            writer.Write(chatId);
             writer.Write(id);
-            writer.Write(from_id);
+            writer.Write(fromId);
             writer.Write(date);
             action.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
             id = reader.ReadInt32();
-            from_id = reader.ReadInt32();
+            fromId = reader.ReadInt32();
             date = reader.ReadInt32();
-            action = TL.Parse<MessageAction>(reader);
+            action = Read<MessageAction>(reader);
         }
 
         public override string ToString()
         {
-            return $"(geoChatMessageService chat_id:{chat_id} id:{id} from_id:{from_id} date:{date} action:{action})";
+            return $"(geoChatMessageService chatId:{chatId} id:{id} from_id:{fromId} date:{date} action:{action})";
         }
     }
 
 
-    public class Geochats_statedMessageConstructor : geochats_StatedMessage
+    public class GeochatsStatedMessageConstructor : GeochatsStatedMessage
     {
         public GeoChatMessage message;
         public List<Chat> chats;
         public List<User> users;
         public int seq;
 
-        public Geochats_statedMessageConstructor()
+        public GeochatsStatedMessageConstructor()
         {
 
         }
 
-        public Geochats_statedMessageConstructor(GeoChatMessage message, List<Chat> chats, List<User> users, int seq)
+        public GeochatsStatedMessageConstructor(GeoChatMessage message, List<Chat> chats, List<User> users, int seq)
         {
             this.message = message;
             this.chats = chats;
@@ -9823,7 +9280,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.geochats_statedMessage;
+        public override Constructor constructor => Constructor.GeochatsStatedMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -9831,39 +9288,37 @@ namespace Telegram.Net.Core.MTProto
             message.Write(writer);
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
             writer.Write(seq);
         }
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<GeoChatMessage>(reader);
+            message = Read<GeoChatMessage>(reader);
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
             seq = reader.ReadInt32();
         }
@@ -9876,19 +9331,19 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Geochats_locatedConstructor : geochats_Located
+    public class GeochatsLocatedConstructor : GeochatsLocated
     {
         public List<ChatLocated> results;
         public List<GeoChatMessage> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Geochats_locatedConstructor()
+        public GeochatsLocatedConstructor()
         {
 
         }
 
-        public Geochats_locatedConstructor(List<ChatLocated> results, List<GeoChatMessage> messages, List<Chat> chats,
+        public GeochatsLocatedConstructor(List<ChatLocated> results, List<GeoChatMessage> messages, List<Chat> chats,
             List<User> users)
         {
             this.results = results;
@@ -9898,74 +9353,70 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.geochats_located;
+        public override Constructor constructor => Constructor.GeochatsLocated;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x48feb267);
             writer.Write(0x1cb5c415);
             writer.Write(results.Count);
-            foreach (ChatLocated results_element in results)
+            foreach (ChatLocated resultsElement in results)
             {
-                results_element.Write(writer);
+                resultsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (GeoChatMessage messages_element in messages)
+            foreach (GeoChatMessage messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int results_len = reader.ReadInt32();
-            results = new List<ChatLocated>(results_len);
-            for (int results_index = 0; results_index < results_len; results_index++)
+            int resultsLen = reader.ReadInt32();
+            results = new List<ChatLocated>(resultsLen);
+            for (int resultsIndex = 0; resultsIndex < resultsLen; resultsIndex++)
             {
-                ChatLocated results_element;
-                results_element = TL.Parse<ChatLocated>(reader);
-                results.Add(results_element);
+                var resultsElement = Read<ChatLocated>(reader);
+                results.Add(resultsElement);
             }
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<GeoChatMessage>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<GeoChatMessage>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                GeoChatMessage messages_element;
-                messages_element = TL.Parse<GeoChatMessage>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<GeoChatMessage>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -9977,18 +9428,18 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Geochats_messagesConstructor : geochats_Messages
+    public class GeochatsMessagesConstructor : GeochatsMessages
     {
         public List<GeoChatMessage> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Geochats_messagesConstructor()
+        public GeochatsMessagesConstructor()
         {
 
         }
 
-        public Geochats_messagesConstructor(List<GeoChatMessage> messages, List<Chat> chats, List<User> users)
+        public GeochatsMessagesConstructor(List<GeoChatMessage> messages, List<Chat> chats, List<User> users)
         {
             this.messages = messages;
             this.chats = chats;
@@ -9996,59 +9447,56 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.geochats_messages;
+        public override Constructor constructor => Constructor.GeochatsMessages;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xd1526db1);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (GeoChatMessage messages_element in messages)
+            foreach (GeoChatMessage messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<GeoChatMessage>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<GeoChatMessage>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                GeoChatMessage messages_element;
-                messages_element = TL.Parse<GeoChatMessage>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<GeoChatMessage>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -10060,19 +9508,19 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Geochats_messagesSliceConstructor : geochats_Messages
+    public class GeochatsMessagesSliceConstructor : GeochatsMessages
     {
         public int count;
         public List<GeoChatMessage> messages;
         public List<Chat> chats;
         public List<User> users;
 
-        public Geochats_messagesSliceConstructor()
+        public GeochatsMessagesSliceConstructor()
         {
 
         }
 
-        public Geochats_messagesSliceConstructor(int count, List<GeoChatMessage> messages, List<Chat> chats, List<User> users)
+        public GeochatsMessagesSliceConstructor(int count, List<GeoChatMessage> messages, List<Chat> chats, List<User> users)
         {
             this.count = count;
             this.messages = messages;
@@ -10081,7 +9529,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.geochats_messagesSlice;
+        public override Constructor constructor => Constructor.GeochatsMessagesSlice;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10089,21 +9537,21 @@ namespace Telegram.Net.Core.MTProto
             writer.Write(count);
             writer.Write(0x1cb5c415);
             writer.Write(messages.Count);
-            foreach (GeoChatMessage messages_element in messages)
+            foreach (GeoChatMessage messagesElement in messages)
             {
-                messages_element.Write(writer);
+                messagesElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(chats.Count);
-            foreach (Chat chats_element in chats)
+            foreach (Chat chatsElement in chats)
             {
-                chats_element.Write(writer);
+                chatsElement.Write(writer);
             }
             writer.Write(0x1cb5c415);
             writer.Write(users.Count);
-            foreach (User users_element in users)
+            foreach (User usersElement in users)
             {
-                users_element.Write(writer);
+                usersElement.Write(writer);
             }
         }
 
@@ -10111,31 +9559,28 @@ namespace Telegram.Net.Core.MTProto
         {
             count = reader.ReadInt32();
             reader.ReadInt32(); // vector code
-            int messages_len = reader.ReadInt32();
-            messages = new List<GeoChatMessage>(messages_len);
-            for (int messages_index = 0; messages_index < messages_len; messages_index++)
+            int messagesLen = reader.ReadInt32();
+            messages = new List<GeoChatMessage>(messagesLen);
+            for (int messagesIndex = 0; messagesIndex < messagesLen; messagesIndex++)
             {
-                GeoChatMessage messages_element;
-                messages_element = TL.Parse<GeoChatMessage>(reader);
-                messages.Add(messages_element);
+                var messagesElement = Read<GeoChatMessage>(reader);
+                messages.Add(messagesElement);
             }
             reader.ReadInt32(); // vector code
-            int chats_len = reader.ReadInt32();
-            chats = new List<Chat>(chats_len);
-            for (int chats_index = 0; chats_index < chats_len; chats_index++)
+            int chatsLen = reader.ReadInt32();
+            chats = new List<Chat>(chatsLen);
+            for (int chatsIndex = 0; chatsIndex < chatsLen; chatsIndex++)
             {
-                Chat chats_element;
-                chats_element = TL.Parse<Chat>(reader);
-                chats.Add(chats_element);
+                var chatsElement = Read<Chat>(reader);
+                chats.Add(chatsElement);
             }
             reader.ReadInt32(); // vector code
-            int users_len = reader.ReadInt32();
-            users = new List<User>(users_len);
-            for (int users_index = 0; users_index < users_len; users_index++)
+            int usersLen = reader.ReadInt32();
+            users = new List<User>(usersLen);
+            for (int usersIndex = 0; usersIndex < usersLen; usersIndex++)
             {
-                User users_element;
-                users_element = TL.Parse<User>(reader);
-                users.Add(users_element);
+                var usersElement = Read<User>(reader);
+                users.Add(usersElement);
             }
         }
 
@@ -10164,7 +9609,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageActionGeoChatCreate;
+        public override Constructor constructor => Constructor.MessageActionGeoChatCreate;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10188,15 +9633,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class MessageActionGeoChatCheckinConstructor : MessageAction
     {
-
-        public MessageActionGeoChatCheckinConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.messageActionGeoChatCheckin;
+        public override Constructor constructor => Constructor.MessageActionGeoChatCheckin;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10229,7 +9666,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateNewGeoChatMessage;
+        public override Constructor constructor => Constructor.UpdateNewGeoChatMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10239,7 +9676,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<GeoChatMessage>(reader);
+            message = Read<GeoChatMessage>(reader);
         }
 
         public override string ToString()
@@ -10253,7 +9690,7 @@ namespace Telegram.Net.Core.MTProto
     {
         public int id;
         public string title;
-        public int bg_color;
+        public int bgColor;
         public int color;
 
         public WallPaperSolidConstructor()
@@ -10261,23 +9698,23 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public WallPaperSolidConstructor(int id, string title, int bg_color, int color)
+        public WallPaperSolidConstructor(int id, string title, int bgColor, int color)
         {
             this.id = id;
             this.title = title;
-            this.bg_color = bg_color;
+            this.bgColor = bgColor;
             this.color = color;
         }
 
 
-        public override Constructor Constructor => Constructor.wallPaperSolid;
+        public override Constructor constructor => Constructor.WallPaperSolid;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x63117f24);
             writer.Write(id);
             Serializers.String.Write(writer, title);
-            writer.Write(bg_color);
+            writer.Write(bgColor);
             writer.Write(color);
         }
 
@@ -10285,13 +9722,13 @@ namespace Telegram.Net.Core.MTProto
         {
             id = reader.ReadInt32();
             title = Serializers.String.Read(reader);
-            bg_color = reader.ReadInt32();
+            bgColor = reader.ReadInt32();
             color = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(wallPaperSolid id:{id} title:'{title}' bg_color:{bg_color} color:{color})";
+            return $"(wallPaperSolid id:{id} title:'{title}' bgColor:{bgColor} color:{color})";
         }
     }
 
@@ -10313,7 +9750,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateNewEncryptedMessage;
+        public override Constructor constructor => Constructor.UpdateNewEncryptedMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10324,7 +9761,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            message = TL.Parse<EncryptedMessage>(reader);
+            message = Read<EncryptedMessage>(reader);
             qts = reader.ReadInt32();
         }
 
@@ -10337,35 +9774,35 @@ namespace Telegram.Net.Core.MTProto
 
     public class UpdateEncryptedChatTypingConstructor : Update
     {
-        public int chat_id;
+        public int chatId;
 
         public UpdateEncryptedChatTypingConstructor()
         {
 
         }
 
-        public UpdateEncryptedChatTypingConstructor(int chat_id)
+        public UpdateEncryptedChatTypingConstructor(int chatId)
         {
-            this.chat_id = chat_id;
+            this.chatId = chatId;
         }
 
 
-        public override Constructor Constructor => Constructor.updateEncryptedChatTyping;
+        public override Constructor constructor => Constructor.UpdateEncryptedChatTyping;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x1710f156);
-            writer.Write(chat_id);
+            writer.Write(chatId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateEncryptedChatTyping chat_id:{chat_id})";
+            return $"(updateEncryptedChatTyping chatId:{chatId})";
         }
     }
 
@@ -10387,7 +9824,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.updateEncryption;
+        public override Constructor constructor => Constructor.UpdateEncryption;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10398,7 +9835,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            chat = TL.Parse<EncryptedChat>(reader);
+            chat = Read<EncryptedChat>(reader);
             date = reader.ReadInt32();
         }
 
@@ -10411,8 +9848,8 @@ namespace Telegram.Net.Core.MTProto
 
     public class UpdateEncryptedMessagesReadConstructor : Update
     {
-        public int chat_id;
-        public int max_date;
+        public int chatId;
+        public int maxDate;
         public int date;
 
         public UpdateEncryptedMessagesReadConstructor()
@@ -10420,34 +9857,34 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateEncryptedMessagesReadConstructor(int chat_id, int max_date, int date)
+        public UpdateEncryptedMessagesReadConstructor(int chatId, int maxDate, int date)
         {
-            this.chat_id = chat_id;
-            this.max_date = max_date;
+            this.chatId = chatId;
+            this.maxDate = maxDate;
             this.date = date;
         }
 
 
-        public override Constructor Constructor => Constructor.updateEncryptedMessagesRead;
+        public override Constructor constructor => Constructor.UpdateEncryptedMessagesRead;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x38fe25b7);
-            writer.Write(chat_id);
-            writer.Write(max_date);
+            writer.Write(chatId);
+            writer.Write(maxDate);
             writer.Write(date);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            max_date = reader.ReadInt32();
+            chatId = reader.ReadInt32();
+            maxDate = reader.ReadInt32();
             date = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateEncryptedMessagesRead chat_id:{chat_id} max_date:{max_date} date:{date})";
+            return $"(updateEncryptedMessagesRead chatId:{chatId} max_date:{maxDate} date:{date})";
         }
     }
 
@@ -10467,7 +9904,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedChatEmpty;
+        public override Constructor constructor => Constructor.EncryptedChatEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10490,51 +9927,51 @@ namespace Telegram.Net.Core.MTProto
     public class EncryptedChatWaitingConstructor : EncryptedChat
     {
         public int id;
-        public long access_hash;
+        public long accessHash;
         public int date;
-        public int admin_id;
-        public int participant_id;
+        public int adminId;
+        public int participantId;
 
         public EncryptedChatWaitingConstructor()
         {
 
         }
 
-        public EncryptedChatWaitingConstructor(int id, long access_hash, int date, int admin_id, int participant_id)
+        public EncryptedChatWaitingConstructor(int id, long accessHash, int date, int adminId, int participantId)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.date = date;
-            this.admin_id = admin_id;
-            this.participant_id = participant_id;
+            this.adminId = adminId;
+            this.participantId = participantId;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedChatWaiting;
+        public override Constructor constructor => Constructor.EncryptedChatWaiting;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3bf703dc);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             writer.Write(date);
-            writer.Write(admin_id);
-            writer.Write(participant_id);
+            writer.Write(adminId);
+            writer.Write(participantId);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             date = reader.ReadInt32();
-            admin_id = reader.ReadInt32();
-            participant_id = reader.ReadInt32();
+            adminId = reader.ReadInt32();
+            participantId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(encryptedChatWaiting id:{id} access_hash:{access_hash} date:{date} admin_id:{admin_id} participant_id:{participant_id})";
+                $"(encryptedChatWaiting id:{id} accessHash:{accessHash} date:{date} admin_id:{adminId} participant_id:{participantId})";
         }
     }
 
@@ -10542,11 +9979,11 @@ namespace Telegram.Net.Core.MTProto
     public class EncryptedChatRequestedConstructor : EncryptedChat
     {
         public int id;
-        public long access_hash;
+        public long accessHash;
         public int date;
-        public int admin_id;
-        public int participant_id;
-        public byte[] g_a;
+        public int adminId;
+        public int participantId;
+        public byte[] gA;
         public byte[] nonce;
 
         public EncryptedChatRequestedConstructor()
@@ -10554,48 +9991,48 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public EncryptedChatRequestedConstructor(int id, long access_hash, int date, int admin_id, int participant_id,
-            byte[] g_a, byte[] nonce)
+        public EncryptedChatRequestedConstructor(int id, long accessHash, int date, int adminId, int participantId,
+            byte[] gA, byte[] nonce)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.date = date;
-            this.admin_id = admin_id;
-            this.participant_id = participant_id;
-            this.g_a = g_a;
+            this.adminId = adminId;
+            this.participantId = participantId;
+            this.gA = gA;
             this.nonce = nonce;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedChatRequested;
+        public override Constructor constructor => Constructor.EncryptedChatRequested;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xfda9a7b7);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             writer.Write(date);
-            writer.Write(admin_id);
-            writer.Write(participant_id);
-            Serializers.Bytes.Write(writer, g_a);
+            writer.Write(adminId);
+            writer.Write(participantId);
+            Serializers.Bytes.Write(writer, gA);
             Serializers.Bytes.Write(writer, nonce);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             date = reader.ReadInt32();
-            admin_id = reader.ReadInt32();
-            participant_id = reader.ReadInt32();
-            g_a = Serializers.Bytes.Read(reader);
+            adminId = reader.ReadInt32();
+            participantId = reader.ReadInt32();
+            gA = Serializers.Bytes.Read(reader);
             nonce = Serializers.Bytes.Read(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(encryptedChatRequested id:{id} access_hash:{access_hash} date:{date} admin_id:{admin_id} participant_id:{participant_id} g_a:{BitConverter.ToString(g_a)} nonce:{BitConverter.ToString(nonce)})";
+                $"(encryptedChatRequested id:{id} accessHash:{accessHash} date:{date} admin_id:{adminId} participant_id:{participantId} g_a:{BitConverter.ToString(gA)} nonce:{BitConverter.ToString(nonce)})";
         }
     }
 
@@ -10603,64 +10040,64 @@ namespace Telegram.Net.Core.MTProto
     public class EncryptedChatConstructor : EncryptedChat
     {
         public int id;
-        public long access_hash;
+        public long accessHash;
         public int date;
-        public int admin_id;
-        public int participant_id;
-        public byte[] g_a_or_b;
+        public int adminId;
+        public int participantId;
+        public byte[] gAorB;
         public byte[] nonce;
-        public long key_fingerprint;
+        public long keyFingerprint;
 
         public EncryptedChatConstructor()
         {
 
         }
 
-        public EncryptedChatConstructor(int id, long access_hash, int date, int admin_id, int participant_id, byte[] g_a_or_b,
-            byte[] nonce, long key_fingerprint)
+        public EncryptedChatConstructor(int id, long accessHash, int date, int adminId, int participantId, byte[] gAorB,
+            byte[] nonce, long keyFingerprint)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.date = date;
-            this.admin_id = admin_id;
-            this.participant_id = participant_id;
-            this.g_a_or_b = g_a_or_b;
+            this.adminId = adminId;
+            this.participantId = participantId;
+            this.gAorB = gAorB;
             this.nonce = nonce;
-            this.key_fingerprint = key_fingerprint;
+            this.keyFingerprint = keyFingerprint;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedChat;
+        public override Constructor constructor => Constructor.EncryptedChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6601d14f);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             writer.Write(date);
-            writer.Write(admin_id);
-            writer.Write(participant_id);
-            Serializers.Bytes.Write(writer, g_a_or_b);
+            writer.Write(adminId);
+            writer.Write(participantId);
+            Serializers.Bytes.Write(writer, gAorB);
             Serializers.Bytes.Write(writer, nonce);
-            writer.Write(key_fingerprint);
+            writer.Write(keyFingerprint);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             date = reader.ReadInt32();
-            admin_id = reader.ReadInt32();
-            participant_id = reader.ReadInt32();
-            g_a_or_b = Serializers.Bytes.Read(reader);
+            adminId = reader.ReadInt32();
+            participantId = reader.ReadInt32();
+            gAorB = Serializers.Bytes.Read(reader);
             nonce = Serializers.Bytes.Read(reader);
-            key_fingerprint = reader.ReadInt64();
+            keyFingerprint = reader.ReadInt64();
         }
 
         public override string ToString()
         {
             return
-                $"(encryptedChat id:{id} access_hash:{access_hash} date:{date} admin_id:{admin_id} participant_id:{participant_id} g_a_or_b:{BitConverter.ToString(g_a_or_b)} nonce:{BitConverter.ToString(nonce)} key_fingerprint:{key_fingerprint})";
+                $"(encryptedChat id:{id} accessHash:{accessHash} date:{date} admin_id:{adminId} participant_id:{participantId} g_a_or_b:{BitConverter.ToString(gAorB)} nonce:{BitConverter.ToString(nonce)} key_fingerprint:{keyFingerprint})";
         }
     }
 
@@ -10680,7 +10117,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedChatDiscarded;
+        public override Constructor constructor => Constructor.EncryptedChatDiscarded;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10702,54 +10139,46 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputEncryptedChatConstructor : InputEncryptedChat
     {
-        public int chat_id;
-        public long access_hash;
+        public int chatId;
+        public long accessHash;
 
         public InputEncryptedChatConstructor()
         {
 
         }
 
-        public InputEncryptedChatConstructor(int chat_id, long access_hash)
+        public InputEncryptedChatConstructor(int chatId, long accessHash)
         {
-            this.chat_id = chat_id;
-            this.access_hash = access_hash;
+            this.chatId = chatId;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputEncryptedChat;
+        public override Constructor constructor => Constructor.InputEncryptedChat;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf141b5e1);
-            writer.Write(chat_id);
-            writer.Write(access_hash);
+            writer.Write(chatId);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            access_hash = reader.ReadInt64();
+            chatId = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputEncryptedChat chat_id:{chat_id} access_hash:{access_hash})";
+            return $"(inputEncryptedChat chatId:{chatId} accessHash:{accessHash})";
         }
     }
 
 
     public class EncryptedFileEmptyConstructor : EncryptedFile
     {
-
-        public EncryptedFileEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.encryptedFileEmpty;
+        public override Constructor constructor => Constructor.EncryptedFileEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10770,66 +10199,58 @@ namespace Telegram.Net.Core.MTProto
     public class EncryptedFileConstructor : EncryptedFile
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
         public int size;
-        public int dc_id;
-        public int key_fingerprint;
+        public int dcId;
+        public int keyFingerprint;
 
         public EncryptedFileConstructor()
         {
 
         }
 
-        public EncryptedFileConstructor(long id, long access_hash, int size, int dc_id, int key_fingerprint)
+        public EncryptedFileConstructor(long id, long accessHash, int size, int dcId, int keyFingerprint)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.size = size;
-            this.dc_id = dc_id;
-            this.key_fingerprint = key_fingerprint;
+            this.dcId = dcId;
+            this.keyFingerprint = keyFingerprint;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedFile;
+        public override Constructor constructor => Constructor.EncryptedFile;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4a70994c);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             writer.Write(size);
-            writer.Write(dc_id);
-            writer.Write(key_fingerprint);
+            writer.Write(dcId);
+            writer.Write(keyFingerprint);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             size = reader.ReadInt32();
-            dc_id = reader.ReadInt32();
-            key_fingerprint = reader.ReadInt32();
+            dcId = reader.ReadInt32();
+            keyFingerprint = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(encryptedFile id:{id} access_hash:{access_hash} size:{size} dc_id:{dc_id} key_fingerprint:{key_fingerprint})";
+                $"(encryptedFile id:{id} accessHash:{accessHash} size:{size} dc_id:{dcId} key_fingerprint:{keyFingerprint})";
         }
     }
 
 
     public class InputEncryptedFileEmptyConstructor : InputEncryptedFile
     {
-
-        public InputEncryptedFileEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputEncryptedFileEmpty;
+        public override Constructor constructor => Constructor.InputEncryptedFileEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -10851,46 +10272,46 @@ namespace Telegram.Net.Core.MTProto
     {
         public long id;
         public int parts;
-        public string md5_checksum;
-        public int key_fingerprint;
+        public string md5Checksum;
+        public int keyFingerprint;
 
         public InputEncryptedFileUploadedConstructor()
         {
 
         }
 
-        public InputEncryptedFileUploadedConstructor(long id, int parts, string md5_checksum, int key_fingerprint)
+        public InputEncryptedFileUploadedConstructor(long id, int parts, string md5Checksum, int keyFingerprint)
         {
             this.id = id;
             this.parts = parts;
-            this.md5_checksum = md5_checksum;
-            this.key_fingerprint = key_fingerprint;
+            this.md5Checksum = md5Checksum;
+            this.keyFingerprint = keyFingerprint;
         }
 
 
-        public override Constructor Constructor => Constructor.inputEncryptedFileUploaded;
+        public override Constructor constructor => Constructor.InputEncryptedFileUploaded;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x64bd0306);
             writer.Write(id);
             writer.Write(parts);
-            Serializers.String.Write(writer, md5_checksum);
-            writer.Write(key_fingerprint);
+            Serializers.String.Write(writer, md5Checksum);
+            writer.Write(keyFingerprint);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
             parts = reader.ReadInt32();
-            md5_checksum = Serializers.String.Read(reader);
-            key_fingerprint = reader.ReadInt32();
+            md5Checksum = Serializers.String.Read(reader);
+            keyFingerprint = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(inputEncryptedFileUploaded id:{id} parts:{parts} md5_checksum:'{md5_checksum}' key_fingerprint:{key_fingerprint})";
+                $"(inputEncryptedFileUploaded id:{id} parts:{parts} md5Checksum:'{md5Checksum}' keyFingerprint:{keyFingerprint})";
         }
     }
 
@@ -10898,38 +10319,38 @@ namespace Telegram.Net.Core.MTProto
     public class InputEncryptedFileConstructor : InputEncryptedFile
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputEncryptedFileConstructor()
         {
 
         }
 
-        public InputEncryptedFileConstructor(long id, long access_hash)
+        public InputEncryptedFileConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputEncryptedFile;
+        public override Constructor constructor => Constructor.InputEncryptedFile;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x5a17b5e5);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputEncryptedFile id:{id} access_hash:{access_hash})";
+            return $"(inputEncryptedFile id:{id} accessHash:{accessHash})";
         }
     }
 
@@ -10937,46 +10358,46 @@ namespace Telegram.Net.Core.MTProto
     public class InputEncryptedFileLocationConstructor : InputFileLocation
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputEncryptedFileLocationConstructor()
         {
 
         }
 
-        public InputEncryptedFileLocationConstructor(long id, long access_hash)
+        public InputEncryptedFileLocationConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputEncryptedFileLocation;
+        public override Constructor constructor => Constructor.InputEncryptedFileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf5235d55);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputEncryptedFileLocation id:{id} access_hash:{access_hash})";
+            return $"(inputEncryptedFileLocation id:{id} accessHash:{accessHash})";
         }
     }
 
 
     public class EncryptedMessageConstructor : EncryptedMessage
     {
-        public long random_id;
-        public int chat_id;
+        public long randomId;
+        public int chatId;
         public int date;
         public byte[] bytes;
         public EncryptedFile file;
@@ -10986,23 +10407,23 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public EncryptedMessageConstructor(long random_id, int chat_id, int date, byte[] bytes, EncryptedFile file)
+        public EncryptedMessageConstructor(long randomId, int chatId, int date, byte[] bytes, EncryptedFile file)
         {
-            this.random_id = random_id;
-            this.chat_id = chat_id;
+            this.randomId = randomId;
+            this.chatId = chatId;
             this.date = date;
             this.bytes = bytes;
             this.file = file;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedMessage;
+        public override Constructor constructor => Constructor.EncryptedMessage;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xed18c118);
-            writer.Write(random_id);
-            writer.Write(chat_id);
+            writer.Write(randomId);
+            writer.Write(chatId);
             writer.Write(date);
             Serializers.Bytes.Write(writer, bytes);
             file.Write(writer);
@@ -11010,25 +10431,25 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            random_id = reader.ReadInt64();
-            chat_id = reader.ReadInt32();
+            randomId = reader.ReadInt64();
+            chatId = reader.ReadInt32();
             date = reader.ReadInt32();
             bytes = Serializers.Bytes.Read(reader);
-            file = TL.Parse<EncryptedFile>(reader);
+            file = Read<EncryptedFile>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(encryptedMessage random_id:{random_id} chat_id:{chat_id} date:{date} bytes:{BitConverter.ToString(bytes)} file:{file})";
+                $"(encryptedMessage randomId:{randomId} chatId:{chatId} date:{date} bytes:{BitConverter.ToString(bytes)} file:{file})";
         }
     }
 
 
     public class EncryptedMessageServiceConstructor : EncryptedMessage
     {
-        public long random_id;
-        public int chat_id;
+        public long randomId;
+        public int chatId;
         public int date;
         public byte[] bytes;
 
@@ -11037,30 +10458,30 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public EncryptedMessageServiceConstructor(long random_id, int chat_id, int date, byte[] bytes)
+        public EncryptedMessageServiceConstructor(long randomId, int chatId, int date, byte[] bytes)
         {
-            this.random_id = random_id;
-            this.chat_id = chat_id;
+            this.randomId = randomId;
+            this.chatId = chatId;
             this.date = date;
             this.bytes = bytes;
         }
 
 
-        public override Constructor Constructor => Constructor.encryptedMessageService;
+        public override Constructor constructor => Constructor.EncryptedMessageService;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x23734b06);
-            writer.Write(random_id);
-            writer.Write(chat_id);
+            writer.Write(randomId);
+            writer.Write(chatId);
             writer.Write(date);
             Serializers.Bytes.Write(writer, bytes);
         }
 
         public override void Read(BinaryReader reader)
         {
-            random_id = reader.ReadInt64();
-            chat_id = reader.ReadInt32();
+            randomId = reader.ReadInt64();
+            chatId = reader.ReadInt32();
             date = reader.ReadInt32();
             bytes = Serializers.Bytes.Read(reader);
         }
@@ -11068,7 +10489,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(encryptedMessageService random_id:{random_id} chat_id:{chat_id} date:{date} bytes:{BitConverter.ToString(bytes)})";
+                $"(encryptedMessageService randomId:{randomId} chatId:{chatId} date:{date} bytes:{BitConverter.ToString(bytes)})";
         }
     }
 
@@ -11090,7 +10511,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageLayer;
+        public override Constructor constructor => Constructor.DecryptedMessageLayer;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11102,7 +10523,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             layer = reader.ReadInt32();
-            message = TL.Parse<DecryptedMessage>(reader);
+            message = Read<DecryptedMessage>(reader);
         }
 
         public override string ToString()
@@ -11114,8 +10535,8 @@ namespace Telegram.Net.Core.MTProto
 
     public class DecryptedMessageConstructor : DecryptedMessage
     {
-        public long random_id;
-        public byte[] random_bytes;
+        public long randomId;
+        public byte[] randomBytes;
         public string message;
         public DecryptedMessageMedia media;
 
@@ -11124,46 +10545,46 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DecryptedMessageConstructor(long random_id, byte[] random_bytes, string message, DecryptedMessageMedia media)
+        public DecryptedMessageConstructor(long randomId, byte[] randomBytes, string message, DecryptedMessageMedia media)
         {
-            this.random_id = random_id;
-            this.random_bytes = random_bytes;
+            this.randomId = randomId;
+            this.randomBytes = randomBytes;
             this.message = message;
             this.media = media;
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessage;
+        public override Constructor constructor => Constructor.DecryptedMessage;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x1f814f1f);
-            writer.Write(random_id);
-            Serializers.Bytes.Write(writer, random_bytes);
+            writer.Write(randomId);
+            Serializers.Bytes.Write(writer, randomBytes);
             Serializers.String.Write(writer, message);
             media.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            random_id = reader.ReadInt64();
-            random_bytes = Serializers.Bytes.Read(reader);
+            randomId = reader.ReadInt64();
+            randomBytes = Serializers.Bytes.Read(reader);
             message = Serializers.String.Read(reader);
-            media = TL.Parse<DecryptedMessageMedia>(reader);
+            media = Read<DecryptedMessageMedia>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(decryptedMessage random_id:{random_id} random_bytes:{BitConverter.ToString(random_bytes)} message:'{message}' media:{media})";
+                $"(decryptedMessage randomId:{randomId} random_bytes:{BitConverter.ToString(randomBytes)} message:'{message}' media:{media})";
         }
     }
 
 
     public class DecryptedMessageServiceConstructor : DecryptedMessage
     {
-        public long random_id;
-        public byte[] random_bytes;
+        public long randomId;
+        public byte[] randomBytes;
         public DecryptedMessageAction action;
 
         public DecryptedMessageServiceConstructor()
@@ -11171,50 +10592,42 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DecryptedMessageServiceConstructor(long random_id, byte[] random_bytes, DecryptedMessageAction action)
+        public DecryptedMessageServiceConstructor(long randomId, byte[] randomBytes, DecryptedMessageAction action)
         {
-            this.random_id = random_id;
-            this.random_bytes = random_bytes;
+            this.randomId = randomId;
+            this.randomBytes = randomBytes;
             this.action = action;
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageService;
+        public override Constructor constructor => Constructor.DecryptedMessageService;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xaa48327d);
-            writer.Write(random_id);
-            Serializers.Bytes.Write(writer, random_bytes);
+            writer.Write(randomId);
+            Serializers.Bytes.Write(writer, randomBytes);
             action.Write(writer);
         }
 
         public override void Read(BinaryReader reader)
         {
-            random_id = reader.ReadInt64();
-            random_bytes = Serializers.Bytes.Read(reader);
-            action = TL.Parse<DecryptedMessageAction>(reader);
+            randomId = reader.ReadInt64();
+            randomBytes = Serializers.Bytes.Read(reader);
+            action = Read<DecryptedMessageAction>(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(decryptedMessageService random_id:{random_id} random_bytes:{BitConverter.ToString(random_bytes)} action:{action})";
+                $"(decryptedMessageService randomId:{randomId} random_bytes:{BitConverter.ToString(randomBytes)} action:{action})";
         }
     }
 
 
     public class DecryptedMessageMediaEmptyConstructor : DecryptedMessageMedia
     {
-
-        public DecryptedMessageMediaEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.decryptedMessageMediaEmpty;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11235,8 +10648,8 @@ namespace Telegram.Net.Core.MTProto
     public class DecryptedMessageMediaPhotoConstructor : DecryptedMessageMedia
     {
         public byte[] thumb;
-        public int thumb_w;
-        public int thumb_h;
+        public int thumbW;
+        public int thumbH;
         public int w;
         public int h;
         public int size;
@@ -11248,12 +10661,12 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DecryptedMessageMediaPhotoConstructor(byte[] thumb, int thumb_w, int thumb_h, int w, int h, int size,
+        public DecryptedMessageMediaPhotoConstructor(byte[] thumb, int thumbW, int thumbH, int w, int h, int size,
             byte[] key, byte[] iv)
         {
             this.thumb = thumb;
-            this.thumb_w = thumb_w;
-            this.thumb_h = thumb_h;
+            this.thumbW = thumbW;
+            this.thumbH = thumbH;
             this.w = w;
             this.h = h;
             this.size = size;
@@ -11262,14 +10675,14 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaPhoto;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaPhoto;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x32798a8c);
             Serializers.Bytes.Write(writer, thumb);
-            writer.Write(thumb_w);
-            writer.Write(thumb_h);
+            writer.Write(thumbW);
+            writer.Write(thumbH);
             writer.Write(w);
             writer.Write(h);
             writer.Write(size);
@@ -11280,8 +10693,8 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             thumb = Serializers.Bytes.Read(reader);
-            thumb_w = reader.ReadInt32();
-            thumb_h = reader.ReadInt32();
+            thumbW = reader.ReadInt32();
+            thumbH = reader.ReadInt32();
             w = reader.ReadInt32();
             h = reader.ReadInt32();
             size = reader.ReadInt32();
@@ -11292,7 +10705,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(decryptedMessageMediaPhoto thumb:{BitConverter.ToString(thumb)} thumb_w:{thumb_w} thumb_h:{thumb_h} w:{w} h:{h} size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
+                $"(decryptedMessageMediaPhoto thumb:{BitConverter.ToString(thumb)} thumbW:{thumbW} thumbH:{thumbH} w:{w} h:{h} size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
         }
     }
 
@@ -11300,8 +10713,8 @@ namespace Telegram.Net.Core.MTProto
     public class DecryptedMessageMediaVideoConstructor : DecryptedMessageMedia
     {
         public byte[] thumb;
-        public int thumb_w;
-        public int thumb_h;
+        public int thumbW;
+        public int thumbH;
         public int duration;
         public int w;
         public int h;
@@ -11314,12 +10727,12 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DecryptedMessageMediaVideoConstructor(byte[] thumb, int thumb_w, int thumb_h, int duration, int w, int h,
+        public DecryptedMessageMediaVideoConstructor(byte[] thumb, int thumbW, int thumbH, int duration, int w, int h,
             int size, byte[] key, byte[] iv)
         {
             this.thumb = thumb;
-            this.thumb_w = thumb_w;
-            this.thumb_h = thumb_h;
+            this.thumbW = thumbW;
+            this.thumbH = thumbH;
             this.duration = duration;
             this.w = w;
             this.h = h;
@@ -11329,14 +10742,14 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaVideo;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaVideo;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4cee6ef3);
             Serializers.Bytes.Write(writer, thumb);
-            writer.Write(thumb_w);
-            writer.Write(thumb_h);
+            writer.Write(thumbW);
+            writer.Write(thumbH);
             writer.Write(duration);
             writer.Write(w);
             writer.Write(h);
@@ -11348,8 +10761,8 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             thumb = Serializers.Bytes.Read(reader);
-            thumb_w = reader.ReadInt32();
-            thumb_h = reader.ReadInt32();
+            thumbW = reader.ReadInt32();
+            thumbH = reader.ReadInt32();
             duration = reader.ReadInt32();
             w = reader.ReadInt32();
             h = reader.ReadInt32();
@@ -11361,7 +10774,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(decryptedMessageMediaVideo thumb:{BitConverter.ToString(thumb)} thumb_w:{thumb_w} thumb_h:{thumb_h} duration:{duration} w:{w} h:{h} size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
+                $"(decryptedMessageMediaVideo thumb:{BitConverter.ToString(thumb)} thumbW:{thumbW} thumbH:{thumbH} duration:{duration} w:{w} h:{h} size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
         }
     }
 
@@ -11383,7 +10796,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaGeoPoint;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaGeoPoint;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11407,103 +10820,103 @@ namespace Telegram.Net.Core.MTProto
 
     public class DecryptedMessageMediaContactConstructor : DecryptedMessageMedia
     {
-        public string phone_number;
-        public string first_name;
-        public string last_name;
-        public int user_id;
+        public string phoneNumber;
+        public string firstName;
+        public string lastName;
+        public int userId;
 
         public DecryptedMessageMediaContactConstructor()
         {
 
         }
 
-        public DecryptedMessageMediaContactConstructor(string phone_number, string first_name, string last_name, int user_id)
+        public DecryptedMessageMediaContactConstructor(string phoneNumber, string firstName, string lastName, int userId)
         {
-            this.phone_number = phone_number;
-            this.first_name = first_name;
-            this.last_name = last_name;
-            this.user_id = user_id;
+            this.phoneNumber = phoneNumber;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.userId = userId;
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaContact;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaContact;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x588a0a97);
-            Serializers.String.Write(writer, phone_number);
-            Serializers.String.Write(writer, first_name);
-            Serializers.String.Write(writer, last_name);
-            writer.Write(user_id);
+            Serializers.String.Write(writer, phoneNumber);
+            Serializers.String.Write(writer, firstName);
+            Serializers.String.Write(writer, lastName);
+            writer.Write(userId);
         }
 
         public override void Read(BinaryReader reader)
         {
-            phone_number = Serializers.String.Read(reader);
-            first_name = Serializers.String.Read(reader);
-            last_name = Serializers.String.Read(reader);
-            user_id = reader.ReadInt32();
+            phoneNumber = Serializers.String.Read(reader);
+            firstName = Serializers.String.Read(reader);
+            lastName = Serializers.String.Read(reader);
+            userId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(decryptedMessageMediaContact phone_number:'{phone_number}' first_name:'{first_name}' last_name:'{last_name}' user_id:{user_id})";
+                $"(decryptedMessageMediaContact phoneNumber:'{phoneNumber}' firstName:'{firstName}' lastName:'{lastName}' userId:{userId})";
         }
     }
 
 
-    public class DecryptedMessageActionSetMessageTTLConstructor : DecryptedMessageAction
+    public class DecryptedMessageActionSetMessageTtlConstructor : DecryptedMessageAction
     {
-        public int ttl_seconds;
+        public int ttlSeconds;
 
-        public DecryptedMessageActionSetMessageTTLConstructor()
+        public DecryptedMessageActionSetMessageTtlConstructor()
         {
 
         }
 
-        public DecryptedMessageActionSetMessageTTLConstructor(int ttl_seconds)
+        public DecryptedMessageActionSetMessageTtlConstructor(int ttlSeconds)
         {
-            this.ttl_seconds = ttl_seconds;
+            this.ttlSeconds = ttlSeconds;
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageActionSetMessageTTL;
+        public override Constructor constructor => Constructor.DecryptedMessageActionSetMessageTtl;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xa1733aec);
-            writer.Write(ttl_seconds);
+            writer.Write(ttlSeconds);
         }
 
         public override void Read(BinaryReader reader)
         {
-            ttl_seconds = reader.ReadInt32();
+            ttlSeconds = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(decryptedMessageActionSetMessageTTL ttl_seconds:{ttl_seconds})";
+            return $"(decryptedMessageActionSetMessageTTL ttlSeconds:{ttlSeconds})";
         }
     }
 
 
-    public class Messages_dhConfigNotModifiedConstructor : messages_DhConfig
+    public class MessagesDhConfigNotModifiedConstructor : MessagesDhConfig
     {
         public byte[] random;
 
-        public Messages_dhConfigNotModifiedConstructor()
+        public MessagesDhConfigNotModifiedConstructor()
         {
 
         }
 
-        public Messages_dhConfigNotModifiedConstructor(byte[] random)
+        public MessagesDhConfigNotModifiedConstructor(byte[] random)
         {
             this.random = random;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_dhConfigNotModified;
+        public override Constructor constructor => Constructor.MessagesDhConfigNotModified;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11523,19 +10936,19 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_dhConfigConstructor : messages_DhConfig
+    public class MessagesDhConfigConstructor : MessagesDhConfig
     {
         public int g;
         public byte[] p;
         public int version;
         public byte[] random;
 
-        public Messages_dhConfigConstructor()
+        public MessagesDhConfigConstructor()
         {
 
         }
 
-        public Messages_dhConfigConstructor(int g, byte[] p, int version, byte[] random)
+        public MessagesDhConfigConstructor(int g, byte[] p, int version, byte[] random)
         {
             this.g = g;
             this.p = p;
@@ -11544,7 +10957,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messages_dhConfig;
+        public override Constructor constructor => Constructor.MessagesDhConfig;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11571,22 +10984,22 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_sentEncryptedMessageConstructor : messages_SentEncryptedMessage
+    public class MessagesSentEncryptedMessageConstructor : MessagesSentEncryptedMessage
     {
         public int date;
 
-        public Messages_sentEncryptedMessageConstructor()
+        public MessagesSentEncryptedMessageConstructor()
         {
 
         }
 
-        public Messages_sentEncryptedMessageConstructor(int date)
+        public MessagesSentEncryptedMessageConstructor(int date)
         {
             this.date = date;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_sentEncryptedMessage;
+        public override Constructor constructor => Constructor.MessagesSentEncryptedMessage;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11606,24 +11019,24 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class Messages_sentEncryptedFileConstructor : messages_SentEncryptedMessage
+    public class MessagesSentEncryptedFileConstructor : MessagesSentEncryptedMessage
     {
         public int date;
         public EncryptedFile file;
 
-        public Messages_sentEncryptedFileConstructor()
+        public MessagesSentEncryptedFileConstructor()
         {
 
         }
 
-        public Messages_sentEncryptedFileConstructor(int date, EncryptedFile file)
+        public MessagesSentEncryptedFileConstructor(int date, EncryptedFile file)
         {
             this.date = date;
             this.file = file;
         }
 
 
-        public override Constructor Constructor => Constructor.messages_sentEncryptedFile;
+        public override Constructor constructor => Constructor.MessagesSentEncryptedFile;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11635,7 +11048,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             date = reader.ReadInt32();
-            file = TL.Parse<EncryptedFile>(reader);
+            file = Read<EncryptedFile>(reader);
         }
 
         public override string ToString()
@@ -11664,7 +11077,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputFileBig;
+        public override Constructor constructor => Constructor.InputFileBig;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11692,50 +11105,50 @@ namespace Telegram.Net.Core.MTProto
     {
         public long id;
         public int parts;
-        public int key_fingerprint;
+        public int keyFingerprint;
 
         public InputEncryptedFileBigUploadedConstructor()
         {
 
         }
 
-        public InputEncryptedFileBigUploadedConstructor(long id, int parts, int key_fingerprint)
+        public InputEncryptedFileBigUploadedConstructor(long id, int parts, int keyFingerprint)
         {
             this.id = id;
             this.parts = parts;
-            this.key_fingerprint = key_fingerprint;
+            this.keyFingerprint = keyFingerprint;
         }
 
 
-        public override Constructor Constructor => Constructor.inputEncryptedFileBigUploaded;
+        public override Constructor constructor => Constructor.InputEncryptedFileBigUploaded;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x2dc173c8);
             writer.Write(id);
             writer.Write(parts);
-            writer.Write(key_fingerprint);
+            writer.Write(keyFingerprint);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
             parts = reader.ReadInt32();
-            key_fingerprint = reader.ReadInt32();
+            keyFingerprint = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(inputEncryptedFileBigUploaded id:{id} parts:{parts} key_fingerprint:{key_fingerprint})";
+            return $"(inputEncryptedFileBigUploaded id:{id} parts:{parts} keyFingerprint:{keyFingerprint})";
         }
     }
 
 
     public class UpdateChatParticipantAddConstructor : Update
     {
-        public int chat_id;
-        public int user_id;
-        public int inviter_id;
+        public int chatId;
+        public int userId;
+        public int inviterId;
         public int version;
 
         public UpdateChatParticipantAddConstructor()
@@ -11743,46 +11156,46 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateChatParticipantAddConstructor(int chat_id, int user_id, int inviter_id, int version)
+        public UpdateChatParticipantAddConstructor(int chatId, int userId, int inviterId, int version)
         {
-            this.chat_id = chat_id;
-            this.user_id = user_id;
-            this.inviter_id = inviter_id;
+            this.chatId = chatId;
+            this.userId = userId;
+            this.inviterId = inviterId;
             this.version = version;
         }
 
 
-        public override Constructor Constructor => Constructor.updateChatParticipantAdd;
+        public override Constructor constructor => Constructor.UpdateChatParticipantAdd;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3a0eeb22);
-            writer.Write(chat_id);
-            writer.Write(user_id);
-            writer.Write(inviter_id);
+            writer.Write(chatId);
+            writer.Write(userId);
+            writer.Write(inviterId);
             writer.Write(version);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            user_id = reader.ReadInt32();
-            inviter_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
+            userId = reader.ReadInt32();
+            inviterId = reader.ReadInt32();
             version = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(updateChatParticipantAdd chat_id:{chat_id} user_id:{user_id} inviter_id:{inviter_id} version:{version})";
+                $"(updateChatParticipantAdd chatId:{chatId} userId:{userId} inviter_id:{inviterId} version:{version})";
         }
     }
 
 
     public class UpdateChatParticipantDeleteConstructor : Update
     {
-        public int chat_id;
-        public int user_id;
+        public int chatId;
+        public int userId;
         public int version;
 
         public UpdateChatParticipantDeleteConstructor()
@@ -11790,82 +11203,81 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public UpdateChatParticipantDeleteConstructor(int chat_id, int user_id, int version)
+        public UpdateChatParticipantDeleteConstructor(int chatId, int userId, int version)
         {
-            this.chat_id = chat_id;
-            this.user_id = user_id;
+            this.chatId = chatId;
+            this.userId = userId;
             this.version = version;
         }
 
 
-        public override Constructor Constructor => Constructor.updateChatParticipantDelete;
+        public override Constructor constructor => Constructor.UpdateChatParticipantDelete;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x6e5f8c22);
-            writer.Write(chat_id);
-            writer.Write(user_id);
+            writer.Write(chatId);
+            writer.Write(userId);
             writer.Write(version);
         }
 
         public override void Read(BinaryReader reader)
         {
-            chat_id = reader.ReadInt32();
-            user_id = reader.ReadInt32();
+            chatId = reader.ReadInt32();
+            userId = reader.ReadInt32();
             version = reader.ReadInt32();
         }
 
         public override string ToString()
         {
-            return $"(updateChatParticipantDelete chat_id:{chat_id} user_id:{user_id} version:{version})";
+            return $"(updateChatParticipantDelete chatId:{chatId} userId:{userId} version:{version})";
         }
     }
 
 
     public class UpdateDcOptionsConstructor : Update
     {
-        public List<DcOption> dc_options;
+        public List<DcOption> dcOptions;
 
         public UpdateDcOptionsConstructor()
         {
 
         }
 
-        public UpdateDcOptionsConstructor(List<DcOption> dc_options)
+        public UpdateDcOptionsConstructor(List<DcOption> dcOptions)
         {
-            this.dc_options = dc_options;
+            this.dcOptions = dcOptions;
         }
 
 
-        public override Constructor Constructor => Constructor.updateDcOptions;
+        public override Constructor constructor => Constructor.UpdateDcOptions;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x8e5e9873);
             writer.Write(0x1cb5c415);
-            writer.Write(dc_options.Count);
-            foreach (DcOption dc_options_element in dc_options)
+            writer.Write(dcOptions.Count);
+            foreach (DcOption dcOptionsElement in dcOptions)
             {
-                dc_options_element.Write(writer);
+                dcOptionsElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             reader.ReadInt32(); // vector code
-            int dc_options_len = reader.ReadInt32();
-            dc_options = new List<DcOption>(dc_options_len);
-            for (int dc_options_index = 0; dc_options_index < dc_options_len; dc_options_index++)
+            int dcOptionsLen = reader.ReadInt32();
+            dcOptions = new List<DcOption>(dcOptionsLen);
+            for (int dcOptionsIndex = 0; dcOptionsIndex < dcOptionsLen; dcOptionsIndex++)
             {
-                DcOption dc_options_element;
-                dc_options_element = TL.Parse<DcOption>(reader);
-                dc_options.Add(dc_options_element);
+                var dcOptionsElement = Read<DcOption>(reader);
+                dcOptions.Add(dcOptionsElement);
             }
         }
 
         public override string ToString()
         {
-            return $"(updateDcOptions dc_options:{Serializers.VectorToString(dc_options)})";
+            return $"(updateDcOptions dcOptions:{Serializers.VectorToString(dcOptions)})";
         }
     }
 
@@ -11874,7 +11286,7 @@ namespace Telegram.Net.Core.MTProto
         public int userId;
         public bool blocked;
 
-        public override Constructor Constructor => Constructor.updateUserBlocked;
+        public override Constructor constructor => Constructor.UpdateUserBlocked;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11898,7 +11310,7 @@ namespace Telegram.Net.Core.MTProto
         public InputNotifyPeer peer;
         public PeerNotifySettings notifySettings;
 
-        public override Constructor Constructor => Constructor.updateNotifySettings;
+        public override Constructor constructor => Constructor.UpdateNotifySettings;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11907,8 +11319,8 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            peer = TL.Parse<InputNotifyPeer>(reader);
-            notifySettings = TL.Parse<PeerNotifySettings>(reader);
+            peer = Read<InputNotifyPeer>(reader);
+            notifySettings = Read<PeerNotifySettings>(reader);
         }
 
         public override string ToString()
@@ -11924,7 +11336,7 @@ namespace Telegram.Net.Core.MTProto
         public MessageMedia media;
         public bool popup;
 
-        public override Constructor Constructor => Constructor.updateServiceNotification;
+        public override Constructor constructor => Constructor.UpdateServiceNotification;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11935,7 +11347,7 @@ namespace Telegram.Net.Core.MTProto
         {
             type = reader.ReadString();
             message = reader.ReadString();
-            media = TL.Parse<MessageMedia>(reader);
+            media = Read<MessageMedia>(reader);
             popup = reader.ReadBoolean();
         }
 
@@ -11947,7 +11359,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class UpdatePrivacyConstructor : Update
     {
-        public override Constructor Constructor => Constructor.updatePrivacy;
+        public override Constructor constructor => Constructor.UpdatePrivacy;
 
         public override void Write(BinaryWriter writer)
         {
@@ -11965,7 +11377,7 @@ namespace Telegram.Net.Core.MTProto
         public int userId;
         public string phone;
 
-        public override Constructor Constructor => Constructor.updateUserPhone;
+        public override Constructor constructor => Constructor.UpdateUserPhone;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12001,7 +11413,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaUploadedAudio;
+        public override Constructor constructor => Constructor.InputMediaUploadedAudio;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12012,7 +11424,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
+            file = Read<InputFile>(reader);
             duration = reader.ReadInt32();
         }
 
@@ -12038,7 +11450,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaAudio;
+        public override Constructor constructor => Constructor.InputMediaAudio;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12048,7 +11460,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            id = TL.Parse<InputAudio>(reader);
+            id = Read<InputAudio>(reader);
         }
 
         public override string ToString()
@@ -12061,42 +11473,42 @@ namespace Telegram.Net.Core.MTProto
     public class InputMediaUploadedDocumentConstructor : InputMedia
     {
         public InputFile file;
-        public string file_name;
-        public string mime_type;
+        public string fileName;
+        public string mimeType;
 
         public InputMediaUploadedDocumentConstructor()
         {
 
         }
 
-        public InputMediaUploadedDocumentConstructor(InputFile file, string file_name, string mime_type)
+        public InputMediaUploadedDocumentConstructor(InputFile file, string fileName, string mimeType)
         {
             this.file = file;
-            this.file_name = file_name;
-            this.mime_type = mime_type;
+            this.fileName = fileName;
+            this.mimeType = mimeType;
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaUploadedDocument;
+        public override Constructor constructor => Constructor.InputMediaUploadedDocument;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x34e794bd);
             file.Write(writer);
-            Serializers.String.Write(writer, file_name);
-            Serializers.String.Write(writer, mime_type);
+            Serializers.String.Write(writer, fileName);
+            Serializers.String.Write(writer, mimeType);
         }
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
-            file_name = Serializers.String.Read(reader);
-            mime_type = Serializers.String.Read(reader);
+            file = Read<InputFile>(reader);
+            fileName = Serializers.String.Read(reader);
+            mimeType = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
-            return $"(inputMediaUploadedDocument file:{file} file_name:'{file_name}' mime_type:'{mime_type}')";
+            return $"(inputMediaUploadedDocument file:{file} fileName:'{fileName}' mime_type:'{mimeType}')";
         }
     }
 
@@ -12105,46 +11517,46 @@ namespace Telegram.Net.Core.MTProto
     {
         public InputFile file;
         public InputFile thumb;
-        public string file_name;
-        public string mime_type;
+        public string fileName;
+        public string mimeType;
 
         public InputMediaUploadedThumbDocumentConstructor()
         {
 
         }
 
-        public InputMediaUploadedThumbDocumentConstructor(InputFile file, InputFile thumb, string file_name, string mime_type)
+        public InputMediaUploadedThumbDocumentConstructor(InputFile file, InputFile thumb, string fileName, string mimeType)
         {
             this.file = file;
             this.thumb = thumb;
-            this.file_name = file_name;
-            this.mime_type = mime_type;
+            this.fileName = fileName;
+            this.mimeType = mimeType;
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaUploadedThumbDocument;
+        public override Constructor constructor => Constructor.InputMediaUploadedThumbDocument;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x3e46de5d);
             file.Write(writer);
             thumb.Write(writer);
-            Serializers.String.Write(writer, file_name);
-            Serializers.String.Write(writer, mime_type);
+            Serializers.String.Write(writer, fileName);
+            Serializers.String.Write(writer, mimeType);
         }
 
         public override void Read(BinaryReader reader)
         {
-            file = TL.Parse<InputFile>(reader);
-            thumb = TL.Parse<InputFile>(reader);
-            file_name = Serializers.String.Read(reader);
-            mime_type = Serializers.String.Read(reader);
+            file = Read<InputFile>(reader);
+            thumb = Read<InputFile>(reader);
+            fileName = Serializers.String.Read(reader);
+            mimeType = Serializers.String.Read(reader);
         }
 
         public override string ToString()
         {
             return
-                $"(inputMediaUploadedThumbDocument file:{file} thumb:{thumb} file_name:'{file_name}' mime_type:'{mime_type}')";
+                $"(inputMediaUploadedThumbDocument file:{file} thumb:{thumb} fileName:'{fileName}' mime_type:'{mimeType}')";
         }
     }
 
@@ -12164,7 +11576,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.inputMediaDocument;
+        public override Constructor constructor => Constructor.InputMediaDocument;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12174,7 +11586,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            id = TL.Parse<InputDocument>(reader);
+            id = Read<InputDocument>(reader);
         }
 
         public override string ToString()
@@ -12199,7 +11611,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaDocument;
+        public override Constructor constructor => Constructor.MessageMediaDocument;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12209,7 +11621,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            document = TL.Parse<Document>(reader);
+            document = Read<Document>(reader);
         }
 
         public override string ToString()
@@ -12234,7 +11646,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.messageMediaAudio;
+        public override Constructor constructor => Constructor.MessageMediaAudio;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12244,7 +11656,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            audio = TL.Parse<Audio>(reader);
+            audio = Read<Audio>(reader);
         }
 
         public override string ToString()
@@ -12256,15 +11668,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class InputAudioEmptyConstructor : InputAudio
     {
-
-        public InputAudioEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputAudioEmpty;
+        public override Constructor constructor => Constructor.InputAudioEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12285,53 +11689,45 @@ namespace Telegram.Net.Core.MTProto
     public class InputAudioConstructor : InputAudio
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputAudioConstructor()
         {
 
         }
 
-        public InputAudioConstructor(long id, long access_hash)
+        public InputAudioConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputAudio;
+        public override Constructor constructor => Constructor.InputAudio;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x77d440ff);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputAudio id:{id} access_hash:{access_hash})";
+            return $"(inputAudio id:{id} accessHash:{accessHash})";
         }
     }
 
 
     public class InputDocumentEmptyConstructor : InputDocument
     {
-
-        public InputDocumentEmptyConstructor()
-        {
-
-        }
-
-
-
-        public override Constructor Constructor => Constructor.inputDocumentEmpty;
+        public override Constructor constructor => Constructor.InputDocumentEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12352,38 +11748,38 @@ namespace Telegram.Net.Core.MTProto
     public class InputDocumentConstructor : InputDocument
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputDocumentConstructor()
         {
 
         }
 
-        public InputDocumentConstructor(long id, long access_hash)
+        public InputDocumentConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputDocument;
+        public override Constructor constructor => Constructor.InputDocument;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x18798952);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputDocument id:{id} access_hash:{access_hash})";
+            return $"(inputDocument id:{id} accessHash:{accessHash})";
         }
     }
 
@@ -12391,38 +11787,38 @@ namespace Telegram.Net.Core.MTProto
     public class InputAudioFileLocationConstructor : InputFileLocation
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputAudioFileLocationConstructor()
         {
 
         }
 
-        public InputAudioFileLocationConstructor(long id, long access_hash)
+        public InputAudioFileLocationConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputAudioFileLocation;
+        public override Constructor constructor => Constructor.InputAudioFileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x74dc404d);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputAudioFileLocation id:{id} access_hash:{access_hash})";
+            return $"(inputAudioFileLocation id:{id} accessHash:{accessHash})";
         }
     }
 
@@ -12430,38 +11826,38 @@ namespace Telegram.Net.Core.MTProto
     public class InputDocumentFileLocationConstructor : InputFileLocation
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
 
         public InputDocumentFileLocationConstructor()
         {
 
         }
 
-        public InputDocumentFileLocationConstructor(long id, long access_hash)
+        public InputDocumentFileLocationConstructor(long id, long accessHash)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
         }
 
 
-        public override Constructor Constructor => Constructor.inputDocumentFileLocation;
+        public override Constructor constructor => Constructor.InputDocumentFileLocation;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x4e45abe9);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
         }
 
         public override string ToString()
         {
-            return $"(inputDocumentFileLocation id:{id} access_hash:{access_hash})";
+            return $"(inputDocumentFileLocation id:{id} accessHash:{accessHash})";
         }
     }
 
@@ -12469,10 +11865,10 @@ namespace Telegram.Net.Core.MTProto
     public class DecryptedMessageMediaDocumentConstructor : DecryptedMessageMedia
     {
         public byte[] thumb;
-        public int thumb_w;
-        public int thumb_h;
-        public string file_name;
-        public string mime_type;
+        public int thumbW;
+        public int thumbH;
+        public string fileName;
+        public string mimeType;
         public int size;
         public byte[] key;
         public byte[] iv;
@@ -12482,30 +11878,30 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DecryptedMessageMediaDocumentConstructor(byte[] thumb, int thumb_w, int thumb_h, string file_name,
-            string mime_type, int size, byte[] key, byte[] iv)
+        public DecryptedMessageMediaDocumentConstructor(byte[] thumb, int thumbW, int thumbH, string fileName,
+            string mimeType, int size, byte[] key, byte[] iv)
         {
             this.thumb = thumb;
-            this.thumb_w = thumb_w;
-            this.thumb_h = thumb_h;
-            this.file_name = file_name;
-            this.mime_type = mime_type;
+            this.thumbW = thumbW;
+            this.thumbH = thumbH;
+            this.fileName = fileName;
+            this.mimeType = mimeType;
             this.size = size;
             this.key = key;
             this.iv = iv;
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaDocument;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaDocument;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xb095434b);
             Serializers.Bytes.Write(writer, thumb);
-            writer.Write(thumb_w);
-            writer.Write(thumb_h);
-            Serializers.String.Write(writer, file_name);
-            Serializers.String.Write(writer, mime_type);
+            writer.Write(thumbW);
+            writer.Write(thumbH);
+            Serializers.String.Write(writer, fileName);
+            Serializers.String.Write(writer, mimeType);
             writer.Write(size);
             Serializers.Bytes.Write(writer, key);
             Serializers.Bytes.Write(writer, iv);
@@ -12514,10 +11910,10 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             thumb = Serializers.Bytes.Read(reader);
-            thumb_w = reader.ReadInt32();
-            thumb_h = reader.ReadInt32();
-            file_name = Serializers.String.Read(reader);
-            mime_type = Serializers.String.Read(reader);
+            thumbW = reader.ReadInt32();
+            thumbH = reader.ReadInt32();
+            fileName = Serializers.String.Read(reader);
+            mimeType = Serializers.String.Read(reader);
             size = reader.ReadInt32();
             key = Serializers.Bytes.Read(reader);
             iv = Serializers.Bytes.Read(reader);
@@ -12526,7 +11922,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(decryptedMessageMediaDocument thumb:{BitConverter.ToString(thumb)} thumb_w:{thumb_w} thumb_h:{thumb_h} file_name:'{file_name}' mime_type:'{mime_type}' size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
+                $"(decryptedMessageMediaDocument thumb:{BitConverter.ToString(thumb)} thumbW:{thumbW} thumbH:{thumbH} fileName:'{fileName}' mimeType:'{mimeType}' size:{size} key:{BitConverter.ToString(key)} iv:{BitConverter.ToString(iv)})";
         }
     }
 
@@ -12552,7 +11948,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.decryptedMessageMediaAudio;
+        public override Constructor constructor => Constructor.DecryptedMessageMediaAudio;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12594,7 +11990,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.audioEmpty;
+        public override Constructor constructor => Constructor.AudioEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12617,59 +12013,59 @@ namespace Telegram.Net.Core.MTProto
     public class AudioConstructor : Audio
     {
         public long id;
-        public long access_hash;
-        public int user_id;
+        public long accessHash;
+        public int userId;
         public int date;
         public int duration;
         public int size;
-        public int dc_id;
+        public int dcId;
 
         public AudioConstructor()
         {
 
         }
 
-        public AudioConstructor(long id, long access_hash, int user_id, int date, int duration, int size, int dc_id)
+        public AudioConstructor(long id, long accessHash, int userId, int date, int duration, int size, int dcId)
         {
             this.id = id;
-            this.access_hash = access_hash;
-            this.user_id = user_id;
+            this.accessHash = accessHash;
+            this.userId = userId;
             this.date = date;
             this.duration = duration;
             this.size = size;
-            this.dc_id = dc_id;
+            this.dcId = dcId;
         }
 
 
-        public override Constructor Constructor => Constructor.audio;
+        public override Constructor constructor => Constructor.Audio;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x427425e7);
             writer.Write(id);
-            writer.Write(access_hash);
-            writer.Write(user_id);
+            writer.Write(accessHash);
+            writer.Write(userId);
             writer.Write(date);
             writer.Write(duration);
             writer.Write(size);
-            writer.Write(dc_id);
+            writer.Write(dcId);
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
-            user_id = reader.ReadInt32();
+            accessHash = reader.ReadInt64();
+            userId = reader.ReadInt32();
             date = reader.ReadInt32();
             duration = reader.ReadInt32();
             size = reader.ReadInt32();
-            dc_id = reader.ReadInt32();
+            dcId = reader.ReadInt32();
         }
 
         public override string ToString()
         {
             return
-                $"(audio id:{id} access_hash:{access_hash} user_id:{user_id} date:{date} duration:{duration} size:{size} dc_id:{dc_id})";
+                $"(audio id:{id} accessHash:{accessHash} userId:{userId} date:{date} duration:{duration} size:{size} dc_id:{dcId})";
         }
     }
 
@@ -12689,7 +12085,7 @@ namespace Telegram.Net.Core.MTProto
         }
 
 
-        public override Constructor Constructor => Constructor.documentEmpty;
+        public override Constructor constructor => Constructor.DocumentEmpty;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12712,12 +12108,12 @@ namespace Telegram.Net.Core.MTProto
     public class DocumentConstructor : Document
     {
         public long id;
-        public long access_hash;
+        public long accessHash;
         public int date;
-        public string mime_type;
+        public string mimeType;
         public int size;
         public PhotoSize thumb;
-        public int dc_id;
+        public int dcId;
         public List<DocumentAttribute> attributes;
 
         public DocumentConstructor()
@@ -12725,59 +12121,58 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public DocumentConstructor(long id, long access_hash, int date, string mime_type,
-            int size, PhotoSize thumb, int dc_id, List<DocumentAttribute> attributes)
+        public DocumentConstructor(long id, long accessHash, int date, string mimeType,
+            int size, PhotoSize thumb, int dcId, List<DocumentAttribute> attributes)
         {
             this.id = id;
-            this.access_hash = access_hash;
+            this.accessHash = accessHash;
             this.date = date;
-            this.mime_type = mime_type;
+            this.mimeType = mimeType;
             this.size = size;
             this.thumb = thumb;
-            this.dc_id = dc_id;
+            this.dcId = dcId;
             this.attributes = attributes;
         }
 
 
-        public override Constructor Constructor => Constructor.document;
+        public override Constructor constructor => Constructor.Document;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0xf9a39f4f);
             writer.Write(id);
-            writer.Write(access_hash);
+            writer.Write(accessHash);
             writer.Write(date);
-            Serializers.String.Write(writer, mime_type);
+            Serializers.String.Write(writer, mimeType);
             writer.Write(size);
             thumb.Write(writer);
-            writer.Write(dc_id);
+            writer.Write(dcId);
 
             writer.Write(0x1cb5c415);
             writer.Write(attributes.Count);
-            foreach (DocumentAttribute attribute_element in attributes)
+            foreach (DocumentAttribute attributeElement in attributes)
             {
-                attribute_element.Write(writer);
+                attributeElement.Write(writer);
             }
         }
 
         public override void Read(BinaryReader reader)
         {
             id = reader.ReadInt64();
-            access_hash = reader.ReadInt64();
+            accessHash = reader.ReadInt64();
             date = reader.ReadInt32();
-            mime_type = Serializers.String.Read(reader);
+            mimeType = Serializers.String.Read(reader);
             size = reader.ReadInt32();
-            thumb = TL.Parse<PhotoSize>(reader);
-            dc_id = reader.ReadInt32();
+            thumb = Read<PhotoSize>(reader);
+            dcId = reader.ReadInt32();
 
             reader.ReadUInt32(); // vector code
-            int attributes_len = reader.ReadInt32();
-            attributes = new List<DocumentAttribute>(attributes_len);
-            for (int attributes_index = 0; attributes_index < attributes_len; attributes_index++)
+            int attributesLen = reader.ReadInt32();
+            attributes = new List<DocumentAttribute>(attributesLen);
+            for (int attributesIndex = 0; attributesIndex < attributesLen; attributesIndex++)
             {
-                DocumentAttribute attribute_element;
-                attribute_element = TL.Parse<DocumentAttribute>(reader);
-                attributes.Add(attribute_element);
+                var attributeElement = Read<DocumentAttribute>(reader);
+                attributes.Add(attributeElement);
             }
 
             // stickers appear to have a superfluous 000 at the end of the stream;
@@ -12794,7 +12189,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(document id:{id} access_hash:{access_hash} date:{date} mime_type:'{mime_type}' size:{size} thumb:{thumb} dc_id:{dc_id})";
+                $"(document id:{id} accessHash:{accessHash} date:{date} mime_type:'{mimeType}' size:{size} thumb:{thumb} dc_id:{dcId})";
         }
     }
 
@@ -12817,7 +12212,7 @@ namespace Telegram.Net.Core.MTProto
             this.h = h;
         }
 
-        public override Constructor Constructor => Constructor.documentAttributeImageSize;
+        public override Constructor constructor => Constructor.DocumentAttributeImageSize;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12835,7 +12230,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class DocumentAttributeAnimatedConstructor : DocumentAttribute
     {
-        public override Constructor Constructor => Constructor.documentAttributeAnimated;
+        public override Constructor constructor => Constructor.DocumentAttributeAnimated;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12849,7 +12244,7 @@ namespace Telegram.Net.Core.MTProto
 
     public class DocumentAttributeStickerConstructor : DocumentAttribute
     {
-        public override Constructor Constructor => Constructor.documentAttributeSticker;
+        public override Constructor constructor => Constructor.DocumentAttributeSticker;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12878,7 +12273,7 @@ namespace Telegram.Net.Core.MTProto
             this.h = h;
         }
 
-        public override Constructor Constructor => Constructor.documentAttributeVideo;
+        public override Constructor constructor => Constructor.DocumentAttributeVideo;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12909,7 +12304,7 @@ namespace Telegram.Net.Core.MTProto
             this.duration = duration;
         }
 
-        public override Constructor Constructor => Constructor.documentAttributeAudio;
+        public override Constructor constructor => Constructor.DocumentAttributeAudio;
 
         public override void Write(BinaryWriter writer)
         {
@@ -12925,28 +12320,59 @@ namespace Telegram.Net.Core.MTProto
 
     public class DocumentAttributeFilenameConstructor : DocumentAttribute
     {
-        public string file_name;
+        public string fileName;
 
         public DocumentAttributeFilenameConstructor()
         {
         }
 
-        public DocumentAttributeFilenameConstructor(string file_name)
+        public DocumentAttributeFilenameConstructor(string fileName)
         {
-            this.file_name = file_name;
+            this.fileName = fileName;
         }
 
-        public override Constructor Constructor => Constructor.documentAttributeFilename;
+        public override Constructor constructor => Constructor.DocumentAttributeFilename;
 
         public override void Write(BinaryWriter writer)
         {
             writer.Write(0x15590068);
-            writer.Write(file_name);
+            writer.Write(fileName);
         }
 
         public override void Read(BinaryReader reader)
         {
-            file_name = reader.ReadString();
+            fileName = reader.ReadString();
+        }
+    }
+
+    public class DisabledFeatureConstructor : TLObject
+    {
+        public string feature;
+        public string description;
+
+        public DisabledFeatureConstructor()
+        {
+        }
+
+        public DisabledFeatureConstructor(string feature, string description)
+        {
+            this.feature = feature;
+            this.description = description;
+        }
+
+        public override Constructor constructor => Constructor.DisabledFeature;
+
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0xae636f24);
+            Serializers.String.Write(writer, feature);
+            Serializers.String.Write(writer, description);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            feature = Serializers.String.Read(reader);
+            description = Serializers.String.Read(reader);
         }
     }
 

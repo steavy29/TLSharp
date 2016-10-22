@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using Telegram.Net.Core.MTProto;
 
@@ -10,74 +9,38 @@ namespace Telegram.Net.Core.Requests
 {
     public class GetContactsRequest : MTProtoRequest
     {
-        private List<int> CurrentContacts { get; set; }
+        public readonly string contactIdsHash = "";
 
-        public List<Contact> Contacts;
-        public List<User> Users;
+        public ContactsContacts contacts { get; private set; }
 
-        public GetContactsRequest(IList<int> currentContacts = null)
+        public GetContactsRequest(IEnumerable<int> currentContacts = null)
         {
             if (currentContacts != null)
             {
-                CurrentContacts = currentContacts.ToList();
-                CurrentContacts.Sort();
+                var joinedSortedIds = string.Join(",", currentContacts.OrderBy(i => i));
+                contactIdsHash = string.Concat(MTProto.Crypto.MD5.GetMd5Bytes(Encoding.UTF8.GetBytes(joinedSortedIds)).Select(b => b.ToString("x2")));
             }
         }
 
+        protected override uint requestCode => 0x22c6aa08;
+
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x22c6aa08);
-            if (CurrentContacts == null)
-                Serializers.String.Write(writer, "");
-            else
-            {
-                // create CSV of contactids and calculate md5 hash
-                string hash;
-                var list = string.Join(",", CurrentContacts);
-                using (var md5 = MD5.Create())
-                {
-                    var retVal = md5.ComputeHash(Encoding.UTF8.GetBytes(list));
-                    var sb = new StringBuilder();
-                    foreach (var t in retVal)
-                    {
-                        sb.Append(t.ToString("x2"));
-                    }
-                    hash = sb.ToString();
-                }
-
-                Serializers.String.Write(writer, hash);
-            }
+            writer.Write(requestCode);
+            Serializers.String.Write(writer, contactIdsHash);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var code = reader.ReadUInt32();
-            // if contactsNotModified then exit
-            if (code == 0xb74ba9d2) return;
-
-            reader.ReadInt32(); // vector code
-            var contactLen = reader.ReadInt32();
-            Contacts = new List<Contact>(contactLen);
-            for (var importedIndex = 0; importedIndex < contactLen; importedIndex++)
-            {
-                var importedElement = TL.Parse<Contact>(reader);
-                this.Contacts.Add(importedElement);
-            }
-            reader.ReadInt32(); // vector code
-            var usersLen = reader.ReadInt32();
-            Users = new List<User>(usersLen);
-            for (var usersIndex = 0; usersIndex < usersLen; usersIndex++)
-            {
-                var usersElement = TL.Parse<User>(reader);
-                this.Users.Add(usersElement);
-            }
+            contacts = TLObject.Read<ContactsContacts>(reader);
         }
 
         public override void OnException(Exception exception)
         {
             throw new NotImplementedException();
         }
-        public override bool Confirmed { get { return true; } }
+
+        public override bool Confirmed => true;
         public override bool Responded { get; }
     }
 }

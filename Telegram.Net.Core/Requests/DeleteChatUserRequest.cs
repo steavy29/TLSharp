@@ -4,29 +4,32 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    class DeleteChatUserRequest : MTProtoRequest
+    public class DeleteChatUserRequest : MTProtoRequest
     {
-        private readonly int chatId;
-        private readonly InputUserContactConstructor user;
+        public readonly int chatId;
+        public readonly InputUser user;
 
-        public Messages_statedMessageConstructor message;
+        public MessagesStatedMessage statedMessage { get; private set; }
 
-        public DeleteChatUserRequest(int chatId, InputUserContactConstructor user)
+        public DeleteChatUserRequest(int chatId, InputUser user)
         {
             this.chatId = chatId;
             this.user = user;
         }
 
+        protected override uint requestCode => 0xc3c5cd23;
+
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0xc3c5cd23);
+            writer.Write(requestCode);
+
             writer.Write(chatId);
             user.Write(writer);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            message = TL.Parse<Messages_statedMessageConstructor>(reader);
+            statedMessage = TLObject.Read<MessagesStatedMessage>(reader);
         }
 
         public override void OnException(Exception exception)
@@ -34,7 +37,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed { get { return true; } }
+        public override bool Confirmed => true;
         public override bool Responded { get; }
     }
 }

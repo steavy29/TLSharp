@@ -1,65 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class AckRequest : MTProtoRequest
-    {
-        private readonly List<ulong> _msgs;
-        public AckRequest(List<ulong> msgs)
-        {
-            _msgs = msgs;
-        }
-
-        public override void OnSend(BinaryWriter writer)
-        {
-            writer.Write(0x62d6b459); // msgs_ack
-            writer.Write(0x1cb5c415); // Vector
-            writer.Write(_msgs.Count);
-            foreach (var messageId in _msgs)
-            {
-                writer.Write(messageId);
-            }
-        }
-
-        public override void OnResponse(BinaryReader reader)
-        {
-            //throw new NotImplementedException();
-        }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Confirmed => false;
-        public override bool Responded { get; }
-    }
-
     public class AckRequestLong : MTProtoRequest
     {
-        private readonly List<long> _msgs;
-        public AckRequestLong(List<long> msgs)
+        private readonly List<long> messageIds;
+
+        public AckRequestLong(List<long> messageIds)
         {
-            _msgs = msgs;
+            this.messageIds = messageIds;
         }
+
+        protected override uint requestCode => 0x62d6b459;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x62d6b459); // msgs_ack
-            writer.Write(0x1cb5c415); // Vector
-            writer.Write(_msgs.Count);
-            foreach (var messageId in _msgs)
-            {
-                writer.Write(messageId);
-            }
+            writer.Write(requestCode);
+
+            TLObject.WriteVector(writer, messageIds, writer.Write);
         }
 
-        public override void OnResponse(BinaryReader reader)
-        {
-            //throw new NotImplementedException();
-        }
+        public override void OnResponse(BinaryReader reader) { }
 
         public override void OnException(Exception exception)
         {

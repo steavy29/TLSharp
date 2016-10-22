@@ -5,31 +5,32 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    class CreateChatRequest : MTProtoRequest
+    public class CreateChatRequest : MTProtoRequest
     {
-        private readonly List<InputUser> inputUsers;
-        private readonly string title;
+        public readonly List<InputUser> inputUsers;
+        public readonly string title;
 
-        public Messages_statedMessageConstructor message;
+        public MessagesStatedMessage statedMessage { get; private set; }
+
         public CreateChatRequest(List<InputUser> inputUsers, string title)
         {
             this.inputUsers = inputUsers;
             this.title = title;
         }
 
+        protected override uint requestCode => 0x419d9aee;
+
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x419d9aee);
-            writer.Write(0x1cb5c415); // vector#1cb5c415
-            writer.Write(inputUsers.Count); // vector length
-            foreach (var id in inputUsers)
-                id.Write(writer);
+            writer.Write(requestCode);
+
+            TLObject.WriteVector(writer, inputUsers);
             Serializers.String.Write(writer, title);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            message = TL.Parse<Messages_statedMessageConstructor>(reader);
+            statedMessage = TLObject.Read<MessagesStatedMessage>(reader);
         }
 
         public override void OnException(Exception exception)
@@ -37,7 +38,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed { get { return true; } }
+        public override bool Confirmed => true;
         public override bool Responded { get; }
     }
 }

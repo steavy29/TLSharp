@@ -5,31 +5,27 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    class DeleteMessagesRequest : MTProtoRequest
+    public class DeleteMessagesRequest : MTProtoRequest
     {
-        private readonly List<int> messageIdsToDelete;
-        public List<int> deletedMessageIds;
+        public readonly List<int> messageIdsToDelete;
+        public List<int> deletedMessageIds { get; private set; }
 
         public DeleteMessagesRequest(List<int> messageIdsToDelete)
         {
             this.messageIdsToDelete = messageIdsToDelete;
         }
 
+        protected override uint requestCode => 0x14f2dd0a;
+
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x14f2dd0a);
-
-            writer.Write(0x1cb5c415); //vector
-            writer.Write(messageIdsToDelete.Count);
-            foreach (int messageId in messageIdsToDelete)
-            {
-                writer.Write(messageId);
-            }
+            writer.Write(requestCode);
+            TLObject.WriteVector(writer, messageIdsToDelete, writer.Write);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            deletedMessageIds = TL.ParseVector(reader, reader.ReadInt32);
+            deletedMessageIds = TLObject.ReadVector(reader, reader.ReadInt32);
         }
 
         public override void OnException(Exception exception)

@@ -7,8 +7,9 @@ namespace Telegram.Net.Core.Requests
 {
     public class SendMessageRequest : MTProtoRequest
     {
-        private readonly InputPeer peer;
-        private readonly string message;
+        public readonly InputPeer peer;
+        public readonly string message;
+        public readonly long randomId;
 
         public SentMessage sentMessage { get; private set; }
 
@@ -16,12 +17,16 @@ namespace Telegram.Net.Core.Requests
         {
             this.peer = peer;
             this.message = message;
+
+            randomId = Helpers.GenerateRandomLong();
         }
+
+        protected override uint requestCode => 0x4cde0aab;
 
         public override void OnSend(BinaryWriter writer)
         {
-            long randomId = Helpers.GenerateRandomLong();
-            writer.Write(0x4cde0aab);
+            writer.Write(requestCode);
+
             peer.Write(writer);
             Serializers.String.Write(writer, message);
             writer.Write(randomId);
@@ -29,7 +34,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            sentMessage = TL.Parse<SentMessage>(reader);
+            sentMessage = TLObject.Read<SentMessage>(reader);
         }
 
         public override void OnException(Exception exception)

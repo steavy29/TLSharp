@@ -6,27 +6,30 @@ namespace Telegram.Net.Core.Requests
 {
     public class AuthSendSmsRequest : MTProtoRequest
     {
-        private readonly string _phoneNumber;
-        private readonly string _phoneCodeHash;
-        public bool _smsSent;
+        private readonly string phoneNumber;
+        private readonly string phoneCodeHash;
+
+        public bool smsSent { get; private set; }
         
         public AuthSendSmsRequest(string phoneNumber, string phoneCodeHash)
         {
-            _phoneNumber = phoneNumber;
-            _phoneCodeHash = phoneCodeHash;
+            this.phoneNumber = phoneNumber;
+            this.phoneCodeHash = phoneCodeHash;
         }
+
+        protected override uint requestCode => 0xda9f3e8;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0xda9f3e8);
-            Serializers.String.Write(writer, _phoneNumber);
-            Serializers.String.Write(writer, _phoneCodeHash);
+            writer.Write(requestCode);
+
+            Serializers.String.Write(writer, phoneNumber);
+            Serializers.String.Write(writer, phoneCodeHash);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            var dataCode = reader.ReadUInt32();
-            _smsSent = reader.ReadUInt32() == 0x997275b5;
+            smsSent = TLObject.ReadBool(reader);
         }
 
         public override void OnException(Exception exception)

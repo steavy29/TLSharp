@@ -59,7 +59,6 @@ namespace Telegram.Net.Core.MTProto.Crypto
 
     public class MD5
     {
-
         public static string GetMd5String(string data)
         {
             return BitConverter.ToString(GetMd5Bytes(Encoding.UTF8.GetBytes(data))).Replace("-", "").ToLower();

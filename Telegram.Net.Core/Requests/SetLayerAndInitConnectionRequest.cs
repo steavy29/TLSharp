@@ -4,37 +4,42 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class InitConnectionRequest : MTProtoRequest
+    public class SetLayerAndInitConnectionRequest : MTProtoRequest
     {
-        private int _apiId;
-        public ConfigConstructor ConfigConstructor { get; set; }
+        private readonly int apiId;
+        private readonly int layer;
 
-        public InitConnectionRequest(int apiId)
+        public ConfigConstructor config { get; private set; }
+
+        public SetLayerAndInitConnectionRequest(int apiId, int layer)
         {
-            _apiId = apiId;
+            this.apiId = apiId;
+            this.layer = layer;
         }
+
+        protected override uint requestCode => 0;
 
         public override void OnSend(BinaryWriter writer)
         {
+            // invokeWithLayer request
             writer.Write(0xda9b0d0d);
-            writer.Write(23);// invokeWithLayer23#1c900537
-            writer.Write(0x69796de9); // initConnection
-            writer.Write(_apiId); // api id
+            writer.Write(layer);
+
+            // initConnection request
+            writer.Write(0x69796de9); 
+            writer.Write(apiId); 
             Serializers.String.Write(writer, "WinPhone Emulator"); // device model
             Serializers.String.Write(writer, "WinPhone 8.0"); // system version
             Serializers.String.Write(writer, "1.0-SNAPSHOT"); // app version
             Serializers.String.Write(writer, "en"); // lang code
 
-            writer.Write(0xc4f9186b); // help.getConfig
+            // getConfig request
+            writer.Write(0xc4f9186b); 
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            uint dataCode = reader.ReadUInt32();
-            var config = new ConfigConstructor();
-            config.Read(reader);
-
-            ConfigConstructor = config;
+            config = TLObject.Read<Config>(reader) as ConfigConstructor;
         }
 
         public override void OnException(Exception exception)
@@ -42,15 +47,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Responded
-        {
-            get { return true; }
-        }
-
-        public override void OnSendSuccess()
-        {
-
-        }
+        public override bool Responded => true;
         public override bool Confirmed => true;
     }
 }

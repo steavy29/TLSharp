@@ -6,28 +6,33 @@ namespace Telegram.Net.Core.Requests
 {
     public class AddChatUserRequest : MTProtoRequest
     {
-        private readonly int chatId;
-        private readonly InputUserContactConstructor user;
+        public readonly int chatId;
+        public readonly InputUser user;
+        public readonly int messagesToForward;
 
-        public Messages_statedMessageConstructor message;
+        public MessagesStatedMessage statedMessage { get; private set; }
 
-        public AddChatUserRequest(int chatId, InputUserContactConstructor user)
+        public AddChatUserRequest(int chatId, InputUser user, int messagesToForward)
         {
             this.chatId = chatId;
             this.user = user;
+            this.messagesToForward = messagesToForward;
         }
+
+        protected override uint requestCode => 0x2ee9ee9e;
 
         public override void OnSend(BinaryWriter writer)
         {
-            writer.Write(0x2ee9ee9e);
+            writer.Write(requestCode);
+
             writer.Write(chatId);
             user.Write(writer);
-            writer.Write(1);
+            writer.Write(messagesToForward);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            message = TL.Parse<Messages_statedMessageConstructor>(reader);
+            statedMessage = TLObject.Read<MessagesStatedMessageConstructor>(reader);
         }
 
         public override void OnException(Exception exception)
@@ -35,7 +40,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed { get { return true; } }
+        public override bool Confirmed => true;
         public override bool Responded { get; }
     }
 }

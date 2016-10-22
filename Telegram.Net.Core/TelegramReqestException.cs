@@ -5,13 +5,13 @@ namespace Telegram.Net.Core
 {
     public class TelegramReqestException : Exception
     {
-        public readonly RpcRequestError Error;
-        public readonly string ErrorMessage;
+        public readonly RpcRequestError error;
+        public readonly string errorMessage;
 
         public TelegramReqestException(RpcRequestError error, string errorMessage) : base($"{error} - {errorMessage}")
         {
-            Error = error;
-            ErrorMessage = errorMessage;
+            this.error = error;
+            this.errorMessage = errorMessage;
         }
     }
 }
