@@ -280,7 +280,7 @@ namespace Telegram.Net.Core.MTProto
             {0xb095434b, typeof (DecryptedMessageMediaDocumentConstructor)},
             {0x6080758f, typeof (DecryptedMessageMediaAudioConstructor)},
             {0x586988d8, typeof (AudioEmptyConstructor)},
-            {0x427425e7, typeof (AudioConstructor)},
+            {0xc7ac6496, typeof (AudioConstructor)},
             {0x36f8c871, typeof (DocumentEmptyConstructor)},
             {0xf9a39f4f, typeof (DocumentConstructor)},
             {0xab3a99ac, typeof (DialogConstructor)},
@@ -12017,6 +12017,7 @@ namespace Telegram.Net.Core.MTProto
         public int userId;
         public int date;
         public int duration;
+        public string mimeType;
         public int size;
         public int dcId;
 
@@ -12025,13 +12026,14 @@ namespace Telegram.Net.Core.MTProto
 
         }
 
-        public AudioConstructor(long id, long accessHash, int userId, int date, int duration, int size, int dcId)
+        public AudioConstructor(long id, long accessHash, int userId, int date, int duration, string mimeType, int size, int dcId)
         {
             this.id = id;
             this.accessHash = accessHash;
             this.userId = userId;
             this.date = date;
             this.duration = duration;
+            this.mimeType = mimeType;
             this.size = size;
             this.dcId = dcId;
         }
@@ -12041,12 +12043,13 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x427425e7);
+            writer.Write(0xc7ac6496);
             writer.Write(id);
             writer.Write(accessHash);
             writer.Write(userId);
             writer.Write(date);
             writer.Write(duration);
+            Serializers.String.Write(writer, mimeType);
             writer.Write(size);
             writer.Write(dcId);
         }
@@ -12058,6 +12061,7 @@ namespace Telegram.Net.Core.MTProto
             userId = reader.ReadInt32();
             date = reader.ReadInt32();
             duration = reader.ReadInt32();
+            mimeType = Serializers.String.Read(reader);
             size = reader.ReadInt32();
             dcId = reader.ReadInt32();
         }
@@ -12065,7 +12069,7 @@ namespace Telegram.Net.Core.MTProto
         public override string ToString()
         {
             return
-                $"(audio id:{id} accessHash:{accessHash} userId:{userId} date:{date} duration:{duration} size:{size} dc_id:{dcId})";
+                $"(audio id:{id} accessHash:{accessHash} userId:{userId} date:{date} duration:{duration} mimeType:{mimeType} size:{size} dc_id:{dcId})";
         }
     }
 
