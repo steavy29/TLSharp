@@ -79,6 +79,9 @@ namespace Telegram.Net.Core.MTProto
             {0x09d05049, typeof (UserStatusEmptyConstructor)},
             {0xedb93949, typeof (UserStatusOnlineConstructor)},
             {0x008c703f, typeof (UserStatusOfflineConstructor)},
+            {0xe26f42f1, typeof (UserStatusRecentlyConstructor)},
+            {0x07bf09fc, typeof (UserStatusLastWeekConstructor)},
+            {0x77ebc742, typeof (UserStatusLastMonthConstructor)},
             {0x9ba2d800, typeof (ChatEmptyConstructor)},
             {0x6e9c9bc7, typeof (ChatConstructor)},
             {0xfb0ccc41, typeof (ChatForbiddenConstructor)},
@@ -453,6 +456,9 @@ namespace Telegram.Net.Core.MTProto
         UserStatusEmpty,
         UserStatusOnline,
         UserStatusOffline,
+        UserStatusRecently,
+        UserStatusLastWeek,
+        UserStatusLastMonth,
         ChatEmpty,
         Chat,
         ChatForbidden,
@@ -3162,6 +3168,62 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
+    public class UserStatusRecentlyConstructor : UserStatus
+    {
+        public override Constructor constructor => Constructor.UserStatusRecently;
+
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0xe26f42f1);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+        }
+
+        public override string ToString()
+        {
+            return "(userStatusRecently)";
+        }
+    }
+
+    public class UserStatusLastWeekConstructor : UserStatus
+    {
+        public override Constructor constructor => Constructor.UserStatusLastWeek;
+
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0x07bf09fc);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+        }
+
+        public override string ToString()
+        {
+            return "(userStatusLastWeek)";
+        }
+    }
+
+    public class UserStatusLastMonthConstructor : UserStatus
+    {
+        public override Constructor constructor => Constructor.UserStatusLastMonth;
+
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0x77ebc742);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+        }
+
+        public override string ToString()
+        {
+            return "(userStatusLastMonth)";
+        }
+    }
 
     public class ChatEmptyConstructor : Chat
     {
