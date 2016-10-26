@@ -9,6 +9,7 @@ using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.Network;
 using Telegram.Net.Core.Requests;
+using Telegram.Net.Core.Utils;
 using MD5 = System.Security.Cryptography.MD5;
 
 namespace Telegram.Net.Core
@@ -528,7 +529,7 @@ namespace Telegram.Net.Core
         public async Task<InputFileConstructor> UploadFile(string name, Stream content)
         {
             var buffer = new byte[65536];
-            var fileId = DateTime.Now.Ticks;
+            var fileId = BitConverter.ToInt64(Helpers.GenerateRandomBytes(8), 0);
 
             int partsCount = 0;
             int bytesRead;
@@ -567,6 +568,14 @@ namespace Telegram.Net.Core
         public async Task<UploadFileConstructor> GetFile(long volumeId, int localId, long secret, int offset, int limit)
         {
             var request = new GetFileRequest(new InputFileLocationConstructor(volumeId, localId, secret), offset, limit);
+            await SendRpcRequest(request);
+
+            // only single implementation available
+            return (UploadFileConstructor)request.file;
+        }
+        public async Task<UploadFileConstructor> GetFile(InputFileLocation fileLocation, int offset, int limit)
+        {
+            var request = new GetFileRequest(fileLocation, offset, limit);
             await SendRpcRequest(request);
 
             // only single implementation available

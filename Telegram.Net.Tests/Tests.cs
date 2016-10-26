@@ -287,9 +287,7 @@ namespace Telegram.Net.Tests
 
             var updatesStateRequest = new GetUpdatesStateRequest();
             await client.SendRpcRequest(updatesStateRequest);
-            var initialState = updatesStateRequest.updatesState as UpdatesStateConstructor;
-
-            Assert.IsNotNull(initialState);
+            var initialState = (UpdatesStateConstructor)updatesStateRequest.updatesState;
 
             var request = new GetUpdatesDifferenceRequest(initialState.pts, initialState.date, initialState.qts);
             await client.SendRpcRequest(request);
@@ -305,13 +303,10 @@ namespace Telegram.Net.Tests
             Assert.IsNotNull(differenceRequestAfterMessage.updatesDifference);
             Assert.AreEqual(differenceRequestAfterMessage.updatesDifference.constructor, Constructor.UpdatesDifference);
 
-            var differenceUpdate = differenceRequestAfterMessage.updatesDifference as UpdatesDifferenceConstructor;
-            Assert.IsNotNull(differenceUpdate);
+            var differenceUpdate = (UpdatesDifferenceConstructor)differenceRequestAfterMessage.updatesDifference;
             Assert.AreEqual(1, differenceUpdate.newMessages.Count);
 
-            var messageUpdate = differenceUpdate.newMessages[0] as MessageConstructor;
-            Assert.IsNotNull(messageUpdate);
-
+            var messageUpdate = (MessageConstructor)differenceUpdate.newMessages[0];
             Assert.AreEqual("test", messageUpdate.message);
         }
 
@@ -350,17 +345,9 @@ namespace Telegram.Net.Tests
 
         private ChatConstructor GetChatFromStatedMessage(MessagesStatedMessage message)
         {
-            var constructor = message as MessagesStatedMessageConstructor;
-            Assert.IsNotNull(constructor);
-
-            var serviceMessage = constructor.message as MessageServiceConstructor;
-            Assert.IsNotNull(serviceMessage);
-
-            var peerChat = serviceMessage.toId as PeerChatConstructor;
-            Assert.IsNotNull(peerChat);
-
-            var createdChatId = peerChat.chatId;
-            return constructor.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
+            var statedMessage = message.Cast<MessagesStatedMessageConstructor>();
+            var createdChatId = statedMessage.message.Cast<MessageServiceConstructor>().toId.Cast<PeerChatConstructor>().chatId;
+            return statedMessage.chats.OfType<ChatConstructor>().Single(c => c.id == createdChatId);
         }
 
         private async Task<TelegramClient> InitializeClient()
@@ -392,10 +379,7 @@ namespace Telegram.Net.Tests
             Assert.IsNotNull(contacts);
             Assert.AreEqual(1, contacts.importedContacts.Count);
 
-            var importedContact = contacts.importedContacts[0] as ImportedContactConstructor;
-            Assert.IsNotNull(importedContact);
-
-            return importedContact;
+            return (ImportedContactConstructor)contacts.importedContacts[0];
         }
 
         private string GetTestPhoneOfDc(int dcNumber)

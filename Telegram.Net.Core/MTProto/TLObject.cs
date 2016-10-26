@@ -391,6 +391,15 @@ namespace Telegram.Net.Core.MTProto
         }
 
         #endregion
+
+        public T Cast<T>() where T : TLObject
+        {
+            return (T)this;
+        }
+        public T As<T>() where T : TLObject
+        {
+            return this as T;
+        }
     }
 
     // all constructor types
