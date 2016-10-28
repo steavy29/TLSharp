@@ -389,6 +389,13 @@ namespace Telegram.Net.Core
         // messages.setTyping#a3825e50 peer:InputPeer action:SendMessageAction = Bool;
 
         // messages.sendMessage#4cde0aab peer:InputPeer message:string random_id:long = messages.SentMessage;
+        public async Task<SentMessage> SendMessage(InputPeer inputPeer, string message)
+        {
+            var request = new SendMessageRequest(inputPeer, message);
+            await SendRpcRequest(request);
+
+            return request.sentMessage;
+        }
         public async Task<SentMessage> SendDirectMessage(int userId, string message)
         {
             var request = new SendMessageRequest(new InputPeerContactConstructor(userId), message);
