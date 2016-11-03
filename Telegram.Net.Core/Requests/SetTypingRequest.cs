@@ -16,6 +16,7 @@ namespace Telegram.Net.Core.Requests
         public SetTypingRequest(InputPeer peer)
         {
             this.peer = peer;
+            //I don't know how make normal type.
             this.action = 0x16bf744e;
         }
 
