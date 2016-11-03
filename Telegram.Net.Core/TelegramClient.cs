@@ -254,25 +254,41 @@ namespace Telegram.Net.Core
         #region Account
 
         // TODO
-        // account.registerDevice#446c712c token_type:int token:string device_model:string system_version:string app_version:string app_sandbox:Bool lang_code:string = Bool;
-        // account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
-        // account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
-        // account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
-        // account.resetNotifySettings#db7e1747 = Bool;
-        // account.updateProfile#f0888d68 first_name:string last_name:string = User;
-        // account.updateStatus#6628562c offline:Bool = Bool;
-        // account.getWallPapers#c04cfac2 = Vector<WallPaper>;
-        // account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
-        // account.checkUsername#2714d86c username:string = Bool;
-        // account.updateUsername#3e0bdd7c username:string = User;
-        // account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
-        // account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
-        // account.deleteAccount#418d4e0b reason:string = Bool;
-        // account.getAccountTTL#8fc711d = AccountDaysTTL;
-        // account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
-        // account.sendChangePhoneCode#a407a8f4 phone_number:string = account.SentChangePhoneCode;
-        // account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
-        // account.updateDeviceLocked#38df3532 period:int = Bool;
+        //account.registerDevice#637ea878 token_type:int token:string = Bool;
+        //account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
+        //account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
+        //account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
+        //account.resetNotifySettings#db7e1747 = Bool;
+
+        // account.updateProfile#78515775 flags:# first_name:flags.0?string last_name:flags.1?string about:flags.2?string = User;
+        public async Task<User> UpdateProfile(string first_name, string last_name)
+        {
+            var request = new UpdateProfileRequest(first_name, last_name);
+            await SendRpcRequest(request);
+
+            return request.UserResponse;
+        }
+
+        //account.updateStatus#6628562c offline:Bool = Bool;
+        //account.getWallPapers#c04cfac2 = Vector<WallPaper>;
+        //account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
+        //account.checkUsername#2714d86c username:string = Bool;
+        //account.updateUsername#3e0bdd7c username:string = User;
+        //account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
+        //account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
+        //account.deleteAccount#418d4e0b reason:string = Bool;
+        //account.getAccountTTL#8fc711d = AccountDaysTTL;
+        //account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
+        //account.sendChangePhoneCode#8e57deb flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool = auth.SentCode;
+        //account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
+        //account.updateDeviceLocked#38df3532 period:int = Bool;
+        //account.getAuthorizations#e320c158 = account.Authorizations;
+        //account.resetAuthorization#df77f3bc hash:long = Bool;
+        //account.getPassword#548a30f5 = account.Password;
+        //account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings;
+        //account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool;
+        //account.sendConfirmPhoneCode#1516d7bd flags:# allow_flashcall:flags.0?true hash:string current_number:flags.0?Bool = auth.SentCode;
+        //account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool;
 
         #endregion
 
