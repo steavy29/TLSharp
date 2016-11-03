@@ -539,10 +539,10 @@ namespace Telegram.Net.Core
 
         #region Photos
 
-        // photos.updateProfilePhoto#eef579a0 id:InputPhoto crop:InputPhotoCrop = UserProfilePhoto;
-        // photos.uploadProfilePhoto#d50f9c88 file:InputFile caption:string geo_point:InputGeoPoint crop:InputPhotoCrop = photos.Photo;
-        // photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
-        // photos.getUserPhotos#b7ee553c user_id:InputUser offset:int max_id:int limit:int = photos.Photos;
+        //photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto;
+        //photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo;
+        //photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
+        //photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
 
         #endregion
 
