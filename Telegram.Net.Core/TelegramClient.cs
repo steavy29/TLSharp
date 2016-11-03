@@ -261,9 +261,9 @@ namespace Telegram.Net.Core
         // account.resetNotifySettings#db7e1747 = Bool;
 
         // account.updateProfile#78515775 flags:# first_name:flags.0?string last_name:flags.1?string about:flags.2?string = User;
-        public async Task<User> UpdateProfile(string first_name, string last_name)
+        public async Task<User> UpdateProfile(string firstname, string lastname)
         {
-            var request = new UpdateProfileRequest(first_name, last_name);
+            var request = new UpdateProfileRequest(firstname, lastname);
             await SendRpcRequest(request);
 
             return request.UserResponse;
