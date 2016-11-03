@@ -10,7 +10,7 @@ namespace Telegram.Net.Core.Requests
 {
     public class UpdateProfileRequest : MTProtoRequest
     {
-        private readonly string firsNname;
+        private readonly string firstName;
         private readonly string lastName;
         private int flags { get; set; }
 
