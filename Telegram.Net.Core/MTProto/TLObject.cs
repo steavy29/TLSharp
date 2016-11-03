@@ -150,8 +150,8 @@ namespace Telegram.Net.Core.MTProto
             {0x6c69efee, typeof (ContactsMyLinkRequestedConstructor)},
             {0xc240ebd9, typeof (ContactsMyLinkContactConstructor)},
             {0xeccea3f5, typeof (ContactsLinkConstructor)},
-            {0xb74ba9d2, typeof (ÑontactsContactsNotModifiedConstructor)},
-            {0x6f8b8cb2, typeof (ÑontactsContactsConstructor)},
+            {0xb74ba9d2, typeof (Ã‘ontactsContactsNotModifiedConstructor)},
+            {0x6f8b8cb2, typeof (Ã‘ontactsContactsConstructor)},
             {0xad524315, typeof (ContactsImportedContactsConstructor)},
             {0x1c138d15, typeof (ContactsBlockedConstructor)},
             {0x900802a1, typeof (ContactsBlockedSliceConstructor)},
@@ -5746,17 +5746,17 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsConstructor : ContactsContacts
+    public class Ã‘ontactsContactsConstructor : ContactsContacts
     {
         public List<Contact> contacts;
         public List<User> users;
 
-        public ÑontactsContactsConstructor()
+        public Ã‘ontactsContactsConstructor()
         {
 
         }
 
-        public ÑontactsContactsConstructor(List<Contact> contacts, List<User> users)
+        public Ã‘ontactsContactsConstructor(List<Contact> contacts, List<User> users)
         {
             this.contacts = contacts;
             this.users = users;
@@ -5810,7 +5810,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsNotModifiedConstructor : ContactsContacts
+    public class Ã‘ontactsContactsNotModifiedConstructor : ContactsContacts
     {
         public override Constructor constructor => Constructor.ContactsContactsNotModified;
 
@@ -12463,6 +12463,8 @@ namespace Telegram.Net.Core.MTProto
         UploadDocumentAction = 0x8faee98e,
         GeoLocationAction = 0x176f8ba1,
         ChooseContactAction = 0x628cbc6f,
+        GamePlayAction = 0xdd6a8f48,
+        GameStopAction = 0x15c2c99a,
     }
 
     public enum RpcRequestError
@@ -12471,7 +12473,7 @@ namespace Telegram.Net.Core.MTProto
 
         // Message level errors
 
-        MessageIdTooLow = 16,           // msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the “correct” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)
+        MessageIdTooLow = 16,           // msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the Â“correctÂ” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)
         MessageIdTooHigh,               // msg_id too high (similar to the previous case, the client time has to be synchronized, and the message re-sent with the correct msg_id)
         CorruptedMessageId,             // incorrect two lower order msg_id bits (the server expects client message msg_id to be divisible by 4)
         DuplicateOfMessageContainerId,  // container msg_id is the same as msg_id of a previously received message (this must never happen)
