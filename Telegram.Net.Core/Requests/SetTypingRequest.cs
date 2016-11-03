@@ -8,7 +8,7 @@ namespace Telegram.Net.Core.Requests
     {
         private readonly InputPeer peer;
         private readonly SendMessageAction action;
-        
+
         public bool state { get; private set; }
 
         protected override uint requestCode => 0xa3825e50;
