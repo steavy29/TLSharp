@@ -89,6 +89,7 @@
     <Compile Include="Requests\SendMediaRequest.cs" />
     <Compile Include="Requests\SaveFilePartRequest.cs" />
     <Compile Include="Requests\SetTypingRequest.cs" />
+    <Compile Include="Requests\UpdateProfileRequest.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="TelegramClient.cs" />
     <Compile Include="TelegramReqestException.cs" />
