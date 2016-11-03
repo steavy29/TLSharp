@@ -21,8 +21,8 @@ namespace Telegram.Net.Core.Requests
         public void ComputeFlags(string firstName, string lastName)
         {
             flags = 0;
-            flags = first_name != null ? (flags | 1) : (flags & ~1);
-            flags = last_name != null ? (flags | 2) : (flags & ~2);
+            flags = firstName != null ? (flags | 1) : (flags & ~1);
+            flags = lastName != null ? (flags | 2) : (flags & ~2);
         }
 
         public UpdateProfileRequest(string firstName, string lastName)
