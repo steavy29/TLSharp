@@ -178,7 +178,7 @@ namespace Telegram.Net.Core
             return session.user != null;
         }
 
-        //auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
+        // auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
         public async Task<AuthCheckedPhoneConstructor> CheckPhone(string phoneNumber)
         {
             var authCheckPhoneRequest = new AuthCheckPhoneRequest(phoneNumber);
@@ -188,7 +188,7 @@ namespace Telegram.Net.Core
             return (AuthCheckedPhoneConstructor)authCheckPhoneRequest.checkedPhone;
         }
 
-        //auth.sendCode#768d5f4d phone_number:string sms_type:int api_id:int api_hash:string lang_code:string = auth.SentCode;
+        // auth.sendCode#768d5f4d phone_number:string sms_type:int api_id:int api_hash:string lang_code:string = auth.SentCode;
         public async Task<AuthSentCode> SendCode(string phoneNumber, VerificationCodeDeliveryType tokenDestination)
         {
             var request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
@@ -197,7 +197,7 @@ namespace Telegram.Net.Core
             return request.sentCode;
         }
 
-        //auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
+        // auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
         public async Task<bool> SendCall(string phoneNumber, string phoneCodeHash)
         {
             var request = new AuthSendCallRequest(phoneNumber, phoneCodeHash);
@@ -206,7 +206,7 @@ namespace Telegram.Net.Core
             return request.callSent;
         }
 
-        //auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
+        // auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
         public async Task<AuthAuthorizationConstructor> SignUp(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
         {
             var request = new AuthSignUpRequest(phoneNumber, phoneCodeHash, code, firstName, lastName);
@@ -219,7 +219,7 @@ namespace Telegram.Net.Core
             return authorization;
         }
 
-        //auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
+        // auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
         public async Task<AuthAuthorizationConstructor> SignIn(string phoneNumber, string phoneCodeHash, string code)
         {
             var request = new AuthSignInRequest(phoneNumber, phoneCodeHash, code);
@@ -254,11 +254,11 @@ namespace Telegram.Net.Core
         #region Account
 
         // TODO
-        //account.registerDevice#637ea878 token_type:int token:string = Bool;
-        //account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
-        //account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
-        //account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
-        //account.resetNotifySettings#db7e1747 = Bool;
+        // account.registerDevice#637ea878 token_type:int token:string = Bool;
+        // account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
+        // account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
+        // account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
+        // account.resetNotifySettings#db7e1747 = Bool;
 
         // account.updateProfile#78515775 flags:# first_name:flags.0?string last_name:flags.1?string about:flags.2?string = User;
         public async Task<User> UpdateProfile(string first_name, string last_name)
@@ -269,26 +269,26 @@ namespace Telegram.Net.Core
             return request.UserResponse;
         }
 
-        //account.updateStatus#6628562c offline:Bool = Bool;
-        //account.getWallPapers#c04cfac2 = Vector<WallPaper>;
-        //account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
-        //account.checkUsername#2714d86c username:string = Bool;
-        //account.updateUsername#3e0bdd7c username:string = User;
-        //account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
-        //account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
-        //account.deleteAccount#418d4e0b reason:string = Bool;
-        //account.getAccountTTL#8fc711d = AccountDaysTTL;
-        //account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
-        //account.sendChangePhoneCode#8e57deb flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool = auth.SentCode;
-        //account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
-        //account.updateDeviceLocked#38df3532 period:int = Bool;
-        //account.getAuthorizations#e320c158 = account.Authorizations;
-        //account.resetAuthorization#df77f3bc hash:long = Bool;
-        //account.getPassword#548a30f5 = account.Password;
-        //account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings;
-        //account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool;
-        //account.sendConfirmPhoneCode#1516d7bd flags:# allow_flashcall:flags.0?true hash:string current_number:flags.0?Bool = auth.SentCode;
-        //account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool;
+        // account.updateStatus#6628562c offline:Bool = Bool;
+        // account.getWallPapers#c04cfac2 = Vector<WallPaper>;
+        // account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
+        // account.checkUsername#2714d86c username:string = Bool;
+        // account.updateUsername#3e0bdd7c username:string = User;
+        // account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
+        // account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
+        // account.deleteAccount#418d4e0b reason:string = Bool;
+        // account.getAccountTTL#8fc711d = AccountDaysTTL;
+        // account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
+        // account.sendChangePhoneCode#8e57deb flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool = auth.SentCode;
+        // account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
+        // account.updateDeviceLocked#38df3532 period:int = Bool;
+        // account.getAuthorizations#e320c158 = account.Authorizations;
+        // account.resetAuthorization#df77f3bc hash:long = Bool;
+        // account.getPassword#548a30f5 = account.Password;
+        // account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings;
+        // account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool;
+        // account.sendConfirmPhoneCode#1516d7bd flags:# allow_flashcall:flags.0?true hash:string current_number:flags.0?Bool = auth.SentCode;
+        // account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool;
 
         #endregion
 
@@ -534,15 +534,16 @@ namespace Telegram.Net.Core
             // only single implementation available
             return request.updatesDifference;
         }
+        // updates.getChannelDifference#bb32d7c0 channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference;
 
         #endregion
 
         #region Photos
 
-        //photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto;
-        //photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo;
-        //photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
-        //photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
+        // photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto;
+        // photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo;
+        // photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
+        // photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
 
         #endregion
 
@@ -618,21 +619,21 @@ namespace Telegram.Net.Core
 
         #region Help
 
-        //help.getConfig#c4f9186b = Config;
-        //help.getNearestDc#1fb33026 = NearestDc;
-        //help.getAppUpdate#ae2de196 = help.AppUpdate;
-        //help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
-        //help.getInviteText#4d392343 = help.InviteText;
-        //help.getSupport#9cdf08cd = help.Support;
-        //help.getAppChangelog#b921197a = help.AppChangelog;
-        //help.getTermsOfService#350170f3 = help.TermsOfService;
-        //help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
-        //help.noAppUpdate#c45a6536 = help.AppUpdate;
-        //help.inviteText#18cb9f78 message:string = help.InviteText;
-        //help.support#17c6b5f6 phone_number:string user:User = help.Support;
-        //help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
-        //help.noAppUpdate#c45a6536 = help.AppUpdate;
-        //help.inviteText#18cb9f78 message:string = help.InviteText;
+        // help.getConfig#c4f9186b = Config;
+        // help.getNearestDc#1fb33026 = NearestDc;
+        // help.getAppUpdate#ae2de196 = help.AppUpdate;
+        // help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
+        // help.getInviteText#4d392343 = help.InviteText;
+        // help.getSupport#9cdf08cd = help.Support;
+        // help.getAppChangelog#b921197a = help.AppChangelog;
+        // help.getTermsOfService#350170f3 = help.TermsOfService;
+        // help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        // help.noAppUpdate#c45a6536 = help.AppUpdate;
+        // help.inviteText#18cb9f78 message:string = help.InviteText;
+        // help.support#17c6b5f6 phone_number:string user:User = help.Support;
+        // help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        // help.noAppUpdate#c45a6536 = help.AppUpdate;
+        // help.inviteText#18cb9f78 message:string = help.InviteText;
 
         #endregion
 
