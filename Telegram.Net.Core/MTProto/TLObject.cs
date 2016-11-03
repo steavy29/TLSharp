@@ -12451,6 +12451,20 @@ namespace Telegram.Net.Core.MTProto
         }
     }
 
+    public enum SendMessageAction : uint
+    {
+        TypingAction = 0x16bf744e,
+        CancelAction = 0xfd5ec8f5,
+        RecordVideoAction = 0xa187d66f,
+        UploadVideoAction = 0x92042ff7,
+        RecordAudioAction = 0xd52f73f7,
+        UploadAudioAction = 0xe6ac8a6f,
+        UploadPhotoAction = 0x990a3c1a,
+        UploadDocumentAction = 0x8faee98e,
+        GeoLocationAction = 0x176f8ba1,
+        ChooseContactAction = 0x628cbc6f,
+    }
+
     public enum RpcRequestError
     {
         None = 0,

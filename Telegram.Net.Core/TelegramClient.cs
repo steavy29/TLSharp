@@ -387,13 +387,14 @@ namespace Telegram.Net.Core
 
         // messages.receivedMessages#28abcb68 max_id:int = Vector<int>;
         // messages.setTyping#a3825e50 peer:InputPeer action:SendMessageAction = Bool;
-        public async Task<bool> SetTyping(InputPeer inputPeer)
+        public async Task<bool> SetTyping(InputPeer inputPeer, SendMessageAction action)
         {
-            var request = new SetTypingRequest(inputPeer);
+            var request = new SetTypingRequest(inputPeer, action);
             await SendRpcRequest(request);
 
             return request.state;
         }
+
         // messages.sendMessage#4cde0aab peer:InputPeer message:string random_id:long = messages.SentMessage;
         public async Task<SentMessage> SendMessage(InputPeer inputPeer, string message)
         {
