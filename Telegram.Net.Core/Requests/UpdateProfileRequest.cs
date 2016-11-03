@@ -10,25 +10,25 @@ namespace Telegram.Net.Core.Requests
 {
     public class UpdateProfileRequest : MTProtoRequest
     {
-        private readonly string first_name;
-        private readonly string last_name;
+        private readonly string firstname;
+        private readonly string lastname;
         private int flags { get; set; }
 
         public User UserResponse { get; private set; }
 
         protected override uint requestCode => 0x78515775;
 
-        public void ComputeFlags(string first_name, string last_name)
+        public void ComputeFlags(string firstname, string lastname)
         {
             flags = 0;
             flags = first_name != null ? (flags | 1) : (flags & ~1);
             flags = last_name != null ? (flags | 2) : (flags & ~2);
         }
 
-        public UpdateProfileRequest(string first_name, string last_name)
+        public UpdateProfileRequest(string firstname, string lastname)
         {
-            this.first_name = first_name;
-            this.last_name = last_name;
+            this.firstname = firstname;
+            this.lastname = lastname;
         }
 
         public override void OnSend(BinaryWriter writer)
