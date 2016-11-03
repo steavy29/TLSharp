@@ -618,12 +618,21 @@ namespace Telegram.Net.Core
 
         #region Help
 
-        // help.getConfig#c4f9186b = Config;
-        // help.getNearestDc#1fb33026 = NearestDc;
-        // help.getAppUpdate#c812ac7e device_model:string system_version:string app_version:string lang_code:string = help.AppUpdate;
-        // help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
-        // help.getInviteText#a4a95186 lang_code:string = help.InviteText;
-        // help.getSupport#9cdf08cd = help.Support;
+        //help.getConfig#c4f9186b = Config;
+        //help.getNearestDc#1fb33026 = NearestDc;
+        //help.getAppUpdate#ae2de196 = help.AppUpdate;
+        //help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
+        //help.getInviteText#4d392343 = help.InviteText;
+        //help.getSupport#9cdf08cd = help.Support;
+        //help.getAppChangelog#b921197a = help.AppChangelog;
+        //help.getTermsOfService#350170f3 = help.TermsOfService;
+        //help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        //help.noAppUpdate#c45a6536 = help.AppUpdate;
+        //help.inviteText#18cb9f78 message:string = help.InviteText;
+        //help.support#17c6b5f6 phone_number:string user:User = help.Support;
+        //help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        //help.noAppUpdate#c45a6536 = help.AppUpdate;
+        //help.inviteText#18cb9f78 message:string = help.InviteText;
 
         #endregion
 
