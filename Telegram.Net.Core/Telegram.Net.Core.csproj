@@ -71,6 +71,7 @@
     <Compile Include="Requests\AuthSendSmsRequest.cs" />
     <Compile Include="Requests\AuthSignInRequest.cs" />
     <Compile Include="Requests\AuthSignUpRequest.cs" />
+    <Compile Include="Requests\BlockContactRequest.cs" />
     <Compile Include="Requests\DeleteContactRequest.cs" />
     <Compile Include="Requests\DeleteMessagesRequest.cs" />
     <Compile Include="Requests\GetUpdatesDifferenceRequest.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Requests\SendMediaRequest.cs" />
     <Compile Include="Requests\SaveFilePartRequest.cs" />
     <Compile Include="Requests\SetTypingRequest.cs" />
+    <Compile Include="Requests\UnBlockContactRequest.cs" />
     <Compile Include="Requests\UpdateProfileRequest.cs" />
     <Compile Include="Requests\UpdateUsernameRequest.cs" />
     <Compile Include="Session.cs" />

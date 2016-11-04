@@ -359,8 +359,24 @@ namespace Telegram.Net.Core
         }
 
         // contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool;
+
         // contacts.block#332b49fc id:InputUser = Bool;
+        public async Task<bool> BlockContact(InputUser id)
+        {
+            var request = new BlockContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.state;
+        }
+
         // contacts.unblock#e54100bd id:InputUser = Bool;
+        public async Task<bool> UnBlockContact(InputUser id)
+        {
+            var request = new BlockContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.state;
+        }
         // contacts.getBlocked#f57c350f offset:int limit:int = contacts.Blocked;
         // contacts.exportCard#84e53737 = Vector<int>;
         // contacts.importCard#4fe196fe export_card:Vector<int> = User;
