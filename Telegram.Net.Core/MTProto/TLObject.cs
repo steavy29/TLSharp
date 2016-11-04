@@ -12466,6 +12466,21 @@ namespace Telegram.Net.Core.MTProto
         GamePlayAction = 0xdd6a8f48,
         GameStopAction = 0x15c2c99a,
     }
+    
+    public enum MessagesFilter : uint
+    {
+        FilterEmpty = 0x57e2f66c,
+        FilterPhotos = 0x9609a51c,
+        FilterVideo = 0x9fc00e65,
+        FilterPhotoVideo = 0x56e9f0e4,
+        FilterPhotoVideoDocuments = 0xd95e73bb,
+        FilterDocument = 0x9eddf188,
+        FilterUrl = 0x7ef0dd87,
+        FilterGif = 0xffc86587,
+        FilterVoice = 0x50f5c392,
+        FilterMusic = 0x3751b49e,
+        FilterChatPhotos = 0x3a20ecb8,
+    }
 
     public enum RpcRequestError
     {
