@@ -273,7 +273,16 @@ namespace Telegram.Net.Core
         // account.getWallPapers#c04cfac2 = Vector<WallPaper>;
         // account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
         // account.checkUsername#2714d86c username:string = Bool;
+
         // account.updateUsername#3e0bdd7c username:string = User;
+        public async Task<User> UpdateUsername(string userName)
+        {
+            var request = new UpdateUsernameRequest(userName);
+            await SendRpcRequest(request);
+
+            return request.UserResponse;
+        }
+
         // account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
         // account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
         // account.deleteAccount#418d4e0b reason:string = Bool;
