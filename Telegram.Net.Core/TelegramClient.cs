@@ -355,7 +355,7 @@ namespace Telegram.Net.Core
             var request = new DeleteContactRequest(id);
             await SendRpcRequest(request);
 
-            return request.state;
+            return request.link;
         }
 
         // contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool;

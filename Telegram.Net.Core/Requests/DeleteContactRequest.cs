@@ -12,7 +12,7 @@ namespace Telegram.Net.Core.Requests
     {
         private readonly InputUser user;
 
-        public ContactsLink state { get; private set; }
+        public ContactsLink link { get; private set; }
 
         protected override uint requestCode => 0x8e953744;
 
@@ -29,7 +29,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            state = TLObject.Read<ContactsLink>(reader);
+            link = TLObject.Read<ContactsLink>(reader);
         }
 
         public override void OnException(Exception exception)
