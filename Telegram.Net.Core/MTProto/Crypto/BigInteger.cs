@@ -183,21 +183,24 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     //					this.sign = 0;
                     this.magnitude = ZeroMagnitude;
                 }
-                else {
+                else
+                {
                     this.sign = signum;
 
                     if (i == 0)
                     {
                         this.magnitude = mag;
                     }
-                    else {
+                    else
+                    {
                         // strip leading 0 words
                         this.magnitude = new int[mag.Length - i];
                         Array.Copy(mag, i, this.magnitude, 0, this.magnitude.Length);
                     }
                 }
             }
-            else {
+            else
+            {
                 this.sign = signum;
                 this.magnitude = mag;
             }
@@ -340,13 +343,15 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     {
                         b = b.ShiftLeft(s.Length << 2);
                     }
-                    else {
+                    else
+                    {
                         b = b.Multiply(r.Pow(s.Length));
                     }
 
                     b = b.Add(bi);
                 }
-                else {
+                else
+                {
                     b = bi;
                 }
             }
@@ -396,7 +401,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 {
                     this.magnitude = One.magnitude;
                 }
-                else {
+                else
+                {
                     int numBytes = end - iBval;
                     byte[] inverse = new byte[numBytes];
 
@@ -418,7 +424,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     this.magnitude = MakeMagnitude(inverse, 0, inverse.Length);
                 }
             }
-            else {
+            else
+            {
                 // strip leading zero bytes and return magnitude bytes
                 this.magnitude = MakeMagnitude(bytes, offset, length);
                 this.sign = this.magnitude.Length > 0 ? 1 : 0;
@@ -503,7 +510,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 //this.sign = 0;
                 this.magnitude = ZeroMagnitude;
             }
-            else {
+            else
+            {
                 // copy bytes
                 this.magnitude = MakeMagnitude(bytes, offset, length);
                 this.sign = this.magnitude.Length < 1 ? 0 : sign;
@@ -666,7 +674,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 big = magToAdd;
                 small = this.magnitude;
             }
-            else {
+            else
+            {
                 big = this.magnitude;
                 small = magToAdd;
             }
@@ -684,7 +693,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 bigCopy = new int[big.Length + 1];
                 big.CopyTo(bigCopy, 1);
             }
-            else {
+            else
+            {
                 bigCopy = (int[])big.Clone();
             }
 
@@ -767,7 +777,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                         // TODO Optimise this case
                         nBits = Not().BitCount;
                     }
-                    else {
+                    else
+                    {
                         int sum = 0;
                         for (int i = 0; i < magnitude.Length; i++)
                         {
@@ -1004,7 +1015,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     c = ShiftLeft(y, shift);
                     cBitLength += shift;
                 }
-                else {
+                else
+                {
                     iCount = new int[] { 1 };
 
                     int len = y.Length - yStart;
@@ -1060,7 +1072,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                         --cBitLength;
                         ShiftRightOneInPlace(iCountStart, iCount);
                     }
-                    else {
+                    else
+                    {
                         ShiftRightInPlace(cStart, c, shift);
                         cBitLength -= shift;
                         ShiftRightInPlace(iCountStart, iCount, shift);
@@ -1078,7 +1091,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     }
                 }
             }
-            else {
+            else
+            {
                 count = new int[1];
             }
 
@@ -1133,7 +1147,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 biggies[0] = val.sign == this.sign ? quotient : quotient.Negate();
                 biggies[1] = new BigInteger(this.sign, remainder, true);
             }
-            else {
+            else
+            {
                 int[] remainder = (int[])this.magnitude.Clone();
                 int[] quotient = Divide(remainder, val.magnitude);
 
@@ -1453,7 +1468,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     v = ((long)magnitude[magnitude.Length - 2] << 32)
                         | (magnitude[magnitude.Length - 1] & IMASK);
                 }
-                else {
+                else
+                {
                     v = (magnitude[magnitude.Length - 1] & IMASK);
                 }
 
@@ -1663,7 +1679,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     zVal = new int[m.magnitude.Length];
                     magnitude.CopyTo(zVal, zVal.Length - magnitude.Length);
                 }
-                else {
+                else
+                {
                     //
                     // in normal practice we'll never see this...
                     //
@@ -1713,7 +1730,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                         // be almost as heavy as a Montgomery mulitply.
                         MultiplyMonty(yAccum, yVal, yVal, m.magnitude, mQ);
                     }
-                    else {
+                    else
+                    {
                         Square(yAccum, yVal);
                         Remainder(yAccum, m.magnitude);
                         Array.Copy(yAccum, yAccum.Length - yVal.Length, yVal, 0, yVal.Length);
@@ -1727,7 +1745,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                         {
                             MultiplyMonty(yAccum, yVal, zVal, m.magnitude, mQ);
                         }
-                        else {
+                        else
+                        {
                             Multiply(yAccum, yVal, zVal);
                             Remainder(yAccum, m.magnitude);
                             Array.Copy(yAccum, yAccum.Length - yVal.Length, yVal, 0,
@@ -1745,7 +1764,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     {
                         MultiplyMonty(yAccum, yVal, yVal, m.magnitude, mQ);
                     }
-                    else {
+                    else
+                    {
                         Square(yAccum, yVal);
                         Remainder(yAccum, m.magnitude);
                         Array.Copy(yAccum, yAccum.Length - yVal.Length, yVal, 0, yVal.Length);
@@ -1817,7 +1837,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 {
                     w[wBase] = (int)(uint)(c >> 32);
                 }
-                else {
+                else
+                {
                     Debug.Assert((uint)(c >> 32) == 0);
                 }
                 wBase += i;
@@ -1835,7 +1856,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
             {
                 w[wBase] = (int)(uint)(u2 + (u1 >> 32) + (ulong)(uint)w[wBase]);
             }
-            else {
+            else
+            {
                 Debug.Assert((uint)(u2 + (u1 >> 32)) == 0);
             }
 
@@ -1879,7 +1901,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     {
                         x[xBase] = (int)val;
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(val == 0);
                     }
                     break;
@@ -2086,7 +2109,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
             {
                 Square(res, this.magnitude);
             }
-            else {
+            else
+            {
                 Multiply(res, this.magnitude, val.magnitude);
             }
 
@@ -2218,7 +2242,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     cBitLength += shift;
                     Debug.Assert(c[0] != 0);
                 }
-                else {
+                else
+                {
                     int len = y.Length - yStart;
                     c = new int[len];
                     Array.Copy(y, yStart, c, 0, len);
@@ -2268,7 +2293,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                         ShiftRightOneInPlace(cStart, c);
                         --cBitLength;
                     }
-                    else {
+                    else
+                    {
                         ShiftRightInPlace(cStart, c, shift);
                         cBitLength -= shift;
                     }
@@ -2326,7 +2352,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 // TODO Move before small values branch above?
                 result = LastNBits(n.Abs().BitLength - 1);
             }
-            else {
+            else
+            {
                 result = (int[])this.magnitude.Clone();
                 result = Remainder(result, n.magnitude);
             }
@@ -2372,7 +2399,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 newMag = new int[magLen + nInts];
                 mag.CopyTo(newMag, 0);
             }
-            else {
+            else
+            {
                 int i = 0;
                 int nBits2 = 32 - nBits;
                 int highBits = (int)((uint)mag[0] >> nBits2);
@@ -2382,7 +2410,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     newMag = new int[magLen + nInts + 1];
                     newMag[i++] = highBits;
                 }
-                else {
+                else
+                {
                     newMag = new int[magLen + nInts];
                 }
 
@@ -2521,7 +2550,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
             {
                 Array.Copy(this.magnitude, 0, res, 0, res.Length);
             }
-            else {
+            else
+            {
                 int numBits2 = 32 - numBits;
 
                 int magPos = this.magnitude.Length - 1 - numInts;
@@ -2605,7 +2635,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 bigun = n;
                 lilun = this;
             }
-            else {
+            else
+            {
                 bigun = this;
                 lilun = n;
             }
@@ -2761,7 +2792,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     sb.Append(TestBit(i) ? '1' : '0');
                 }
             }
-            else {
+            else
+            {
                 // This is algorithm 1a from chapter 4.4 in Seminumerical Algorithms, slow but it works
                 IList S = new List<object>();
                 BigInteger bs = ValueOf(radix);
@@ -2782,7 +2814,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                     {
                         S.Add("0");
                     }
-                    else {
+                    else
+                    {
                         // see how to interact with different bases
                         S.Add(b.magnitude[0].ToString("d"));
                     }

@@ -45,7 +45,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
                 {
                     return ciphertext;
                 }
-                else {
+                else
+                {
                     byte[] paddedCiphertext = new byte[256];
                     int padding = 256 - ciphertext.Length;
                     for (int i = 0; i < padding; i++)

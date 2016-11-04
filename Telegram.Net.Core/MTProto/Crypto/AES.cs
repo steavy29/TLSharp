@@ -576,7 +576,8 @@ namespace Telegram.Net.Core.MTProto.Crypto
             {
                 EncryptBlock(WorkingKey);
             }
-            else {
+            else
+            {
                 DecryptBlock(WorkingKey);
             }
 

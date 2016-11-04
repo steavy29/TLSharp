@@ -75,7 +75,7 @@ namespace Telegram.Net.Core.Network
             {
                 throw new InvalidOperationException("invalid checksum! skip");
             }
-            
+
             return new TcpMessage(seq, bodyBytes);
         }
 
@@ -106,7 +106,7 @@ namespace Telegram.Net.Core.Network
             if (tcpClient.Connected)
             {
                 stream.Dispose();
-                
+
             }
             tcpClient.Close();
         }

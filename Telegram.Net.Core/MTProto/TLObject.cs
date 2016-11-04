@@ -10,7 +10,7 @@ namespace Telegram.Net.Core.MTProto
         public static readonly uint boolFalse = 0xbc799737;
         public static readonly uint boolTrue = 0x997275b5;
         public static readonly uint vectorCode = 0x1cb5c415;
-        
+
         public abstract Constructor constructor { get; }
 
         public abstract void Write(BinaryWriter writer);
@@ -1216,7 +1216,7 @@ namespace Telegram.Net.Core.MTProto
 
     public abstract class DisabledFeature : TLObject
     {
-        
+
     }
 
     // types implementations
@@ -12466,7 +12466,7 @@ namespace Telegram.Net.Core.MTProto
         GamePlayAction = 0xdd6a8f48,
         GameStopAction = 0x15c2c99a,
     }
-    
+
     public enum MessagesFilterEnum : uint
     {
         FilterEmpty = 0x57e2f66c,
@@ -12481,7 +12481,7 @@ namespace Telegram.Net.Core.MTProto
         FilterMusic = 0x3751b49e,
         FilterChatPhotos = 0x3a20ecb8,
     }
-    
+
     public enum FileType : uint
     {
         FileUnknown = 0xaa963b05,
@@ -12495,7 +12495,7 @@ namespace Telegram.Net.Core.MTProto
         FileMp4 = 0xb3cea0e4,
         FileWebp = 0x1081464c,
     }
-    
+
     public enum RpcRequestError
     {
         None = 0,
