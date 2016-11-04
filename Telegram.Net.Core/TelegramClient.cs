@@ -350,6 +350,14 @@ namespace Telegram.Net.Core
         }
 
         // contacts.deleteContact#8e953744 id:InputUser = contacts.Link;
+        public async Task<ContactsLink> DeleteContact(InputUser id)
+        {
+            var request = new DeleteContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.state;
+        }
+
         // contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool;
         // contacts.block#332b49fc id:InputUser = Bool;
         // contacts.unblock#e54100bd id:InputUser = Bool;

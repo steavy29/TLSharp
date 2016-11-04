@@ -71,6 +71,7 @@
     <Compile Include="Requests\AuthSendSmsRequest.cs" />
     <Compile Include="Requests\AuthSignInRequest.cs" />
     <Compile Include="Requests\AuthSignUpRequest.cs" />
+    <Compile Include="Requests\DeleteContactRequest.cs" />
     <Compile Include="Requests\DeleteMessagesRequest.cs" />
     <Compile Include="Requests\GetUpdatesDifferenceRequest.cs" />
     <Compile Include="Requests\GetContactsRequest.cs" />
