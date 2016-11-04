@@ -12492,7 +12492,7 @@ namespace Telegram.Net.Core.MTProto
         FileMp3 = 0x528a0677,
         FileMov = 0x4b09ebbc,
         FilePartial = 0x40bc6f52,
-        FileMp4 = 0xb3cea0e4 ,
+        FileMp4 = 0xb3cea0e4,
         FileWebp = 0x1081464c,
     }
     
