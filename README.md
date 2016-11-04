@@ -312,7 +312,7 @@ Adding new functions is easy.
 * Just create a new Request class in Requests folder.
 * Derive it from MTProtoRequest.
 
-Requests specification you can find in [Telegram API](https://core.telegram.org/#api-methods) reference.
+Actual Requests specification you can find in [Telegram API Scheme](https://github.com/telegramdesktop/tdesktop/blob/master/Telegram/SourceFiles/mtproto/scheme.tl) reference.
 
 _Example_:
 
