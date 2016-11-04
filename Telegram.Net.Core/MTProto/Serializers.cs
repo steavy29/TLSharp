@@ -17,7 +17,8 @@ namespace Telegram.Net.Core.MTProto
                     len = binaryReader.ReadByte() | (binaryReader.ReadByte() << 8) | (binaryReader.ReadByte() << 16);
                     padding = len % 4;
                 }
-                else {
+                else
+                {
                     len = firstByte;
                     padding = (len + 1) % 4;
                 }

@@ -106,10 +106,10 @@ namespace Telegram.Net.Tests
         public async Task ImportByUserNameAndSendMessage()
         {
             var client = await InitializeClient();
-            
+
             var resolveUsernameRequest = new ResolveUsernameRequest(userNameToSendMessage);
             await client.SendRpcRequest(resolveUsernameRequest);
-            
+
             var contactUser = resolveUsernameRequest.user as UserContactConstructor;
             Assert.IsNotNull(contactUser);
 
@@ -164,28 +164,28 @@ namespace Telegram.Net.Tests
             var hist = ((MessagesMessagesConstructor)await client.GetHistoryForContact(user.userId, 0, 1)).messages;
             Assert.AreEqual(1, hist.Count);
 
-            var message = (MessageConstructor) hist[0];
-            Assert.AreEqual(typeof (MessageMediaPhotoConstructor), message.media.GetType());
+            var message = (MessageConstructor)hist[0];
+            Assert.AreEqual(typeof(MessageMediaPhotoConstructor), message.media.GetType());
 
-            var media = (MessageMediaPhotoConstructor) message.media;
-            Assert.AreEqual(typeof (PhotoConstructor), media.photo.GetType());
+            var media = (MessageMediaPhotoConstructor)message.media;
+            Assert.AreEqual(typeof(PhotoConstructor), media.photo.GetType());
 
-            var photo = (PhotoConstructor) media.photo;
+            var photo = (PhotoConstructor)media.photo;
             Assert.AreEqual(3, photo.sizes.Count);
-            Assert.AreEqual(typeof (PhotoSizeConstructor), photo.sizes[2].GetType());
+            Assert.AreEqual(typeof(PhotoSizeConstructor), photo.sizes[2].GetType());
 
-            var photoSize = (PhotoSizeConstructor) photo.sizes[2];
-            Assert.AreEqual(typeof (FileLocationConstructor), photoSize.location.GetType());
+            var photoSize = (PhotoSizeConstructor)photo.sizes[2];
+            Assert.AreEqual(typeof(FileLocationConstructor), photoSize.location.GetType());
 
-            var fileLocation = (FileLocationConstructor) photoSize.location;
+            var fileLocation = (FileLocationConstructor)photoSize.location;
             var file = await client.GetFile(fileLocation.volumeId, fileLocation.localId, fileLocation.secret, 0, photoSize.size + 1024);
 
             string name = "../../data/get_file.";
-            if (file.type.GetType() == typeof (StorageFileJpegConstructor))
+            if (file.type.GetType() == typeof(StorageFileJpegConstructor))
                 name += "jpg";
-            else if (file.type.GetType() == typeof (StorageFileGifConstructor))
+            else if (file.type.GetType() == typeof(StorageFileGifConstructor))
                 name += "gif";
-            else if (file.type.GetType() == typeof (StorageFilePngConstructor))
+            else if (file.type.GetType() == typeof(StorageFilePngConstructor))
                 name += "png";
 
             using (var fileStream = new FileStream(name, FileMode.Create, FileAccess.Write))
@@ -220,7 +220,7 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var user = await ImportAndGetUser(client, numberToSendMessage);
-            
+
             var getUserFullRequest = new GetFullUserRequest(new InputUserContactConstructor(user.userId));
             await client.SendRpcRequest(getUserFullRequest);
 
@@ -269,10 +269,10 @@ namespace Telegram.Net.Tests
 
             var chatName = Guid.NewGuid().ToString();
             var userToInvite = await ImportAndGetUser(client, numberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> {new InputUserContactConstructor(userToInvite.userId) });
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userToInvite.userId) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
-            
+
             var statedMessageAfterLeave = await client.LeaveChat(createdChat.id);
             var modifiedChat = GetChatFromStatedMessage(statedMessageAfterLeave);
 

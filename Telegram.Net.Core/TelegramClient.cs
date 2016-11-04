@@ -171,6 +171,56 @@ namespace Telegram.Net.Core
             request.ThrowIfHasError();
         }
 
+        #region Account
+
+        // TODO
+        // account.registerDevice#637ea878 token_type:int token:string = Bool;
+        // account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
+        // account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
+        // account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
+        // account.resetNotifySettings#db7e1747 = Bool;
+
+        // account.updateProfile#78515775 flags:# first_name:flags.0?string last_name:flags.1?string about:flags.2?string = User;
+        public async Task<User> UpdateProfile(string firstName, string lastName)
+        {
+            var request = new UpdateProfileRequest(firstName, lastName);
+            await SendRpcRequest(request);
+
+            return request.UserResponse;
+        }
+
+        // account.updateStatus#6628562c offline:Bool = Bool;
+        // account.getWallPapers#c04cfac2 = Vector<WallPaper>;
+        // account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
+        // account.checkUsername#2714d86c username:string = Bool;
+
+        // account.updateUsername#3e0bdd7c username:string = User;
+        public async Task<User> UpdateUsername(string userName)
+        {
+            var request = new UpdateUsernameRequest(userName);
+            await SendRpcRequest(request);
+
+            return request.UserResponse;
+        }
+
+        // account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
+        // account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
+        // account.deleteAccount#418d4e0b reason:string = Bool;
+        // account.getAccountTTL#8fc711d = AccountDaysTTL;
+        // account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
+        // account.sendChangePhoneCode#8e57deb flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool = auth.SentCode;
+        // account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
+        // account.updateDeviceLocked#38df3532 period:int = Bool;
+        // account.getAuthorizations#e320c158 = account.Authorizations;
+        // account.resetAuthorization#df77f3bc hash:long = Bool;
+        // account.getPassword#548a30f5 = account.Password;
+        // account.getPasswordSettings#bc8d11bb current_password_hash:bytes = account.PasswordSettings;
+        // account.updatePasswordSettings#fa7c4b86 current_password_hash:bytes new_settings:account.PasswordInputSettings = Bool;
+        // account.sendConfirmPhoneCode#1516d7bd flags:# allow_flashcall:flags.0?true hash:string current_number:flags.0?Bool = auth.SentCode;
+        // account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool;
+
+        #endregion
+
         #region Auth
 
         public bool IsUserAuthorized()
@@ -178,7 +228,7 @@ namespace Telegram.Net.Core
             return session.user != null;
         }
 
-        //auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
+        // auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
         public async Task<AuthCheckedPhoneConstructor> CheckPhone(string phoneNumber)
         {
             var authCheckPhoneRequest = new AuthCheckPhoneRequest(phoneNumber);
@@ -188,7 +238,7 @@ namespace Telegram.Net.Core
             return (AuthCheckedPhoneConstructor)authCheckPhoneRequest.checkedPhone;
         }
 
-        //auth.sendCode#768d5f4d phone_number:string sms_type:int api_id:int api_hash:string lang_code:string = auth.SentCode;
+        // auth.sendCode#768d5f4d phone_number:string sms_type:int api_id:int api_hash:string lang_code:string = auth.SentCode;
         public async Task<AuthSentCode> SendCode(string phoneNumber, VerificationCodeDeliveryType tokenDestination)
         {
             var request = new AuthSendCodeRequest(phoneNumber, (int)tokenDestination, apiId, apiHash, "en");
@@ -197,7 +247,7 @@ namespace Telegram.Net.Core
             return request.sentCode;
         }
 
-        //auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
+        // auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
         public async Task<bool> SendCall(string phoneNumber, string phoneCodeHash)
         {
             var request = new AuthSendCallRequest(phoneNumber, phoneCodeHash);
@@ -206,7 +256,7 @@ namespace Telegram.Net.Core
             return request.callSent;
         }
 
-        //auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
+        // auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
         public async Task<AuthAuthorizationConstructor> SignUp(string phoneNumber, string phoneCodeHash, string code, string firstName, string lastName)
         {
             var request = new AuthSignUpRequest(phoneNumber, phoneCodeHash, code, firstName, lastName);
@@ -219,7 +269,7 @@ namespace Telegram.Net.Core
             return authorization;
         }
 
-        //auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
+        // auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
         public async Task<AuthAuthorizationConstructor> SignIn(string phoneNumber, string phoneCodeHash, string code)
         {
             var request = new AuthSignInRequest(phoneNumber, phoneCodeHash, code);
@@ -251,52 +301,34 @@ namespace Telegram.Net.Core
 
         #endregion
 
-        #region Account
-
-        // TODO
-        // account.registerDevice#446c712c token_type:int token:string device_model:string system_version:string app_version:string app_sandbox:Bool lang_code:string = Bool;
-        // account.unregisterDevice#65c55b40 token_type:int token:string = Bool;
-        // account.updateNotifySettings#84be5b93 peer:InputNotifyPeer settings:InputPeerNotifySettings = Bool;
-        // account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings;
-        // account.resetNotifySettings#db7e1747 = Bool;
-        // account.updateProfile#f0888d68 first_name:string last_name:string = User;
-        // account.updateStatus#6628562c offline:Bool = Bool;
-        // account.getWallPapers#c04cfac2 = Vector<WallPaper>;
-        // account.reportPeer#ae189d5f peer:InputPeer reason:ReportReason = Bool;
-        // account.checkUsername#2714d86c username:string = Bool;
-        // account.updateUsername#3e0bdd7c username:string = User;
-        // account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules;
-        // account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules;
-        // account.deleteAccount#418d4e0b reason:string = Bool;
-        // account.getAccountTTL#8fc711d = AccountDaysTTL;
-        // account.setAccountTTL#2442485e ttl:AccountDaysTTL = Bool;
-        // account.sendChangePhoneCode#a407a8f4 phone_number:string = account.SentChangePhoneCode;
-        // account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User;
-        // account.updateDeviceLocked#38df3532 period:int = Bool;
-
-        #endregion
-
-        #region Users
-
-        // users.getUsers#d91a548 id:Vector<InputUser> = Vector<User>;
-        public async Task<List<User>> GetUsers(List<InputUser> ids)
-        {
-            var request = new GetUsersRequest(ids);
-            await SendRpcRequest(request);
-
-            return request.users;
-        }
-
-        // users.getFullUser#ca30a5b1 id:InputUser = UserFull;
-        public async Task<UserFullConstructor> GetFullUser(InputUser user)
-        {
-            var request = new GetFullUserRequest(user);
-            await SendRpcRequest(request);
-
-            // only single implementation available
-            return (UserFullConstructor)request.userFull;
-        }
-
+        #region Channels
+        // channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool;
+        // channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages;
+        // channels.deleteUserHistory#d10dd71b channel:InputChannel user_id:InputUser = messages.AffectedHistory;
+        // channels.reportSpam#fe087810 channel:InputChannel user_id:InputUser id:Vector<int> = Bool;
+        // channels.getMessages#93d7b347 channel:InputChannel id:Vector<int> = messages.Messages;
+        // channels.getParticipants#24d98f92 channel:InputChannel filter:ChannelParticipantsFilter offset:int limit:int = channels.ChannelParticipants;
+        // channels.getParticipant#546dd7a6 channel:InputChannel user_id:InputUser = channels.ChannelParticipant;
+        // channels.getChannels#a7f6bbb id:Vector<InputChannel> = messages.Chats;
+        // channels.getFullChannel#8736a09 channel:InputChannel = messages.ChatFull;
+        // channels.createChannel#f4893d7f flags:# broadcast:flags.0?true megagroup:flags.1?true title:string about:string = Updates;
+        // channels.editAbout#13e27f1e channel:InputChannel about:string = Bool;
+        // channels.editAdmin#eb7611d0 channel:InputChannel user_id:InputUser role:ChannelParticipantRole = Updates;
+        // channels.editTitle#566decd0 channel:InputChannel title:string = Updates;
+        // channels.editPhoto#f12e57c9 channel:InputChannel photo:InputChatPhoto = Updates;
+        // channels.checkUsername#10e6bd2c channel:InputChannel username:string = Bool;
+        // channels.updateUsername#3514b3de channel:InputChannel username:string = Bool;
+        // channels.joinChannel#24b524c5 channel:InputChannel = Updates;
+        // channels.leaveChannel#f836aa95 channel:InputChannel = Updates;
+        // channels.inviteToChannel#199f3a6c channel:InputChannel users:Vector<InputUser> = Updates;
+        // channels.kickFromChannel#a672de14 channel:InputChannel user_id:InputUser kicked:Bool = Updates;
+        // channels.exportInvite#c7560885 channel:InputChannel = ExportedChatInvite;
+        // channels.deleteChannel#c0111fe3 channel:InputChannel = Updates;
+        // channels.toggleInvites#49609307 channel:InputChannel enabled:Bool = Updates;
+        // channels.exportMessageLink#c846d22d channel:InputChannel id:int = ExportedMessageLink;
+        // channels.toggleSignatures#1f69b606 channel:InputChannel enabled:Bool = Updates;
+        // channels.updatePinnedMessage#a72ded52 flags:# silent:flags.0?true channel:InputChannel id:int = Updates;
+        // channels.getAdminedPublicChannels#8d8d82d7 = messages.Chats;
         #endregion
 
         #region Contacts
@@ -325,9 +357,33 @@ namespace Telegram.Net.Core
         }
 
         // contacts.deleteContact#8e953744 id:InputUser = contacts.Link;
+        public async Task<ContactsLink> DeleteContact(InputUser id)
+        {
+            var request = new DeleteContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.link;
+        }
+
         // contacts.deleteContacts#59ab389e id:Vector<InputUser> = Bool;
+
         // contacts.block#332b49fc id:InputUser = Bool;
+        public async Task<bool> BlockContact(InputUser id)
+        {
+            var request = new BlockContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.state;
+        }
+
         // contacts.unblock#e54100bd id:InputUser = Bool;
+        public async Task<bool> UnBlockContact(InputUser id)
+        {
+            var request = new BlockContactRequest(id);
+            await SendRpcRequest(request);
+
+            return request.state;
+        }
         // contacts.getBlocked#f57c350f offset:int limit:int = contacts.Blocked;
         // contacts.exportCard#84e53737 = Vector<int>;
         // contacts.importCard#4fe196fe export_card:Vector<int> = User;
@@ -340,6 +396,26 @@ namespace Telegram.Net.Core
 
             return request.user;
         }
+
+        #endregion
+
+        #region Help
+
+        // help.getConfig#c4f9186b = Config;
+        // help.getNearestDc#1fb33026 = NearestDc;
+        // help.getAppUpdate#ae2de196 = help.AppUpdate;
+        // help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
+        // help.getInviteText#4d392343 = help.InviteText;
+        // help.getSupport#9cdf08cd = help.Support;
+        // help.getAppChangelog#b921197a = help.AppChangelog;
+        // help.getTermsOfService#350170f3 = help.TermsOfService;
+        // help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        // help.noAppUpdate#c45a6536 = help.AppUpdate;
+        // help.inviteText#18cb9f78 message:string = help.InviteText;
+        // help.support#17c6b5f6 phone_number:string user:User = help.Support;
+        // help.appUpdate#8987f311 id:int critical:Bool url:string text:string = help.AppUpdate;
+        // help.noAppUpdate#c45a6536 = help.AppUpdate;
+        // help.inviteText#18cb9f78 message:string = help.InviteText;
 
         #endregion
 
@@ -497,6 +573,31 @@ namespace Telegram.Net.Core
 
         #endregion
 
+        #region Photos
+
+        // photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto;
+        public async Task<UserProfilePhoto> UpdateProfilePhoto(InputPhoto id)
+        {
+            var request = new UpdateProfilePhotoRequest(id);
+            await SendRpcRequest(request);
+
+            return request.photo;
+        }
+
+        // photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo;
+        public async Task<Photo> UploadProfilePhoto(InputFile file)
+        {
+            var request = new UploadProfilePhotoRequest(file);
+            await SendRpcRequest(request);
+
+            return request.photo;
+        }
+
+        // photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
+        // photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
+
+        #endregion
+
         #region Updates
 
         // updates.getState#edd4882a = updates.State;
@@ -518,15 +619,8 @@ namespace Telegram.Net.Core
             // only single implementation available
             return request.updatesDifference;
         }
+        // updates.getChannelDifference#bb32d7c0 channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference;
 
-        #endregion
-
-        #region Photos
-
-        // photos.updateProfilePhoto#eef579a0 id:InputPhoto crop:InputPhotoCrop = UserProfilePhoto;
-        // photos.uploadProfilePhoto#d50f9c88 file:InputFile caption:string geo_point:InputGeoPoint crop:InputPhotoCrop = photos.Photo;
-        // photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
-        // photos.getUserPhotos#b7ee553c user_id:InputUser offset:int max_id:int limit:int = photos.Photos;
 
         #endregion
 
@@ -587,6 +681,7 @@ namespace Telegram.Net.Core
             // only single implementation available
             return (UploadFileConstructor)request.file;
         }
+
         public async Task<UploadFileConstructor> GetFile(InputFileLocation fileLocation, int offset, int limit)
         {
             var request = new GetFileRequest(fileLocation, offset, limit);
@@ -600,14 +695,26 @@ namespace Telegram.Net.Core
 
         #endregion
 
-        #region Help
+        #region Users
 
-        // help.getConfig#c4f9186b = Config;
-        // help.getNearestDc#1fb33026 = NearestDc;
-        // help.getAppUpdate#c812ac7e device_model:string system_version:string app_version:string lang_code:string = help.AppUpdate;
-        // help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool;
-        // help.getInviteText#a4a95186 lang_code:string = help.InviteText;
-        // help.getSupport#9cdf08cd = help.Support;
+        // users.getUsers#d91a548 id:Vector<InputUser> = Vector<User>;
+        public async Task<List<User>> GetUsers(List<InputUser> ids)
+        {
+            var request = new GetUsersRequest(ids);
+            await SendRpcRequest(request);
+
+            return request.users;
+        }
+
+        // users.getFullUser#ca30a5b1 id:InputUser = UserFull;
+        public async Task<UserFullConstructor> GetFullUser(InputUser user)
+        {
+            var request = new GetFullUserRequest(user);
+            await SendRpcRequest(request);
+
+            // only single implementation available
+            return (UserFullConstructor)request.userFull;
+        }
 
         #endregion
 

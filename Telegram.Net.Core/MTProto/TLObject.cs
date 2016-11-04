@@ -10,7 +10,7 @@ namespace Telegram.Net.Core.MTProto
         public static readonly uint boolFalse = 0xbc799737;
         public static readonly uint boolTrue = 0x997275b5;
         public static readonly uint vectorCode = 0x1cb5c415;
-        
+
         public abstract Constructor constructor { get; }
 
         public abstract void Write(BinaryWriter writer);
@@ -150,8 +150,8 @@ namespace Telegram.Net.Core.MTProto
             {0x6c69efee, typeof (ContactsMyLinkRequestedConstructor)},
             {0xc240ebd9, typeof (ContactsMyLinkContactConstructor)},
             {0xeccea3f5, typeof (ContactsLinkConstructor)},
-            {0xb74ba9d2, typeof (ÑontactsContactsNotModifiedConstructor)},
-            {0x6f8b8cb2, typeof (ÑontactsContactsConstructor)},
+            {0xb74ba9d2, typeof (Ã‘ontactsContactsNotModifiedConstructor)},
+            {0x6f8b8cb2, typeof (Ã‘ontactsContactsConstructor)},
             {0xad524315, typeof (ContactsImportedContactsConstructor)},
             {0x1c138d15, typeof (ContactsBlockedConstructor)},
             {0x900802a1, typeof (ContactsBlockedSliceConstructor)},
@@ -1216,7 +1216,7 @@ namespace Telegram.Net.Core.MTProto
 
     public abstract class DisabledFeature : TLObject
     {
-        
+
     }
 
     // types implementations
@@ -5746,17 +5746,17 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsConstructor : ContactsContacts
+    public class Ã‘ontactsContactsConstructor : ContactsContacts
     {
         public List<Contact> contacts;
         public List<User> users;
 
-        public ÑontactsContactsConstructor()
+        public Ã‘ontactsContactsConstructor()
         {
 
         }
 
-        public ÑontactsContactsConstructor(List<Contact> contacts, List<User> users)
+        public Ã‘ontactsContactsConstructor(List<Contact> contacts, List<User> users)
         {
             this.contacts = contacts;
             this.users = users;
@@ -5810,7 +5810,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsNotModifiedConstructor : ContactsContacts
+    public class Ã‘ontactsContactsNotModifiedConstructor : ContactsContacts
     {
         public override Constructor constructor => Constructor.ContactsContactsNotModified;
 
@@ -12463,6 +12463,37 @@ namespace Telegram.Net.Core.MTProto
         UploadDocumentAction = 0x8faee98e,
         GeoLocationAction = 0x176f8ba1,
         ChooseContactAction = 0x628cbc6f,
+        GamePlayAction = 0xdd6a8f48,
+        GameStopAction = 0x15c2c99a,
+    }
+
+    public enum MessagesFilterEnum : uint
+    {
+        FilterEmpty = 0x57e2f66c,
+        FilterPhotos = 0x9609a51c,
+        FilterVideo = 0x9fc00e65,
+        FilterPhotoVideo = 0x56e9f0e4,
+        FilterPhotoVideoDocuments = 0xd95e73bb,
+        FilterDocument = 0x9eddf188,
+        FilterUrl = 0x7ef0dd87,
+        FilterGif = 0xffc86587,
+        FilterVoice = 0x50f5c392,
+        FilterMusic = 0x3751b49e,
+        FilterChatPhotos = 0x3a20ecb8,
+    }
+
+    public enum FileType : uint
+    {
+        FileUnknown = 0xaa963b05,
+        FileJpeg = 0x7efe0e,
+        FileGif = 0xcae1aadf,
+        FilePng = 0xa4f63c0,
+        FilePdf = 0xae1e508d,
+        FileMp3 = 0x528a0677,
+        FileMov = 0x4b09ebbc,
+        FilePartial = 0x40bc6f52,
+        FileMp4 = 0xb3cea0e4,
+        FileWebp = 0x1081464c,
     }
 
     public enum RpcRequestError
@@ -12471,7 +12502,7 @@ namespace Telegram.Net.Core.MTProto
 
         // Message level errors
 
-        MessageIdTooLow = 16,           // msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the “correct” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)
+        MessageIdTooLow = 16,           // msg_id too low (most likely, client time is wrong; it would be worthwhile to synchronize it using msg_id notifications and re-send the original message with the Â“correctÂ” msg_id or wrap it in a container with a new msg_id if the original message had waited too long on the client to be transmitted)
         MessageIdTooHigh,               // msg_id too high (similar to the previous case, the client time has to be synchronized, and the message re-sent with the correct msg_id)
         CorruptedMessageId,             // incorrect two lower order msg_id bits (the server expects client message msg_id to be divisible by 4)
         DuplicateOfMessageContainerId,  // container msg_id is the same as msg_id of a previously received message (this must never happen)
