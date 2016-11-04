@@ -12467,7 +12467,7 @@ namespace Telegram.Net.Core.MTProto
         GameStopAction = 0x15c2c99a,
     }
     
-    public enum MessagesFilter : uint
+    public enum MessagesFilterEnum : uint
     {
         FilterEmpty = 0x57e2f66c,
         FilterPhotos = 0x9609a51c,
