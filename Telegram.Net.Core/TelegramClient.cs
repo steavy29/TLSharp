@@ -569,12 +569,29 @@ namespace Telegram.Net.Core
         }
         // updates.getChannelDifference#bb32d7c0 channel:InputChannel filter:ChannelMessagesFilter pts:int limit:int = updates.ChannelDifference;
 
+
         #endregion
 
         #region Photos
 
         // photos.updateProfilePhoto#f0bb5152 id:InputPhoto = UserProfilePhoto;
+        public async Task<UserProfilePhoto> UpdateProfilePhoto(InputPhoto id)
+        {
+            var request = new UpdateProfilePhotoRequest(id);
+            await SendRpcRequest(request);
+
+            return request.photo;
+        }
+
         // photos.uploadProfilePhoto#4f32c098 file:InputFile = photos.Photo;
+        public async Task<Photo> UploadProfilePhoto(InputFile file)
+        {
+            var request = new UploadProfilePhotoRequest(file);
+            await SendRpcRequest(request);
+
+            return request.photo;
+        }
+
         // photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>;
         // photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
 
