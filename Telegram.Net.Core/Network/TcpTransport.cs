@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -98,17 +99,31 @@ namespace Telegram.Net.Core.Network
 
         public void Disconnect()
         {
-            tcpClient.Client.Disconnect(false);
+            try
+            {
+                tcpClient.Client.Disconnect(false);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Exception on socket disconnect: {e}");
+            }
         }
 
         public void Dispose()
         {
-            if (tcpClient.Connected)
+            try
             {
-                stream.Dispose();
-                
+                Disconnect();
+                if (tcpClient.Connected)
+                {
+                    stream.Dispose();
+                }
+                tcpClient.Close();
             }
-            tcpClient.Close();
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Exception on socket dispose: {e}");
+            }
         }
     }
 }

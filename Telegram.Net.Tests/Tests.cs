@@ -19,9 +19,9 @@ namespace Telegram.Net.Tests
     {
         private int apiId => int.Parse(ConfigurationManager.AppSettings[nameof(apiId)]);
         private string apiHash => ConfigurationManager.AppSettings[nameof(apiHash)];
-        private string numberToSendMessage => ConfigurationManager.AppSettings[nameof(numberToAuthenticate)];
-        private string numberToAuthenticate => ConfigurationManager.AppSettings[nameof(notRegisteredNumberToSignUp)];
-        private string notRegisteredNumberToSignUp => ConfigurationManager.AppSettings[nameof(numberToSendMessage)];
+        private string numberToSendMessage => ConfigurationManager.AppSettings[nameof(numberToSendMessage)];
+        private string numberToAuthenticate => ConfigurationManager.AppSettings[nameof(numberToAuthenticate)];
+        private string notRegisteredNumberToSignUp => ConfigurationManager.AppSettings[nameof(notRegisteredNumberToSignUp)];
         private string userNameToSendMessage => ConfigurationManager.AppSettings[nameof(userNameToSendMessage)];
         private string numberToGetUserFull => ConfigurationManager.AppSettings[nameof(numberToGetUserFull)];
         private string numberToAddToChat => ConfigurationManager.AppSettings[nameof(numberToAddToChat)];

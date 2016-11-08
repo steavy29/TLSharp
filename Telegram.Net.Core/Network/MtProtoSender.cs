@@ -12,9 +12,11 @@ using Telegram.Net.Core.Utils;
 
 namespace Telegram.Net.Core.Network
 {
-    public class MtProtoSender
+    public class MtProtoSender : IDisposable
     {
-        private readonly TcpTransport transport;
+        public bool isConnected;
+
+        private TcpTransport transport;
         private readonly Session session;
 
         private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
@@ -24,34 +26,54 @@ namespace Telegram.Net.Core.Network
         public Task finishedListeningTask => finishedListening.Task;
 
         public event EventHandler<Updates> UpdateMessage;
-        private event EventHandler Invalidated; // todo
+        public event EventHandler Broken;
 
-        public MtProtoSender(TcpTransport transport, Session session)
+        public MtProtoSender(Session session)
         {
-            this.transport = transport;
             this.session = session;
+        }
 
+        public void Connect()
+        {
+            transport = new TcpTransport(session.serverAddress, session.port);
             StartListening();
+
+            isConnected = true;
         }
 
         private async void StartListening()
         {
+            Exception exception = null;
             finishedListening = new TaskCompletionSource<bool>();
-            while (true)
+            try
             {
-                var message = await transport.Receieve().ConfigureAwait(false);
-                if (message == null)
-                    break;
-
-                var decodedMessage = DecodeMessage(message.body);
-
-                using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
-                using (var messageReader = new BinaryReader(messageStream))
+                while (isConnected)
                 {
-                    ProcessMessage(decodedMessage.Item2, decodedMessage.Item3, messageReader);
+                    var message = await transport.Receieve().ConfigureAwait(false);
+                    if (message == null)
+                        break;
+
+                    var decodedMessage = DecodeMessage(message.body);
+
+                    using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
+                    using (var messageReader = new BinaryReader(messageStream))
+                    {
+                        ProcessMessage(decodedMessage.Item2, decodedMessage.Item3, messageReader);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            isConnected = false;
             finishedListening.SetResult(true);
+
+            if (exception != null)
+            {
+                OnBroken();
+            }
         }
 
         public async Task Send(MTProtoRequest request)
@@ -231,9 +253,10 @@ namespace Telegram.Net.Core.Network
             UpdateMessage?.Invoke(this, update);
         }
 
-        private void OnInvalidated()
+        protected virtual void OnBroken()
         {
-            Invalidated?.Invoke(this, EventArgs.Empty);
+            isConnected = false;
+            Broken?.Invoke(this, EventArgs.Empty);
         }
 
         public static MemoryStream MakeMemory(int len)
@@ -370,5 +393,11 @@ namespace Telegram.Net.Core.Network
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            transport.Disconnect();
+            transport.Dispose();
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
+using Telegram.Net.Core.MTProto.Crypto;
 using Telegram.Net.Core.Network;
 using Telegram.Net.Core.Requests;
 using Telegram.Net.Core.Utils;
@@ -14,6 +16,14 @@ using MD5 = System.Security.Cryptography.MD5;
 
 namespace Telegram.Net.Core
 {
+    class DcConnection
+    {
+        public AuthKey authKey;
+        public int dcId;
+        public string ipAddress;
+        public int port;
+    }
+
     public class TelegramClient
     {
         private static int apiLayer = 23;
@@ -22,15 +32,18 @@ namespace Telegram.Net.Core
         private static readonly int defaultServerPort = 443;
 
         private MtProtoSender protoSender;
-        //private AuthKey key;
-        private TcpTransport transport;
+
         private readonly string apiHash;
         private readonly int apiId;
         private readonly Session session;
+
+        private bool isClosed;
+
         private List<DcOption> dcOptions;
 
         public int? authenticatedUserId => (session.user as UserSelfConstructor)?.id;
 
+        public event EventHandler<bool> ConnectionStateChanged;
         public event EventHandler<Updates> UpdateMessage;
 
         public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
@@ -47,25 +60,25 @@ namespace Telegram.Net.Core
             serverAddress = serverAddress ?? defaultServerAddress;
 
             session = Session.TryLoadOrCreateNew(store, serverAddress, defaultServerPort);
-            transport = new TcpTransport(session.serverAddress, session.port);
+        }
+
+        public void StartClient()
+        {
+            
         }
 
         public async Task Connect(bool reconnect = false)
         {
             if (session.authKey == null || reconnect)
             {
-                var result = await Authenticator.DoAuthentication(transport);
+                var result = await Authenticator.Authenticate(session.serverAddress, session.port);
                 session.authKey = result.AuthKey;
                 session.timeOffset = result.TimeOffset;
             }
 
-            protoSender = new MtProtoSender(transport, session);
-            protoSender.UpdateMessage += OnUpdateMessage;
+            await StartConnecting();
 
-            var request = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
-            await SendRpcRequest(request);
-
-            dcOptions = request.config.dcOptions;
+            Subscribe();
         }
 
         private async Task ReconnectToDc(int dcId)
@@ -77,7 +90,6 @@ namespace Telegram.Net.Core
 
             await CloseCurrentTransport();
 
-            transport = new TcpTransport(dc.ipAddress, dc.port);
             session.serverAddress = dc.ipAddress;
             session.port = dc.port;
 
@@ -86,14 +98,10 @@ namespace Telegram.Net.Core
 
         private async Task CloseCurrentTransport()
         {
-            transport.Disconnect();
+            Unsubscribe();
 
             await protoSender.finishedListeningTask;
-            protoSender.UpdateMessage -= OnUpdateMessage;
-
-            transport.Dispose();
-
-            transport = null;
+            protoSender.Dispose();
         }
 
         private void OnUserAuthenticated(User user, int sessionExpiration)
@@ -107,6 +115,49 @@ namespace Telegram.Net.Core
         protected virtual void OnUpdateMessage(object sender, Updates e)
         {
             UpdateMessage?.Invoke(this, e);
+        }
+        protected virtual void OnProtoSenderBroken(object sender, EventArgs e)
+        {
+            Unsubscribe();
+        }
+
+        private async Task StartConnecting()
+        {
+            Unsubscribe();
+
+            while (!isClosed)
+            {
+                try
+                {
+                    var newSender = new MtProtoSender(session);
+                    newSender.Connect();
+
+                    Subscribe();
+
+                    var request = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
+                    await SendRpcRequest(request);
+                    
+                    protoSender = newSender;
+                    dcOptions = request.config.dcOptions;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to initialize connection: {ex}");
+                }
+            }
+        }
+
+        private void Unsubscribe()
+        {
+            protoSender.Broken -= OnProtoSenderBroken;
+            protoSender.UpdateMessage -= OnUpdateMessage;
+        }
+        private void Subscribe()
+        {
+            Unsubscribe();
+
+            protoSender.Broken += OnProtoSenderBroken;
+            protoSender.UpdateMessage += OnUpdateMessage;
         }
 
         public async Task SendRpcRequest(MTProtoRequest request)
@@ -124,6 +175,7 @@ namespace Telegram.Net.Core
                     var dcIdStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
                     var dcId = int.Parse(dcIdStr);
 
+
                     await ReconnectToDc(dcId);
 
                     // try one more time
@@ -132,12 +184,14 @@ namespace Telegram.Net.Core
                 }
             }
 
-            if (request.Error == RpcRequestError.Flood)
+            /*if (request.Error == RpcRequestError.Flood)
             {
                 if (request.ErrorMessage.StartsWith("FLOOD_WAIT_"))
                 {
                     var secondsToWaitStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
                     var secondsToWait = int.Parse(secondsToWaitStr);
+
+
 
                     if (secondsToWait <= 2)
                     {
@@ -150,7 +204,7 @@ namespace Telegram.Net.Core
 
                     // otherwise error and exception
                 }
-            }
+            }*/
 
             // handle errors that can be fixed without user interaction
             if (request.Error == RpcRequestError.IncorrectServerSalt)
