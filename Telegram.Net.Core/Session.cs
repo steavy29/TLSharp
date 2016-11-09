@@ -106,12 +106,12 @@ namespace Telegram.Net.Core
 
         public void Save()
         {
-            store.Save(this);
+            store?.Save(this);
         }
-
-        public static Session TryLoadOrCreateNew(ISessionStore store, string serverAddress, int port)
+        
+        public static Session TryLoadOrCreateNew(string serverAddress, int port, ISessionStore store = null)
         {
-            return store.Load() ?? new Session(store)
+            return store?.Load() ?? new Session(store)
             {
                 id = GenerateRandomUlong(),
                 serverAddress = serverAddress,

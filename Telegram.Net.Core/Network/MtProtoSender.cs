@@ -14,9 +14,10 @@ namespace Telegram.Net.Core.Network
 {
     public class MtProtoSender : IDisposable
     {
-        public bool isConnected;
+        private bool isClosed;
+        private Exception exceptionForClosedConnection => new ObjectDisposedException("Attempt to use closed connection.");
 
-        private TcpTransport transport;
+        private readonly TcpTransport transport;
         private readonly Session session;
 
         private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
@@ -25,20 +26,25 @@ namespace Telegram.Net.Core.Network
         private TaskCompletionSource<bool> finishedListening;
         public Task finishedListeningTask => finishedListening.Task;
 
+        public readonly string dcServerAddress;
+
         public event EventHandler<Updates> UpdateMessage;
         public event EventHandler Broken;
 
         public MtProtoSender(Session session)
         {
+            dcServerAddress = session.serverAddress;
+
             this.session = session;
+
+            Debug.WriteLine($"Connecting to {session.serverAddress}:{session.port}..");
+            transport = new TcpTransport(session.serverAddress, session.port);
+            Debug.WriteLine($"Successfully connected to {session.serverAddress}:{session.port}");
         }
 
-        public void Connect()
+        public void Start()
         {
-            transport = new TcpTransport(session.serverAddress, session.port);
             StartListening();
-
-            isConnected = true;
         }
 
         private async void StartListening()
@@ -47,7 +53,7 @@ namespace Telegram.Net.Core.Network
             finishedListening = new TaskCompletionSource<bool>();
             try
             {
-                while (isConnected)
+                while (!isClosed)
                 {
                     var message = await transport.Receieve().ConfigureAwait(false);
                     if (message == null)
@@ -67,7 +73,7 @@ namespace Telegram.Net.Core.Network
                 exception = ex;
             }
 
-            isConnected = false;
+            CleanupConnection();
             finishedListening.SetResult(true);
 
             if (exception != null)
@@ -76,6 +82,7 @@ namespace Telegram.Net.Core.Network
             }
         }
 
+        private readonly object sendCloseSyncRoot = new object();
         public async Task Send(MTProtoRequest request)
         {
             if (needConfirmation.Any()) // TODO: move to separate task-thread
@@ -101,10 +108,17 @@ namespace Telegram.Net.Core.Network
                 Debug.WriteLine($"Send request - {messageId}");
 
                 responseSource = new TaskCompletionSource<bool>();
-                runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
 
                 request.OnSend(writer);
                 await Send(memory.ToArray(), request);
+
+                lock (sendCloseSyncRoot)
+                {
+                    if (isClosed)
+                        throw exceptionForClosedConnection;
+
+                    runningRequests.Add(request.MessageId, Tuple.Create(request, responseSource));
+                }
             }
 
             await responseSource.Task;
@@ -255,7 +269,7 @@ namespace Telegram.Net.Core.Network
 
         protected virtual void OnBroken()
         {
-            isConnected = false;
+            CleanupConnection();
             Broken?.Invoke(this, EventArgs.Empty);
         }
 
@@ -394,8 +408,23 @@ namespace Telegram.Net.Core.Network
 
         #endregion
 
+        private void CleanupConnection()
+        {
+            lock (sendCloseSyncRoot)
+            {
+                isClosed = true;
+            }
+
+            foreach (var request in runningRequests)
+            {
+                request.Value.Item2.SetException(exceptionForClosedConnection);
+            }
+        }
+
         public void Dispose()
         {
+            CleanupConnection();
+
             transport.Disconnect();
             transport.Dispose();
         }

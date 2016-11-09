@@ -29,10 +29,9 @@ namespace Telegram.Net.Tests
         [TestMethod]
         public async Task AuthUser()
         {
-            var store = new FileSessionStore();
-            var client = new TelegramClient(store, apiId, apiHash);
+            var client = new TelegramClient(null, apiId, apiHash);
 
-            await client.Connect();
+            await client.StartAndWaitForConnection();
 
             var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -44,6 +43,23 @@ namespace Telegram.Net.Tests
             Assert.IsNotNull(user);
             Assert.IsTrue(client.IsUserAuthorized());
 
+            var recipient = await client.ImportContactByPhoneNumber(numberToAuthenticate, "Contact", "Contact");
+
+            var counter = 0;
+            while (counter < 100)
+            {
+                try
+                {
+                    await client.SendDirectMessage(recipient.importedContacts[0].Cast<ImportedContactConstructor>().userId, (++counter).ToString());
+                    Debug.WriteLine($"Sent: {counter}");
+                }
+                catch (Exception)
+                {
+                    Debug.WriteLine($"Skipped due to error: {counter}");
+                }
+                await Task.Delay(15000);
+            }
+
             await client.Close();
         }
 
@@ -52,7 +68,8 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            client.Start();
+            //await client.Connect();
 
             var codeRequest = await client.SendCode(notRegisteredNumberToSignUp, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -71,7 +88,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            //await client.Connect();
 
             var result = await client.CheckPhone(numberToAuthenticate);
 
@@ -106,10 +123,10 @@ namespace Telegram.Net.Tests
         public async Task ImportByUserNameAndSendMessage()
         {
             var client = await InitializeClient();
-            
+
             var resolveUsernameRequest = new ResolveUsernameRequest(userNameToSendMessage);
             await client.SendRpcRequest(resolveUsernameRequest);
-            
+
             var contactUser = resolveUsernameRequest.user as UserContactConstructor;
             Assert.IsNotNull(contactUser);
 
@@ -164,28 +181,28 @@ namespace Telegram.Net.Tests
             var hist = ((MessagesMessagesConstructor)await client.GetHistoryForContact(user.userId, 0, 1)).messages;
             Assert.AreEqual(1, hist.Count);
 
-            var message = (MessageConstructor) hist[0];
-            Assert.AreEqual(typeof (MessageMediaPhotoConstructor), message.media.GetType());
+            var message = (MessageConstructor)hist[0];
+            Assert.AreEqual(typeof(MessageMediaPhotoConstructor), message.media.GetType());
 
-            var media = (MessageMediaPhotoConstructor) message.media;
-            Assert.AreEqual(typeof (PhotoConstructor), media.photo.GetType());
+            var media = (MessageMediaPhotoConstructor)message.media;
+            Assert.AreEqual(typeof(PhotoConstructor), media.photo.GetType());
 
-            var photo = (PhotoConstructor) media.photo;
+            var photo = (PhotoConstructor)media.photo;
             Assert.AreEqual(3, photo.sizes.Count);
-            Assert.AreEqual(typeof (PhotoSizeConstructor), photo.sizes[2].GetType());
+            Assert.AreEqual(typeof(PhotoSizeConstructor), photo.sizes[2].GetType());
 
-            var photoSize = (PhotoSizeConstructor) photo.sizes[2];
-            Assert.AreEqual(typeof (FileLocationConstructor), photoSize.location.GetType());
+            var photoSize = (PhotoSizeConstructor)photo.sizes[2];
+            Assert.AreEqual(typeof(FileLocationConstructor), photoSize.location.GetType());
 
-            var fileLocation = (FileLocationConstructor) photoSize.location;
+            var fileLocation = (FileLocationConstructor)photoSize.location;
             var file = await client.GetFile(fileLocation.volumeId, fileLocation.localId, fileLocation.secret, 0, photoSize.size + 1024);
 
             string name = "../../data/get_file.";
-            if (file.type.GetType() == typeof (StorageFileJpegConstructor))
+            if (file.type.GetType() == typeof(StorageFileJpegConstructor))
                 name += "jpg";
-            else if (file.type.GetType() == typeof (StorageFileGifConstructor))
+            else if (file.type.GetType() == typeof(StorageFileGifConstructor))
                 name += "gif";
-            else if (file.type.GetType() == typeof (StorageFilePngConstructor))
+            else if (file.type.GetType() == typeof(StorageFilePngConstructor))
                 name += "png";
 
             using (var fileStream = new FileStream(name, FileMode.Create, FileAccess.Write))
@@ -200,18 +217,14 @@ namespace Telegram.Net.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.Connect();
+            //await client.Connect();
         }
 
         [TestMethod]
         public async Task AuthenticationWorks()
         {
-            using (var transport = new TcpTransport("91.108.56.165", 443))
-            {
-                var authKey = await Authenticator.DoAuthentication(transport);
-
-                Assert.IsNotNull(authKey.AuthKey.Data);
-            }
+            var authKey = await Authenticator.Authenticate("91.108.56.165", 443);
+            Assert.IsNotNull(authKey.AuthKey.Data);
         }
 
         [TestMethod]
@@ -220,7 +233,7 @@ namespace Telegram.Net.Tests
             var client = await InitializeClient();
 
             var user = await ImportAndGetUser(client, numberToSendMessage);
-            
+
             var getUserFullRequest = new GetFullUserRequest(new InputUserContactConstructor(user.userId));
             await client.SendRpcRequest(getUserFullRequest);
 
@@ -269,10 +282,10 @@ namespace Telegram.Net.Tests
 
             var chatName = Guid.NewGuid().ToString();
             var userToInvite = await ImportAndGetUser(client, numberToSendMessage);
-            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> {new InputUserContactConstructor(userToInvite.userId) });
+            var statedMessageAfterCreation = await client.CreateChat(chatName, new List<InputUser> { new InputUserContactConstructor(userToInvite.userId) });
 
             var createdChat = GetChatFromStatedMessage(statedMessageAfterCreation);
-            
+
             var statedMessageAfterLeave = await client.LeaveChat(createdChat.id);
             var modifiedChat = GetChatFromStatedMessage(statedMessageAfterLeave);
 
@@ -317,7 +330,7 @@ namespace Telegram.Net.Tests
 
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            //await client.Connect();
 
             var codeRequest = await client.SendCode(phoneForDc5, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
@@ -354,7 +367,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            //await client.Connect();
 
             if (!client.IsUserAuthorized())
             {
