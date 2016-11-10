@@ -49,6 +49,7 @@
     <Compile Include="Auth\Step1_PQRequest.cs" />
     <Compile Include="Auth\Step2_DHExchange.cs" />
     <Compile Include="Auth\Step3_CompleteDHExchange.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MTProto\Crypto\AES.cs" />
     <Compile Include="MTProto\Crypto\AuthKey.cs" />
     <Compile Include="MTProto\Crypto\BigInteger.cs" />

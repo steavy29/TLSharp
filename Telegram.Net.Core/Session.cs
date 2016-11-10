@@ -2,6 +2,8 @@
 using System.IO;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.MTProto.Crypto;
+using Telegram.Net.Core.Requests;
+
 #pragma warning disable 675
 
 namespace Telegram.Net.Core
@@ -141,6 +143,11 @@ namespace Telegram.Net.Core
 
             lastMessageId = newMessageId;
             return newMessageId;
+        }
+
+        public int GetNextSequenceNumber(MTProtoRequest request)
+        {
+            return request.Confirmed ? sequence++ * 2 + 1 : sequence * 2;
         }
     }
 }

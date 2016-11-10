@@ -135,7 +135,7 @@ namespace Telegram.Net.Core.Network
                     plaintextWriter.Write(session.salt);
                     plaintextWriter.Write(session.id);
                     plaintextWriter.Write(request.MessageId);
-                    plaintextWriter.Write(GenerateSequence(request.Confirmed));
+                    plaintextWriter.Write(session.GetNextSequenceNumber(request));
                     plaintextWriter.Write(packet.Length);
                     plaintextWriter.Write(packet);
 
@@ -254,11 +254,6 @@ namespace Telegram.Net.Core.Network
                 }
             }
             return new Tuple<byte[], long, int>(message, remoteMessageId, remoteSequence);
-        }
-
-        private int GenerateSequence(bool confirmed)
-        {
-            return confirmed ? session.sequence++ * 2 + 1 : session.sequence * 2;
         }
 
         private void OnUpdateMessage(Updates update)

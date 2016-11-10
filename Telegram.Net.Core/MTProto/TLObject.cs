@@ -293,7 +293,7 @@ namespace Telegram.Net.Core.MTProto
             {0x11b58939, typeof (DocumentAttributeAnimatedConstructor)},
             {0xfb0a5727, typeof (DocumentAttributeStickerConstructor)},
             {0x5910cccb, typeof (DocumentAttributeVideoConstructor)},
-            {0x51448e5, typeof (DocumentAttributeAudioConstructor)},
+            {0x051448e5, typeof (DocumentAttributeAudioConstructor)},
             {0x15590068, typeof (DocumentAttributeFilenameConstructor)},
             {0xae636f24, typeof(DisabledFeature)}
         };
