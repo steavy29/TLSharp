@@ -82,7 +82,7 @@ namespace Telegram.Net.Core.Network
             }
         }
 
-        private readonly object sendCloseSyncRoot = new object();
+        private readonly object sendMessagesSyncRoot = new object();
         public async Task Send(MTProtoRequest request)
         {
             if (needConfirmation.Any()) // TODO: move to separate task-thread
@@ -103,16 +103,15 @@ namespace Telegram.Net.Core.Network
             using (var memory = new MemoryStream())
             using (var writer = new BinaryWriter(memory))
             {
-                var messageId = session.GetNewMessageId();
-                request.MessageId = messageId;
-                Debug.WriteLine($"Send request - {messageId}");
+                request.MessageId = session.GetNewMessageId();
+                Debug.WriteLine($"Send request - {request.GetType().Name} - {request.MessageId}");
 
                 responseSource = new TaskCompletionSource<bool>();
 
                 request.OnSend(writer);
                 await Send(memory.ToArray(), request);
 
-                lock (sendCloseSyncRoot)
+                lock (sendMessagesSyncRoot)
                 {
                     if (isClosed)
                         throw exceptionForClosedConnection;
@@ -129,9 +128,9 @@ namespace Telegram.Net.Core.Network
         {
             byte[] msgKey;
             byte[] ciphertext;
-            using (MemoryStream plaintextPacket = MakeMemory(8 + 8 + 8 + 4 + 4 + packet.Length))
+            using (var plaintextPacket = Helpers.CreateMemoryStream(8 + 8 + 8 + 4 + 4 + packet.Length))
             {
-                using (BinaryWriter plaintextWriter = new BinaryWriter(plaintextPacket))
+                using (var plaintextWriter = new BinaryWriter(plaintextPacket))
                 {
                     plaintextWriter.Write(session.salt);
                     plaintextWriter.Write(session.id);
@@ -145,9 +144,9 @@ namespace Telegram.Net.Core.Network
                 }
             }
 
-            using (MemoryStream ciphertextPacket = MakeMemory(8 + 16 + ciphertext.Length))
+            using (var ciphertextPacket = Helpers.CreateMemoryStream(8 + 16 + ciphertext.Length))
             {
-                using (BinaryWriter writer = new BinaryWriter(ciphertextPacket))
+                using (var writer = new BinaryWriter(ciphertextPacket))
                 {
                     writer.Write(session.authKey.Id);
                     writer.Write(msgKey);
@@ -271,11 +270,6 @@ namespace Telegram.Net.Core.Network
         {
             CleanupConnection();
             Broken?.Invoke(this, EventArgs.Empty);
-        }
-
-        public static MemoryStream MakeMemory(int len)
-        {
-            return new MemoryStream(new byte[len], 0, len, true, true);
         }
 
         #region Message Handlers
@@ -410,7 +404,7 @@ namespace Telegram.Net.Core.Network
 
         private void CleanupConnection()
         {
-            lock (sendCloseSyncRoot)
+            lock (sendMessagesSyncRoot)
             {
                 isClosed = true;
             }

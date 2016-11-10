@@ -4842,7 +4842,6 @@ namespace Telegram.Net.Core.MTProto
             this.bytes = bytes;
         }
 
-
         public override Constructor constructor => Constructor.AuthExportedAuthorization;
 
         public override void Write(BinaryWriter writer)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using Telegram.Net.Core.MTProto.Crypto;
 #pragma warning disable 675
@@ -92,6 +93,11 @@ namespace Telegram.Net.Core.Utils
             {
                 return sha1.ComputeHash(data, offset, limit);
             }
+        }
+
+        public static MemoryStream CreateMemoryStream(int len)
+        {
+            return new MemoryStream(new byte[len], 0, len, true, true);
         }
     }
 }

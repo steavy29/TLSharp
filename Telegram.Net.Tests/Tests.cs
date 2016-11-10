@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Telegram.Net.Core;
 using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
-using Telegram.Net.Core.Network;
 using Telegram.Net.Core.Requests;
 
 namespace Telegram.Net.Tests
@@ -68,8 +67,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            client.Start();
-            //await client.Connect();
+            await client.StartAndWaitForConnection();
 
             var codeRequest = await client.SendCode(notRegisteredNumberToSignUp, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -88,7 +86,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            //await client.Connect();
+            await client.StartAndWaitForConnection();
 
             var result = await client.CheckPhone(numberToAuthenticate);
 
@@ -178,7 +176,7 @@ namespace Telegram.Net.Tests
             var user = await ImportAndGetUser(client, numberToSendMessage);
 
             // Get last message
-            var hist = ((MessagesMessagesConstructor)await client.GetHistoryForContact(user.userId, 0, 1)).messages;
+            var hist = ConversionTestHelpers.GetMessagesList(await client.GetHistoryForContact(user.userId, 0, 1));
             Assert.AreEqual(1, hist.Count);
 
             var message = (MessageConstructor)hist[0];
@@ -195,7 +193,7 @@ namespace Telegram.Net.Tests
             Assert.AreEqual(typeof(FileLocationConstructor), photoSize.location.GetType());
 
             var fileLocation = (FileLocationConstructor)photoSize.location;
-            var file = await client.GetFile(fileLocation.volumeId, fileLocation.localId, fileLocation.secret, 0, photoSize.size + 1024);
+            var file = await client.GetFile(fileLocation, 0, 0);
 
             string name = "../../data/get_file.";
             if (file.type.GetType() == typeof(StorageFileJpegConstructor))
@@ -207,7 +205,7 @@ namespace Telegram.Net.Tests
 
             using (var fileStream = new FileStream(name, FileMode.Create, FileAccess.Write))
             {
-                fileStream.Write(file.bytes, 4, photoSize.size); // The first 4 bytes seem to be the error code
+                fileStream.Write(file.bytes, 0, photoSize.size);
             }
         }
 
@@ -330,7 +328,8 @@ namespace Telegram.Net.Tests
 
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            //await client.Connect();
+
+            await client.StartAndWaitForConnection();
 
             var codeRequest = await client.SendCode(phoneForDc5, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
@@ -367,7 +366,8 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            //await client.Connect();
+
+            await client.StartAndWaitForConnection();
 
             if (!client.IsUserAuthorized())
             {
@@ -418,6 +418,23 @@ namespace Telegram.Net.Tests
             public Task<Updates> WaitNext()
             {
                 return current.Task;
+            }
+        }
+
+        private static class ConversionTestHelpers
+        {
+            public static List<Message> GetMessagesList(MessagesMessages messages)
+            {
+                if (messages.As<MessagesMessagesConstructor>() != null)
+                {
+                    return messages.Cast<MessagesMessagesConstructor>().messages;
+                }
+                else if (messages.As<MessagesMessagesSliceConstructor>() != null)
+                {
+                    return messages.Cast<MessagesMessagesSliceConstructor>().messages;
+                }
+
+                return null;
             }
         }
     }
