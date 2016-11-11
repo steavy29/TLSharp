@@ -150,8 +150,8 @@ namespace Telegram.Net.Core.MTProto
             {0x6c69efee, typeof (ContactsMyLinkRequestedConstructor)},
             {0xc240ebd9, typeof (ContactsMyLinkContactConstructor)},
             {0xeccea3f5, typeof (ContactsLinkConstructor)},
-            {0xb74ba9d2, typeof (ÑontactsContactsNotModifiedConstructor)},
-            {0x6f8b8cb2, typeof (ÑontactsContactsConstructor)},
+            {0xb74ba9d2, typeof (ContactsContactsNotModifiedConstructor)},
+            {0x6f8b8cb2, typeof (ContactsContactsConstructor)},
             {0xad524315, typeof (ContactsImportedContactsConstructor)},
             {0x1c138d15, typeof (ContactsBlockedConstructor)},
             {0x900802a1, typeof (ContactsBlockedSliceConstructor)},
@@ -5745,17 +5745,17 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsConstructor : ContactsContacts
+    public class ContactsContactsConstructor : ContactsContacts
     {
         public List<Contact> contacts;
         public List<User> users;
 
-        public ÑontactsContactsConstructor()
+        public ContactsContactsConstructor()
         {
 
         }
 
-        public ÑontactsContactsConstructor(List<Contact> contacts, List<User> users)
+        public ContactsContactsConstructor(List<Contact> contacts, List<User> users)
         {
             this.contacts = contacts;
             this.users = users;
@@ -5809,7 +5809,7 @@ namespace Telegram.Net.Core.MTProto
     }
 
 
-    public class ÑontactsContactsNotModifiedConstructor : ContactsContacts
+    public class ContactsContactsNotModifiedConstructor : ContactsContacts
     {
         public override Constructor constructor => Constructor.ContactsContactsNotModified;
 
