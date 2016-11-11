@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using Telegram.Net.Core.MTProto.Crypto;
 #pragma warning disable 675
 
 namespace Telegram.Net.Core.Utils
 {
-    public class Helpers
+    public static class Helpers
     {
         private static readonly Random random = new Random();
 
@@ -98,6 +99,10 @@ namespace Telegram.Net.Core.Utils
         public static MemoryStream CreateMemoryStream(int len)
         {
             return new MemoryStream(new byte[len], 0, len, true, true);
+        }
+
+        public static void IgnoreAwait(this Task task)
+        {
         }
     }
 }

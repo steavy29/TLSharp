@@ -76,7 +76,7 @@ namespace Telegram.Net.Core.Network
             {
                 throw new InvalidOperationException("invalid checksum! skip");
             }
-            
+
             return new TcpMessage(seq, bodyBytes);
         }
 
@@ -87,8 +87,11 @@ namespace Telegram.Net.Core.Network
             do
             {
                 var availableBytes = await stream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead);
-                if (availableBytes == 0) // read the termination packet
+                if (availableBytes == 0)
+                {
+                    Debug.WriteLine("TcpTransport: read the connection termination 0 packet");
                     return false;
+                }
 
                 bytesRead += availableBytes;
             }
@@ -97,25 +100,13 @@ namespace Telegram.Net.Core.Network
             return true;
         }
 
-        public void Disconnect()
-        {
-            try
-            {
-                tcpClient.Client.Disconnect(false);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"Exception on socket disconnect: {e}");
-            }
-        }
-
         public void Dispose()
         {
             try
             {
-                Disconnect();
                 if (tcpClient.Connected)
                 {
+                    tcpClient.Client.Disconnect(false);
                     stream.Dispose();
                 }
                 tcpClient.Close();

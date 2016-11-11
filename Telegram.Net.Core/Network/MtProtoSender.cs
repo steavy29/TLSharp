@@ -57,14 +57,24 @@ namespace Telegram.Net.Core.Network
                 {
                     var message = await transport.Receieve().ConfigureAwait(false);
                     if (message == null)
-                        break;
-
-                    var decodedMessage = DecodeMessage(message.body);
-
-                    using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
-                    using (var messageReader = new BinaryReader(messageStream))
                     {
-                        ProcessMessage(decodedMessage.Item2, decodedMessage.Item3, messageReader);
+                        Debug.WriteLine("Gracefully closing connection");
+                        break;
+                    }
+
+                    try
+                    {
+                        var decodedMessage = DecodeMessage(message.body);
+
+                        using (var messageStream = new MemoryStream(decodedMessage.Item1, false))
+                        using (var messageReader = new BinaryReader(messageStream))
+                        {
+                            ProcessMessage(decodedMessage.Item2, decodedMessage.Item3, messageReader);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Exception while handing message: {ex}");
                     }
                 }
             }
@@ -279,21 +289,19 @@ namespace Telegram.Net.Core.Network
                 return;
             }
             var requestInfo = runningRequests[requestId];
-            MTProtoRequest request = requestInfo.Item1;
-
-            request.ConfirmReceived = true;
-
-            uint innerCode = messageReader.ReadUInt32();
-            if (innerCode == 0x2144ca19) // rpc_error
+            try
             {
-                int errorCode = messageReader.ReadInt32();
-                string errorMessage = Serializers.String.Read(messageReader);
-                request.OnError(errorCode, errorMessage);
-                requestInfo.Item2.SetResult(true);
-            }
-            else if (innerCode == 0x3072cfa1) // gzip_packed
-            {
-                try
+                MTProtoRequest request = requestInfo.Item1;
+                request.ConfirmReceived = true;
+
+                uint innerCode = messageReader.ReadUInt32();
+                if (innerCode == 0x2144ca19) // rpc_error
+                {
+                    int errorCode = messageReader.ReadInt32();
+                    string errorMessage = Serializers.String.Read(messageReader);
+                    request.OnError(errorCode, errorMessage);
+                }
+                else if (innerCode == 0x3072cfa1) // gzip_packed
                 {
                     byte[] packedData = Serializers.Bytes.Read(messageReader);
                     using (var ms = new MemoryStream())
@@ -307,20 +315,20 @@ namespace Telegram.Net.Core.Network
                         using (var compressedReader = new BinaryReader(ms))
                         {
                             request.OnResponse(compressedReader);
-                            requestInfo.Item2.SetResult(true);
                         }
                     }
                 }
-                catch (ZlibException)
+                else
                 {
+                    messageReader.BaseStream.Position -= 4;
+                    request.OnResponse(messageReader);
                 }
-            }
-            else
-            {
-                messageReader.BaseStream.Position -= 4;
-                request.OnResponse(messageReader);
 
                 requestInfo.Item2.SetResult(true);
+            }
+            catch (Exception ex)
+            {
+                requestInfo.Item2.SetException(ex);
             }
         }
 
@@ -406,15 +414,13 @@ namespace Telegram.Net.Core.Network
 
             foreach (var request in runningRequests)
             {
-                request.Value.Item2.SetException(exceptionForClosedConnection);
+                request.Value.Item2.TrySetException(exceptionForClosedConnection);
             }
         }
 
         public void Dispose()
         {
             CleanupConnection();
-
-            transport.Disconnect();
             transport.Dispose();
         }
     }

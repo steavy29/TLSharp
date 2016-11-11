@@ -94,7 +94,7 @@ namespace Telegram.Net.Core
 
         public void Start()
         {
-            StartReconnecting(); // no await
+            StartReconnecting().IgnoreAwait();
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Telegram.Net.Core
         }
         protected virtual void OnProtoSenderBroken(object sender, EventArgs e)
         {
-            StartReconnecting(); // no await
+            StartReconnecting().IgnoreAwait();
         }
         protected virtual void OnConnectionStateChanged(ConnectionStateEventArgs e)
         {
