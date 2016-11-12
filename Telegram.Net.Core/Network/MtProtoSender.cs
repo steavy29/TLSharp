@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using Telegram.Net.Core.MTProto;
@@ -15,7 +16,7 @@ namespace Telegram.Net.Core.Network
     public class MtProtoSender : IDisposable
     {
         private bool isClosed;
-        private Exception exceptionForClosedConnection => new ObjectDisposedException("Attempt to use closed connection.");
+        private Exception exceptionForClosedConnection => new SocketException();
 
         private readonly TcpTransport transport;
         private readonly Session session;
@@ -412,9 +413,15 @@ namespace Telegram.Net.Core.Network
                 isClosed = true;
             }
 
-            foreach (var request in runningRequests)
+            foreach (var request in runningRequests.ToList())
             {
                 request.Value.Item2.TrySetException(exceptionForClosedConnection);
+                runningRequests.Remove(request.Key);
+            }
+
+            if (runningRequests.Count > 0) // should never happen
+            {
+                Debug.WriteLine("Connection wasn't cleaned up properly!!");
             }
         }
 

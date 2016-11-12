@@ -30,7 +30,7 @@ namespace Telegram.Net.Tests
         {
             var client = new TelegramClient(null, apiId, apiHash);
 
-            await client.StartAndWaitForConnection();
+            Assert.IsTrue(await client.Connect());
 
             var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -67,7 +67,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.StartAndWaitForConnection();
+            Assert.IsTrue(await client.Connect());
 
             var codeRequest = await client.SendCode(notRegisteredNumberToSignUp, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -86,7 +86,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.StartAndWaitForConnection();
+            Assert.IsTrue(await client.Connect());
 
             var result = await client.CheckPhone(numberToAuthenticate);
 
@@ -329,7 +329,7 @@ namespace Telegram.Net.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.StartAndWaitForConnection();
+            Assert.IsTrue(await client.Connect());
 
             var codeRequest = await client.SendCode(phoneForDc5, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
@@ -367,7 +367,7 @@ namespace Telegram.Net.Tests
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.StartAndWaitForConnection();
+            Assert.IsTrue(await client.Connect());
 
             if (!client.IsUserAuthorized())
             {

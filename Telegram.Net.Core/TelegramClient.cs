@@ -91,18 +91,10 @@ namespace Telegram.Net.Core
 
             session = Session.TryLoadOrCreateNew(serverAddress, defaultServerPort, store);
         }
-
-        public void Start()
+        
+        public async Task<bool> Connect()
         {
-            StartReconnecting().IgnoreAwait();
-        }
-
-        /// <summary>
-        /// If there is no internet connection, then this call will wait until reconnects. Generally use non async version with ConnectionStateChanged event.
-        /// </summary>
-        public async Task StartAndWaitForConnection()
-        {
-            await StartReconnecting();
+            return await TryConnect() == null;
         }
 
         /*public async Task Connect(bool reconnect = false)
@@ -116,7 +108,7 @@ namespace Telegram.Net.Core
 
             await StartReconnecting();
         }*/
-        
+
         private async Task CloseCurrentTransport()
         {
             if (protoSender != null)
@@ -142,29 +134,38 @@ namespace Telegram.Net.Core
         }
         protected virtual void OnProtoSenderBroken(object sender, EventArgs e)
         {
-            StartReconnecting().IgnoreAwait();
+            StartReconnecting().IgnoreAwait(); // no await
         }
         protected virtual void OnConnectionStateChanged(ConnectionStateEventArgs e)
         {
             ConnectionStateChanged?.Invoke(this, e);
         }
 
-        private async Task SwitchToNewDc(int dcId)
+        private async Task<Exception> TryConnect()
+        {
+            try
+            {
+                await ReconnectImpl();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                StartReconnecting().IgnoreAwait();
+                return ex;
+            }
+        }
+        private async Task ReconnectImpl()
         {
             await CloseCurrentTransport();
+            if (session.authKey == null)
+            {
+                var result = await Authenticator.Authenticate(session.serverAddress, session.port);
 
-            var dcOpt = dcOptions.GetDc(dcId);
-
-            session.authKey = null;
-            session.serverAddress = dcOpt.ipAddress;
-            session.port = dcOpt.port;
+                session.authKey = result.AuthKey;
+                session.timeOffset = result.TimeOffset;
+            }
 
             protoSender = new MtProtoSender(session);
-
-            var result = await Authenticator.Authenticate(session.serverAddress, session.port);
-
-            session.authKey = result.AuthKey;
-            session.timeOffset = result.TimeOffset;
 
             Subscribe();
             protoSender.Start();
@@ -181,25 +182,7 @@ namespace Telegram.Net.Core
             {
                 try
                 {
-                    await CloseCurrentTransport();
-
-                    if (session.authKey == null/* || reconnect*/)
-                    {
-                        var result = await Authenticator.Authenticate(session.serverAddress, session.port);
-
-                        session.authKey = result.AuthKey;
-                        session.timeOffset = result.TimeOffset;
-                    }
-
-                    protoSender = new MtProtoSender(session);
-
-                    Subscribe();
-                    protoSender.Start();
-
-                    var request = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
-                    await SendRpcRequest(request);
-
-                    dcOptions = new DcOptionsCollection(request.config.dcOptions);
+                    await ReconnectImpl();
 
                     OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
                     break;
@@ -209,11 +192,11 @@ namespace Telegram.Net.Core
                     protoSender?.Dispose();
 
                     var retryDelaySeconds = 5;
-                    Debug.WriteLine($"Failed to initialize connection: {ex}");
+                    Debug.WriteLine($"Failed to initialize connection: {ex.Message}");
                     Debug.WriteLine($"Retrying in {retryDelaySeconds} seconds..");
 
                     OnConnectionStateChanged(ConnectionStateEventArgs.Disconnected(retryDelaySeconds));
-                    await Task.Delay(5000);
+                    await Task.Delay(TimeSpan.FromSeconds(retryDelaySeconds));
                 }
             }
         }
@@ -334,7 +317,20 @@ namespace Telegram.Net.Core
                     var dcIdStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
                     var dcId = int.Parse(dcIdStr);
 
-                    await SwitchToNewDc(dcId);
+                    // close
+                    await CloseCurrentTransport();
+
+                    // set new dc options
+                    var dcOpt = dcOptions.GetDc(dcId);
+                    session.authKey = null;
+                    session.serverAddress = dcOpt.ipAddress;
+                    session.port = dcOpt.port;
+                    
+                    var connectException = await TryConnect();
+                    if (connectException != null)
+                    {
+                        throw connectException;
+                    }
 
                     // try one more time
                     request.ResetError();
@@ -753,11 +749,11 @@ namespace Telegram.Net.Core
         {
             var dc = dcOptions.GetDc(dcId);
 
-            if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
+            /*if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
             {
                 await SendRpcRequest(request);
                 return;
-            }
+            }*/
 
             var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
             await SendRpcRequest(request);
