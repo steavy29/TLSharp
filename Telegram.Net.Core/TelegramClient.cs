@@ -94,29 +94,40 @@ namespace Telegram.Net.Core
         
         public async Task<bool> Connect()
         {
-            return await TryConnect() == null;
-        }
-
-        /*public async Task Connect(bool reconnect = false)
-        {
-            if (session.authKey == null || reconnect)
+            try
             {
-                var result = await Authenticator.Authenticate(session.serverAddress, session.port);
-                session.authKey = result.AuthKey;
-                session.timeOffset = result.TimeOffset;
+                await ReconnectImpl();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                StartReconnecting().IgnoreAwait();
+                return false;
+            }
+        }
+        public async Task SendRpcRequest(MTProtoRequest request, bool throwOnError = true)
+        {
+            await protoSender.Send(request);
+
+            // handle errors that can be fixed without user interaction
+            if (request.Error == RpcRequestError.IncorrectServerSalt)
+            {
+                // assuming that salt was already updated by underlying layer
+                request.ResetError();
+                await protoSender.Send(request);
             }
 
-            await StartReconnecting();
-        }*/
-
-        private async Task CloseCurrentTransport()
-        {
-            if (protoSender != null)
+            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
             {
-                Unsubscribe();
+                // resync updates state
+            }
 
-                protoSender.Dispose();
-                await protoSender.finishedListeningTask;
+            session.Save();
+
+            // escalate
+            if (throwOnError)
+            {
+                request.ThrowIfHasError();
             }
         }
 
@@ -140,20 +151,7 @@ namespace Telegram.Net.Core
         {
             ConnectionStateChanged?.Invoke(this, e);
         }
-
-        private async Task<Exception> TryConnect()
-        {
-            try
-            {
-                await ReconnectImpl();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                StartReconnecting().IgnoreAwait();
-                return ex;
-            }
-        }
+        
         private async Task ReconnectImpl()
         {
             await CloseCurrentTransport();
@@ -174,6 +172,7 @@ namespace Telegram.Net.Core
             await SendRpcRequest(request);
 
             dcOptions = new DcOptionsCollection(request.config.dcOptions);
+            OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
         }
 
         private async Task StartReconnecting()
@@ -183,8 +182,6 @@ namespace Telegram.Net.Core
                 try
                 {
                     await ReconnectImpl();
-
-                    OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
                     break;
                 }
                 catch (Exception ex)
@@ -201,6 +198,13 @@ namespace Telegram.Net.Core
             }
         }
 
+        private void Subscribe()
+        {
+            Unsubscribe();
+
+            protoSender.Broken += OnProtoSenderBroken;
+            protoSender.UpdateMessage += OnUpdateMessage;
+        }
         private void Unsubscribe()
         {
             if (protoSender != null)
@@ -209,78 +213,40 @@ namespace Telegram.Net.Core
                 protoSender.UpdateMessage -= OnUpdateMessage;
             }
         }
-        private void Subscribe()
+        private async Task CloseCurrentTransport()
         {
-            Unsubscribe();
+            if (protoSender != null)
+            {
+                Unsubscribe();
 
-            protoSender.Broken += OnProtoSenderBroken;
-            protoSender.UpdateMessage += OnUpdateMessage;
+                protoSender.Dispose();
+                await protoSender.finishedListeningTask;
+            }
         }
 
-        public async Task SendRpcRequest(MTProtoRequest request, bool throwOnError = true)
+        private async Task SendRpcRequestWithDc(int dcId, MTProtoRequest request)
         {
-            await protoSender.Send(request);
+            var dc = dcOptions.GetDc(dcId);
 
-            // error handling order is important
-            /*if (request.Error == RpcRequestError.MigrateDataCenter)
+            /*if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
             {
-                if (request.ErrorMessage.StartsWith("PHONE_MIGRATE_") ||
-                    request.ErrorMessage.StartsWith("NETWORK_MIGRATE_") ||
-                    request.ErrorMessage.StartsWith("USER_MIGRATE_"))
-                {
-                    var dcIdStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
-                    var dcId = int.Parse(dcIdStr);
-
-                    ChangeMainDcOptions(dcId);
-
-                    await ReconnectToDc(dcId);
-
-                    // try one more time
-                    request.ResetError();
-                    await protoSender.Send(request);
-                }
+                await SendRpcRequest(request);
+                return;
             }*/
 
-            /*if (request.Error == RpcRequestError.Flood)
+            var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
+            await SendRpcRequest(request);
+
+            var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
+
+            var dcSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
+            dcSession.authKey = session.authKey;
+            using (var proto = new MtProtoSender(dcSession))
             {
-                if (request.ErrorMessage.StartsWith("FLOOD_WAIT_"))
-                {
-                    var secondsToWaitStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
-                    var secondsToWait = int.Parse(secondsToWaitStr);
+                var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
+                await proto.Send(importAuthRequest);
 
-
-
-                    if (secondsToWait <= 2)
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(secondsToWait));
-
-                        // try one more time
-                        request.ResetError();
-                        await protoSender.Send(request);
-                    }
-
-                    // otherwise error and exception
-                }
-            }*/
-
-            // handle errors that can be fixed without user interaction
-            if (request.Error == RpcRequestError.IncorrectServerSalt)
-            {
-                // assuming that salt was already updated by underlying layer
-                request.ResetError();
-                await protoSender.Send(request);
-            }
-
-            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
-            {
-                // resync updates state
-            }
-
-            session.Save();
-
-            // escalate
-            if (throwOnError)
-            {
+                await proto.Send(request);
                 request.ThrowIfHasError();
             }
         }
@@ -325,11 +291,15 @@ namespace Telegram.Net.Core
                     session.authKey = null;
                     session.serverAddress = dcOpt.ipAddress;
                     session.port = dcOpt.port;
-                    
-                    var connectException = await TryConnect();
-                    if (connectException != null)
+
+                    try
                     {
-                        throw connectException;
+                        await ReconnectImpl();
+                    }
+                    catch (Exception)
+                    {
+                        StartReconnecting().IgnoreAwait();
+                        throw;
                     }
 
                     // try one more time
@@ -744,33 +714,6 @@ namespace Telegram.Net.Core
         // upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool;
 
         #endregion
-
-        public async Task SendRpcRequestWithDc(int dcId, MTProtoRequest request)
-        {
-            var dc = dcOptions.GetDc(dcId);
-
-            /*if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
-            {
-                await SendRpcRequest(request);
-                return;
-            }*/
-
-            var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
-            await SendRpcRequest(request);
-
-            var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
-
-            var dcSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
-            dcSession.authKey = session.authKey;
-            using (var proto = new MtProtoSender(dcSession))
-            {
-                var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
-                await proto.Send(importAuthRequest);
-
-                await proto.Send(request);
-                request.ThrowIfHasError();
-            }
-        }
 
         #region Help
 
