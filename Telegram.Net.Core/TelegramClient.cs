@@ -233,14 +233,14 @@ namespace Telegram.Net.Core
         {
             var dc = dcOptions.GetDc(dcId);
 
-            /*if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
+            if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
             {
                 await SendRpcRequest(request);
                 return;
-            }*/
+            }
 
             var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
-            await SendRpcRequest(request);
+            await SendRpcRequest(exportAuthRequest);
 
             var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
 
