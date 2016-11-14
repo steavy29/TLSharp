@@ -13,6 +13,56 @@ using Telegram.Net.Core.Utils;
 
 namespace Telegram.Net.Core.Network
 {
+    class PingRequest : MTProtoRequest
+    {
+        public long pingId;
+
+        public PingRequest()
+        {
+            pingId = Helpers.GenerateRandomLong();
+        }
+
+        protected override uint requestCode => 0x7abe77ec;
+        public override void OnSend(BinaryWriter writer)
+        {
+            writer.Write(requestCode);
+            writer.Write(pingId);
+        }
+
+        public override void OnResponse(BinaryReader reader)
+        {
+            pingId = reader.ReadInt64();
+        }
+
+        public override void OnException(Exception exception)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Confirmed => true;
+        public override bool Responded { get; }
+    }
+
+    class Pong : TLObject
+    {
+        public long messageId;
+        public long pingId;
+
+        public override Constructor constructor { get; }
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0x347773c5);
+            writer.Write(messageId);
+            writer.Write(pingId);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            messageId = reader.ReadInt64();
+            pingId = reader.ReadInt64();
+        }
+    }
+
     public class MtProtoSender : IDisposable
     {
         private bool isClosed;
@@ -48,6 +98,12 @@ namespace Telegram.Net.Core.Network
             StartListening();
         }
 
+        public async Task SendPing()
+        {
+            var ping = new PingRequest();
+            await Send(ping);
+        }
+
         private async void StartListening()
         {
             Exception exception = null;
@@ -81,6 +137,7 @@ namespace Telegram.Net.Core.Network
             }
             catch (Exception ex)
             {
+
                 exception = ex;
             }
 
@@ -189,6 +246,13 @@ namespace Telegram.Net.Core.Network
                     break;
                 case 0x347773c5: // pong
                                  //logger.debug("MSG pong");
+                    var pong = new Pong();
+                    pong.Read(messageReader);
+                    if (runningRequests.ContainsKey(pong.messageId))
+                    {
+                        runningRequests[pong.messageId].Item2.TrySetResult(true);
+                    }
+                    
                     break;
                 case 0xae500895: // future_salts
                                  //logger.debug("MSG future_salts");
