@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using Telegram.Net.Core.MTProto;
@@ -66,7 +65,7 @@ namespace Telegram.Net.Core.Network
     public class MtProtoSender : IDisposable
     {
         private bool isClosed;
-        private Exception exceptionForClosedConnection => new SocketException();
+        private Exception exceptionForClosedConnection => new IOException("Channel was closed.");
 
         private readonly TcpTransport transport;
         private readonly Session session;
@@ -115,7 +114,7 @@ namespace Telegram.Net.Core.Network
                     var message = await transport.Receieve().ConfigureAwait(false);
                     if (message == null)
                     {
-                        Debug.WriteLine("Gracefully closing connection");
+                        Debug.WriteLine("Got termination package. Closing proto connection.");
                         break;
                     }
 
@@ -137,14 +136,15 @@ namespace Telegram.Net.Core.Network
             }
             catch (Exception ex)
             {
-
                 exception = ex;
             }
+
+            var closedByClient = isClosed;
 
             CleanupConnection();
             finishedListening.SetResult(true);
 
-            if (exception != null)
+            if (exception != null || !closedByClient)
             {
                 OnBroken();
             }
@@ -252,7 +252,7 @@ namespace Telegram.Net.Core.Network
                     {
                         runningRequests[pong.messageId].Item2.TrySetResult(true);
                     }
-                    
+
                     break;
                 case 0xae500895: // future_salts
                                  //logger.debug("MSG future_salts");

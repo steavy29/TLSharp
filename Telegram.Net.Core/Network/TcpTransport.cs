@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Telegram.Net.Core.Network
@@ -11,6 +12,8 @@ namespace Telegram.Net.Core.Network
         private readonly TcpClient tcpClient;
         private readonly NetworkStream stream;
         private int sendCounter;
+
+        private readonly SemaphoreSlim sendLock = new SemaphoreSlim(1);
 
         public TcpTransport(string address, int port)
         {
@@ -31,8 +34,17 @@ namespace Telegram.Net.Core.Network
 
             var tcpMessage = new TcpMessage(sendCounter, packet);
 
-            await tcpClient.GetStream().WriteAsync(tcpMessage.Encode(), 0, tcpMessage.Encode().Length);
-            sendCounter++;
+            try
+            {
+                await sendLock.WaitAsync();
+
+                await tcpClient.GetStream().WriteAsync(tcpMessage.Encode(), 0, tcpMessage.Encode().Length);
+                sendCounter++;
+            }
+            finally
+            {
+                sendLock.Release();
+            }
         }
 
         public async Task<TcpMessage> Receieve()

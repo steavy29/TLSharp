@@ -91,15 +91,20 @@ namespace Telegram.Net.Core
 
             session = Session.TryLoadOrCreateNew(serverAddress, defaultServerPort, store);
         }
-        
-        public async Task<bool> Connect()
+
+        public async Task Connect()
+        {
+            await ReconnectImpl();
+        }
+
+        public async Task<bool> Start()
         {
             try
             {
                 await ReconnectImpl();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 StartReconnecting().IgnoreAwait();
                 return false;
@@ -154,12 +159,15 @@ namespace Telegram.Net.Core
         }
         protected virtual void OnConnectionStateChanged(ConnectionStateEventArgs e)
         {
+            Debug.WriteLine($"Connection status: {(e.isConnected ? "connected" : "disconnected")}");
             ConnectionStateChanged?.Invoke(this, e);
         }
-        
+
         private async Task ReconnectImpl()
         {
             await CloseCurrentTransport();
+
+            Debug.WriteLine("Creating new transport..");
             if (session.authKey == null)
             {
                 var result = await Authenticator.Authenticate(session.serverAddress, session.port);
@@ -222,6 +230,8 @@ namespace Telegram.Net.Core
         {
             if (protoSender != null)
             {
+                Debug.WriteLine("Closing current transport");
+
                 Unsubscribe();
 
                 protoSender.Dispose();
