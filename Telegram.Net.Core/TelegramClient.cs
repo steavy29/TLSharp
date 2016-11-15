@@ -239,27 +239,27 @@ namespace Telegram.Net.Core
             }
         }
 
-        private async Task SendRpcRequestWithDc(int dcId, MTProtoRequest request)
+        private async Task SendRpcRequestInSeparateSession(int dcId, MTProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
 
-            if (dc.ipAddress == protoSender.dcServerAddress) // use the main proto
+            var newSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
+            newSession.authKey = session.authKey;
+            newSession.salt = session.salt;
+
+            using (var proto = new MtProtoSender(newSession, true))
             {
-                await SendRpcRequest(request);
-                return;
-            }
+                if (dc.ipAddress != protoSender.dcServerAddress)
+                {
+                    var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
+                    await SendRpcRequest(exportAuthRequest);
+                    var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
 
-            var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
-            await SendRpcRequest(exportAuthRequest);
+                    var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
+                    //var auth = importAuthRequest.authorization.Cast<AuthAuthorizationConstructor>();
 
-            var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
-
-            var dcSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
-            dcSession.authKey = session.authKey;
-            using (var proto = new MtProtoSender(dcSession))
-            {
-                var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
-                await proto.Send(importAuthRequest);
+                    await proto.Send(importAuthRequest);
+                }
 
                 await proto.Send(request);
                 request.ThrowIfHasError();
@@ -712,7 +712,7 @@ namespace Telegram.Net.Core
         public async Task<UploadFileConstructor> GetFile(FileLocationConstructor fileLocation, int offset, int limit)
         {
             var request = new GetFileRequest(new InputFileLocationConstructor(fileLocation.volumeId, fileLocation.localId, fileLocation.secret), offset, limit);
-            await SendRpcRequestWithDc(fileLocation.dcId, request);
+            await SendRpcRequestInSeparateSession(fileLocation.dcId, request);
 
             // only single implementation available
             return (UploadFileConstructor)request.file;
@@ -720,7 +720,7 @@ namespace Telegram.Net.Core
         public async Task<UploadFileConstructor> GetFile(int dcId, InputFileLocation inputFileLocation, int offset, int limit)
         {
             var request = new GetFileRequest(inputFileLocation, offset, limit);
-            await SendRpcRequestWithDc(dcId, request);
+            await SendRpcRequestInSeparateSession(dcId, request);
 
             // only single implementation available
             return (UploadFileConstructor)request.file;

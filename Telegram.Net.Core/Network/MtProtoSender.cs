@@ -81,7 +81,7 @@ namespace Telegram.Net.Core.Network
         public event EventHandler<Updates> UpdateMessage;
         public event EventHandler Broken;
 
-        public MtProtoSender(Session session)
+        public MtProtoSender(Session session, bool immediateStart = false)
         {
             dcServerAddress = session.serverAddress;
 
@@ -90,6 +90,11 @@ namespace Telegram.Net.Core.Network
             Debug.WriteLine($"Connecting to {session.serverAddress}:{session.port}..");
             transport = new TcpTransport(session.serverAddress, session.port);
             Debug.WriteLine($"Successfully connected to {session.serverAddress}:{session.port}");
+
+            if (immediateStart)
+            {
+                Start();
+            }
         }
 
         public void Start()
