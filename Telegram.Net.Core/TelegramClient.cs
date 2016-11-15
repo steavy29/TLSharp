@@ -54,7 +54,7 @@ namespace Telegram.Net.Core
         }
     }
 
-    public class TelegramClient
+    public class TelegramClient : IDisposable
     {
         private static int apiLayer = 23;
 
@@ -136,10 +136,10 @@ namespace Telegram.Net.Core
             }
         }
 
-        /*public async Task SendPing()
+        public async Task SendPing()
         {
             await protoSender.SendPing();
-        }*/
+        }
 
         private void OnUserAuthenticated(User user, int sessionExpiration)
         {
@@ -165,7 +165,7 @@ namespace Telegram.Net.Core
 
         private async Task ReconnectImpl()
         {
-            await CloseCurrentTransport();
+            await CloseProto();
 
             Debug.WriteLine("Creating new transport..");
             if (session.authKey == null)
@@ -226,18 +226,7 @@ namespace Telegram.Net.Core
                 protoSender.UpdateMessage -= OnUpdateMessage;
             }
         }
-        private async Task CloseCurrentTransport()
-        {
-            if (protoSender != null)
-            {
-                Debug.WriteLine("Closing current transport");
 
-                Unsubscribe();
-
-                protoSender.Dispose();
-                await protoSender.finishedListeningTask;
-            }
-        }
 
         private async Task SendRpcRequestInSeparateSession(int dcId, MTProtoRequest request)
         {
@@ -299,7 +288,7 @@ namespace Telegram.Net.Core
                     var dcId = int.Parse(dcIdStr);
 
                     // close
-                    await CloseCurrentTransport();
+                    await CloseProto();
 
                     // set new dc options
                     var dcOpt = dcOptions.GetDc(dcId);
@@ -319,7 +308,7 @@ namespace Telegram.Net.Core
 
                     // try one more time
                     request.ResetError();
-                    await SendRpcRequest(request, true);
+                    await SendRpcRequest(request);
                 }
             }
 
@@ -741,10 +730,28 @@ namespace Telegram.Net.Core
 
         #endregion
 
-        public Task Close()
+        private async Task CloseProto()
+        {
+            DisposeProto();
+            if (protoSender != null)
+                await protoSender.finishedListeningTask;
+        }
+
+        private void DisposeProto()
+        {
+            if (protoSender != null)
+            {
+                Debug.WriteLine("Closing current transport");
+
+                Unsubscribe();
+                protoSender.Dispose();
+            }
+        }
+
+        public void Dispose()
         {
             isClosed = true;
-            return CloseCurrentTransport();
+            DisposeProto();
         }
     }
 }

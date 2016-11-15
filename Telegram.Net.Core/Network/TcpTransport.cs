@@ -119,14 +119,14 @@ namespace Telegram.Net.Core.Network
                 if (tcpClient.Connected)
                 {
                     tcpClient.Client.Disconnect(false);
-                    stream.Dispose();
                 }
-                tcpClient.Close();
             }
             catch (Exception e)
             {
                 Debug.WriteLine($"Exception on socket dispose: {e}");
             }
+
+            tcpClient.Close();
         }
     }
 }
