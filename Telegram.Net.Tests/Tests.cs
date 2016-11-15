@@ -39,8 +39,6 @@ namespace Telegram.Net.Tests
 
             var user = await client.SignIn(numberToAuthenticate, hash, code);
             Assert.IsTrue(client.IsUserAuthorized());
-
-            await client.Close();
         }
 
         [TestMethod]
