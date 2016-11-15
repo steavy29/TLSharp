@@ -136,10 +136,10 @@ namespace Telegram.Net.Core
             }
         }
 
-        public async Task SendPing()
+        /*public async Task SendPing()
         {
             await protoSender.SendPing();
-        }
+        }*/
 
         private void OnUserAuthenticated(User user, int sessionExpiration)
         {

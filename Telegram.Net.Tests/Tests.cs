@@ -32,38 +32,14 @@ namespace Telegram.Net.Tests
 
             await client.Connect();
 
-            var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaSms);
+            var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
             var code = ""; // you can change code in debugger
             Debugger.Break();
 
             var user = await client.SignIn(numberToAuthenticate, hash, code);
-
-            await Task.Delay(5000);
-
-            //await client.SendPing();
-
-            /*Assert.IsNotNull(user);
             Assert.IsTrue(client.IsUserAuthorized());
 
-            var recipient = await client.ImportContactByPhoneNumber(numberToAuthenticate, "Contact", "Contact");
-
-            var counter = 0;
-            while (counter < 100)
-            {
-                try
-                {
-                    await client.SendDirectMessage(recipient.importedContacts[0].Cast<ImportedContactConstructor>().userId, (++counter).ToString());
-                    Debug.WriteLine($"Sent: {counter}");
-                }
-                catch (Exception)
-                {
-                    Debug.WriteLine($"Skipped due to error: {counter}");
-                }
-                await Task.Delay(15000);
-            }*/
-
-            await Task.Delay(1500000);
             await client.Close();
         }
 
@@ -220,7 +196,7 @@ namespace Telegram.Net.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            //await client.Connect();
+            await client.Connect();
         }
 
         [TestMethod]
