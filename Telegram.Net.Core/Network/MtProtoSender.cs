@@ -64,8 +64,10 @@ namespace Telegram.Net.Core.Network
 
     public class MtProtoSender : IDisposable
     {
+        private static int pingTimeoutMs = 15000;
+
         private bool isClosed;
-        private Exception exceptionForClosedConnection => new IOException("Channel was closed.");
+        private Exception exceptionForClosedConnection => new Exception("Channel was closed.");
 
         private readonly TcpTransport transport;
         private readonly Session session;
@@ -100,12 +102,43 @@ namespace Telegram.Net.Core.Network
         public void Start()
         {
             StartListening();
+            StartPingLoop();
         }
 
-        public async Task SendPing()
+        private async void StartPingLoop()
         {
-            var ping = new PingRequest();
-            await Send(ping);
+            while (!isClosed)
+            {
+                try
+                {
+                    var ping = new PingRequest();
+                    var sendPingTask = Send(ping);
+
+                    var timeoutTask = Task.Delay(pingTimeoutMs);
+                    if (await Task.WhenAny(timeoutTask, sendPingTask) == timeoutTask)
+                    {
+                        Debug.WriteLine($"Ping timed-out({pingTimeoutMs/1000}s). Closing connection.");
+                        CleanupConnection();
+                        OnBroken();
+
+                        break;
+                    }
+
+                    await timeoutTask;
+                }
+                catch (Exception ex)
+                {
+                    if (!isClosed)
+                    {
+                        Debug.WriteLine($"Exception on Ping: {ex.Message}. Closing connection.");
+
+                        CleanupConnection();
+                        OnBroken();
+
+                        break;
+                    }
+                }
+            }
         }
 
         private async void StartListening()
@@ -246,9 +279,6 @@ namespace Telegram.Net.Core.Network
                                  //logger.debug("MSG container");
                     HandleContainer(messageId, sequence, messageReader);
                     break;
-                case 0x7abe77ec: // ping
-                                 //logger.debug("MSG ping");
-                    break;
                 case 0x347773c5: // pong
                                  //logger.debug("MSG pong");
                     var pong = new Pong();
@@ -340,10 +370,8 @@ namespace Telegram.Net.Core.Network
         {
             UpdateMessage?.Invoke(this, update);
         }
-
-        protected virtual void OnBroken()
+        private void OnBroken()
         {
-            CleanupConnection();
             Broken?.Invoke(this, EventArgs.Empty);
         }
 

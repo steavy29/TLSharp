@@ -49,7 +49,7 @@ namespace Telegram.Net.Core
 
         private DcOptionsCollection dcOptions;
 
-        public int? authenticatedUserId => (session.user as UserSelfConstructor)?.id;
+        public UserSelfConstructor authenticatedUser => session.user.As<UserSelfConstructor>();
 
         public event EventHandler<ConnectionStateEventArgs> ConnectionStateChanged;
         public event EventHandler<Updates> UpdateMessage;
@@ -113,12 +113,7 @@ namespace Telegram.Net.Core
                 request.ThrowIfHasError();
             }
         }
-
-        public async Task SendPing()
-        {
-            await protoSender.SendPing();
-        }
-
+        
         private void OnUserAuthenticated(User user, int sessionExpiration)
         {
             session.user = user;
@@ -559,10 +554,7 @@ namespace Telegram.Net.Core
         }
         public async Task<MessagesStatedMessage> LeaveChat(int chatId)
         {
-            if (!authenticatedUserId.HasValue)
-                throw new Exception("Not authorized");
-
-            var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(authenticatedUserId.Value));
+            var request = new DeleteChatUserRequest(chatId, new InputUserContactConstructor(authenticatedUser.id));
             await SendRpcRequest(request);
 
             return request.statedMessage;
