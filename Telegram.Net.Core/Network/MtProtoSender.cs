@@ -110,11 +110,11 @@ namespace Telegram.Net.Core.Network
         private TaskCompletionSource<bool> pingCompletionSource;
         private async void StartPingLoop()
         {
+            await Task.Delay(pingDelayMs);
             while (!isClosed)
             {
                 try
                 {
-                    await Task.Delay(pingDelayMs);
                     pingCompletionSource = new TaskCompletionSource<bool>();
 
                     var pingRequest = new PingRequest();
@@ -136,6 +136,8 @@ namespace Telegram.Net.Core.Network
 
                         break;
                     }
+
+                    await Task.Delay(pingDelayMs);
                 }
                 catch (Exception ex)
                 {
