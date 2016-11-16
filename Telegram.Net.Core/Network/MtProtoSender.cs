@@ -111,20 +111,10 @@ namespace Telegram.Net.Core.Network
             {
                 try
                 {
+                    await Task.Delay(pingTimeoutMs);
+
                     var ping = new PingRequest();
-                    var sendPingTask = Send(ping);
-
-                    var timeoutTask = Task.Delay(pingTimeoutMs);
-                    if (await Task.WhenAny(timeoutTask, sendPingTask) == timeoutTask)
-                    {
-                        Debug.WriteLine($"Ping timed-out({pingTimeoutMs/1000}s). Closing connection.");
-                        CleanupConnection();
-                        OnBroken();
-
-                        break;
-                    }
-
-                    await timeoutTask;
+                    await Send(ping);
                 }
                 catch (Exception ex)
                 {
