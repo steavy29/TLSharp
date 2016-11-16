@@ -35,6 +35,7 @@ namespace Telegram.Net.Core
     public class TelegramClient : IDisposable
     {
         private static int apiLayer = 23;
+        private static int connectionReinitializationTimeoutSeconds = 8;
 
         private static readonly string defaultServerAddress = "149.154.167.51";
         private static readonly int defaultServerPort = 443;
@@ -113,7 +114,7 @@ namespace Telegram.Net.Core
                 request.ThrowIfHasError();
             }
         }
-        
+
         private void OnUserAuthenticated(User user, int sessionExpiration)
         {
             session.user = user;
@@ -174,12 +175,11 @@ namespace Telegram.Net.Core
                 {
                     protoSender?.Dispose();
 
-                    var retryDelaySeconds = 5;
                     Debug.WriteLine($"Failed to initialize connection: {ex.Message}");
-                    Debug.WriteLine($"Retrying in {retryDelaySeconds} seconds..");
+                    Debug.WriteLine($"Retrying in {connectionReinitializationTimeoutSeconds} seconds..");
 
-                    OnConnectionStateChanged(ConnectionStateEventArgs.Disconnected(retryDelaySeconds));
-                    await Task.Delay(TimeSpan.FromSeconds(retryDelaySeconds));
+                    OnConnectionStateChanged(ConnectionStateEventArgs.Disconnected(connectionReinitializationTimeoutSeconds));
+                    await Task.Delay(TimeSpan.FromSeconds(connectionReinitializationTimeoutSeconds));
                 }
             }
         }
@@ -257,6 +257,8 @@ namespace Telegram.Net.Core
                     request.ErrorMessage.StartsWith("NETWORK_MIGRATE_") ||
                     request.ErrorMessage.StartsWith("USER_MIGRATE_"))
                 {
+                    Debug.WriteLine($"Trying to resolve error: {request.ErrorMessage}.");
+
                     var dcIdStr = Regex.Match(request.ErrorMessage, @"\d+").Value;
                     var dcId = int.Parse(dcIdStr);
 
@@ -265,12 +267,14 @@ namespace Telegram.Net.Core
 
                     // set new dc options
                     var dcOpt = dcOptions.GetDc(dcId);
+
                     session.authKey = null;
                     session.serverAddress = dcOpt.ipAddress;
                     session.port = dcOpt.port;
 
                     try
                     {
+                        Debug.WriteLine($"Reconnecting to dc {dcId} - {dcOpt.ipAddress}");
                         await ReconnectImpl();
                     }
                     catch (Exception)

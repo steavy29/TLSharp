@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
@@ -58,6 +59,7 @@ namespace Telegram.Net.Core.Requests
         {
             if (Error != RpcRequestError.None)
             {
+                Debug.WriteLine($"Throwing exception for request {this.GetType().Name} because of error {Error} - {ErrorMessage}");
                 throw new TelegramReqestException(Error, ErrorMessage);
             }
         }

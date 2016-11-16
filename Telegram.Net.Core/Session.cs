@@ -30,6 +30,8 @@ namespace Telegram.Net.Core
 
         private readonly ISessionStore store;
 
+        private readonly object generateSyncRoot = new object();
+
         private Session(ISessionStore store)
         {
             random = new Random();
@@ -110,7 +112,7 @@ namespace Telegram.Net.Core
         {
             store?.Save(this);
         }
-        
+
         public static Session TryLoadOrCreateNew(string serverAddress, int port, ISessionStore store = null)
         {
             return store?.Load() ?? new Session(store)
@@ -130,24 +132,30 @@ namespace Telegram.Net.Core
 
         public long GetNewMessageId()
         {
-            long time = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
-            long newMessageId = ((time / 1000 + timeOffset) << 32) |
-                                ((time % 1000) << 22) |
-                                (random.Next(524288) << 2); // 2^19
-                                                            // [ unix timestamp : 32 bit] [ milliseconds : 10 bit ] [ buffer space : 1 bit ] [ random : 19 bit ] [ msg_id type : 2 bit ] = [ msg_id : 64 bit ]
-
-            if (lastMessageId >= newMessageId)
+            lock (generateSyncRoot)
             {
-                newMessageId = lastMessageId + 4;
-            }
+                long time = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
+                long newMessageId = ((time / 1000 + timeOffset) << 32) |
+                                    ((time % 1000) << 22) |
+                                    (random.Next(524288) << 2); // 2^19
+                                                                // [ unix timestamp : 32 bit] [ milliseconds : 10 bit ] [ buffer space : 1 bit ] [ random : 19 bit ] [ msg_id type : 2 bit ] = [ msg_id : 64 bit ]
 
-            lastMessageId = newMessageId;
-            return newMessageId;
+                if (lastMessageId >= newMessageId)
+                {
+                    newMessageId = lastMessageId + 4;
+                }
+
+                lastMessageId = newMessageId;
+                return newMessageId;
+            }
         }
 
         public int GetNextSequenceNumber(MTProtoRequest request)
         {
-            return request.Confirmed ? sequence++ * 2 + 1 : sequence * 2;
+            lock (generateSyncRoot)
+            {
+                return request.Confirmed ? sequence++ * 2 + 1 : sequence * 2;
+            }
         }
     }
 }

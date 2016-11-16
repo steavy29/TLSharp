@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using Telegram.Net.Core.MTProto;
@@ -73,7 +74,7 @@ namespace Telegram.Net.Core.Network
         private readonly Session session;
 
         private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
-        private readonly List<long> needConfirmation = new List<long>();
+        private List<long> needConfirmation = new List<long>();
 
         private TaskCompletionSource<bool> finishedListening;
         public Task finishedListeningTask => finishedListening.Task;
@@ -178,12 +179,15 @@ namespace Telegram.Net.Core.Network
             }
         }
 
-        private readonly object sendMessagesSyncRoot = new object();
-        public async Task Send(MTProtoRequest request)
+        private async Task SendPendingConfirmations()
         {
-            if (needConfirmation.Any()) // TODO: move to separate task-thread
+            if (needConfirmation.Count == 0)
+                return;
+
+            var requestsToConfirm = Interlocked.Exchange(ref needConfirmation, new List<long>());
+            if (requestsToConfirm.Count > 0)
             {
-                var ackRequest = new AckRequestLong(needConfirmation);
+                var ackRequest = new AckRequestLong(requestsToConfirm);
                 using (var memory = new MemoryStream())
                 using (var writer = new BinaryWriter(memory))
                 {
@@ -191,9 +195,14 @@ namespace Telegram.Net.Core.Network
 
                     ackRequest.OnSend(writer);
                     await Send(memory.ToArray(), ackRequest);
-                    needConfirmation.Clear();
                 }
             }
+        }
+
+        private readonly object sendMessagesSyncRoot = new object();
+        public async Task Send(MTProtoRequest request)
+        {
+            await SendPendingConfirmations();
 
             TaskCompletionSource<bool> responseSource;
             using (var memory = new MemoryStream())
