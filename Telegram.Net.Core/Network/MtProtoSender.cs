@@ -65,7 +65,8 @@ namespace Telegram.Net.Core.Network
 
     public class MtProtoSender : IDisposable
     {
-        private static int pingTimeoutMs = 15000;
+        private static int pingDelayMs = 15000;
+        private static int pingTimeoutMs = 5000;
 
         private bool isClosed;
         private Exception exceptionForClosedConnection => new Exception("Channel was closed.");
@@ -106,25 +107,42 @@ namespace Telegram.Net.Core.Network
             StartPingLoop();
         }
 
+        private TaskCompletionSource<bool> pingCompletionSource;
         private async void StartPingLoop()
         {
             while (!isClosed)
             {
                 try
                 {
-                    await Task.Delay(pingTimeoutMs);
+                    await Task.Delay(pingDelayMs);
+                    pingCompletionSource = new TaskCompletionSource<bool>();
 
-                    var ping = new PingRequest();
-                    await Send(ping);
+                    var pingRequest = new PingRequest();
+                    using (var memory = new MemoryStream())
+                    using (var writer = new BinaryWriter(memory))
+                    {
+                        pingRequest.MessageId = session.GetNewMessageId();
+                        Debug.WriteLine($"Send request - {pingRequest.GetType().Name} - {pingRequest.MessageId}");
+
+                        pingRequest.OnSend(writer);
+                        await Send(memory.ToArray(), pingRequest);
+                    }
+
+                    var pingTimeoutTask = Task.Delay(pingTimeoutMs);
+                    if (await Task.WhenAny(pingTimeoutTask, pingCompletionSource.Task) == pingTimeoutTask)
+                    {
+                        Debug.WriteLine($"Ping timed-out({pingTimeoutMs / 1000}s). Closing connection.");
+                        transport.Dispose(); //  kill connection so that Listening thread could finish and break connection
+
+                        break;
+                    }
                 }
                 catch (Exception ex)
                 {
                     if (!isClosed)
                     {
                         Debug.WriteLine($"Exception on Ping: {ex.Message}. Closing connection.");
-
-                        CleanupConnection();
-                        OnBroken();
+                        transport.Dispose(); //  kill connection so that Listening thread could finish and break connection
 
                         break;
                     }
@@ -279,13 +297,8 @@ namespace Telegram.Net.Core.Network
                     HandleContainer(messageId, sequence, messageReader);
                     break;
                 case 0x347773c5: // pong
-                                 //logger.debug("MSG pong");
-                    var pong = new Pong();
-                    pong.Read(messageReader);
-                    if (runningRequests.ContainsKey(pong.messageId))
-                    {
-                        runningRequests[pong.messageId].Item2.TrySetResult(true);
-                    }
+                    Debug.WriteLine("Got Pong response from server.");
+                    pingCompletionSource.TrySetResult(true);
 
                     break;
                 case 0xae500895: // future_salts
