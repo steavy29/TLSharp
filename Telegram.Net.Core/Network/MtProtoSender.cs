@@ -65,8 +65,7 @@ namespace Telegram.Net.Core.Network
                 try
                 {
                     var pingRequest = new PingRequest();
-
-                    var pingSendTask = Send(pingRequest);
+                    var pingSendTask = Send(pingRequest).ContinueWith(t => { var ignored = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
 
                     var pingTimeoutTask = Task.Delay(pingTimeoutMs);
                     if (await Task.WhenAny(pingTimeoutTask, pingSendTask) == pingTimeoutTask)
