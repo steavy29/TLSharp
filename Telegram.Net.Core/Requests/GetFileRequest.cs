@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetFileRequest : MTProtoRequest
+    public class GetFileRequest : MtProtoRequest
     {
         public readonly InputFileLocation location;
         public readonly int offset;
@@ -40,7 +40,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

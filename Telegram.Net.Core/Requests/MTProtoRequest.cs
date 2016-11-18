@@ -5,11 +5,11 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public abstract class MTProtoRequest
+    public abstract class MtProtoRequest
     {
         protected abstract uint requestCode { get; }
 
-        protected MTProtoRequest()
+        protected MtProtoRequest()
         {
             Sent = false;
         }
@@ -33,7 +33,8 @@ namespace Telegram.Net.Core.Requests
             Error = (RpcRequestError)errorCode;
             ErrorMessage = errorMessage;
         }
-        public abstract bool Confirmed { get; }
+
+        public virtual bool isContentMessage => true;
         public abstract bool Responded { get; }
 
         public virtual void OnSendSuccess()
@@ -47,7 +48,7 @@ namespace Telegram.Net.Core.Requests
             ConfirmReceived = true;
         }
 
-        public bool NeedResend => Dirty || (Confirmed && !ConfirmReceived && DateTime.Now - SendTime > TimeSpan.FromSeconds(3));
+        public bool NeedResend => Dirty || (isContentMessage && !ConfirmReceived && DateTime.Now - SendTime > TimeSpan.FromSeconds(3));
 
         public void ResetError()
         {

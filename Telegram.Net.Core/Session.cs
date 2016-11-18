@@ -150,11 +150,32 @@ namespace Telegram.Net.Core
             }
         }
 
-        public int GetNextSequenceNumber(MTProtoRequest request)
+        public int GetNextSequenceNumber(MtProtoRequest request)
         {
             lock (generateSyncRoot)
             {
-                return request.Confirmed ? sequence++ * 2 + 1 : sequence * 2;
+                return request.isContentMessage ? sequence++ * 2 + 1 : sequence * 2;
+            }
+        }
+
+        public void ResetAuth()
+        {
+            lock (generateSyncRoot)
+            {
+                authKey = null;
+                user = null;
+                sessionExpires = 0;
+            }
+        }
+
+        public void Reset()
+        {
+            lock (generateSyncRoot)
+            {
+                id = GenerateRandomUlong();
+                lastMessageId = 0;
+                sequence = 0;
+                timeOffset = 0;
             }
         }
     }

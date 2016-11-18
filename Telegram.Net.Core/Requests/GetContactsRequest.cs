@@ -7,7 +7,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetContactsRequest : MTProtoRequest
+    public class GetContactsRequest : MtProtoRequest
     {
         public readonly string contactIdsHash = "";
 
@@ -40,7 +40,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

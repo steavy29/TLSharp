@@ -21,6 +21,7 @@ namespace Telegram.Net.Core.Network
             {
                 LingerState = new LingerOption(true, 1),
             };
+            tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             var ipAddress = IPAddress.Parse(address);
             tcpClient.Connect(ipAddress, port);

@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetFullUserRequest : MTProtoRequest
+    public class GetFullUserRequest : MtProtoRequest
     {
         public readonly InputUser inputUser;
 
@@ -35,6 +35,6 @@ namespace Telegram.Net.Core.Requests
 
         public override bool Responded { get; }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
     }
 }

@@ -13,60 +13,10 @@ using Telegram.Net.Core.Utils;
 
 namespace Telegram.Net.Core.Network
 {
-    class PingRequest : MTProtoRequest
-    {
-        public long pingId;
-
-        public PingRequest()
-        {
-            pingId = Helpers.GenerateRandomLong();
-        }
-
-        protected override uint requestCode => 0x7abe77ec;
-        public override void OnSend(BinaryWriter writer)
-        {
-            writer.Write(requestCode);
-            writer.Write(pingId);
-        }
-
-        public override void OnResponse(BinaryReader reader)
-        {
-            pingId = reader.ReadInt64();
-        }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Confirmed => true;
-        public override bool Responded { get; }
-    }
-
-    class Pong : TLObject
-    {
-        public long messageId;
-        public long pingId;
-
-        public override Constructor constructor { get; }
-        public override void Write(BinaryWriter writer)
-        {
-            writer.Write(0x347773c5);
-            writer.Write(messageId);
-            writer.Write(pingId);
-        }
-
-        public override void Read(BinaryReader reader)
-        {
-            messageId = reader.ReadInt64();
-            pingId = reader.ReadInt64();
-        }
-    }
-
     public class MtProtoSender : IDisposable
     {
-        private static int pingDelayMs = 15000;
-        private static int pingTimeoutMs = 5000;
+        private static int pingDelayMs = 60000;
+        private static int pingTimeoutMs = 10000;
 
         private bool isClosed;
         private Exception exceptionForClosedConnection => new Exception("Channel was closed.");
@@ -74,7 +24,7 @@ namespace Telegram.Net.Core.Network
         private readonly TcpTransport transport;
         private readonly Session session;
 
-        private readonly Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MTProtoRequest, TaskCompletionSource<bool>>>();
+        private readonly Dictionary<long, Tuple<MtProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MtProtoRequest, TaskCompletionSource<bool>>>();
         private List<long> needConfirmation = new List<long>();
 
         private TaskCompletionSource<bool> finishedListening;
@@ -107,7 +57,6 @@ namespace Telegram.Net.Core.Network
             StartPingLoop();
         }
 
-        private TaskCompletionSource<bool> pingCompletionSource;
         private async void StartPingLoop()
         {
             await Task.Delay(pingDelayMs);
@@ -115,21 +64,12 @@ namespace Telegram.Net.Core.Network
             {
                 try
                 {
-                    pingCompletionSource = new TaskCompletionSource<bool>();
-
                     var pingRequest = new PingRequest();
-                    using (var memory = new MemoryStream())
-                    using (var writer = new BinaryWriter(memory))
-                    {
-                        pingRequest.MessageId = session.GetNewMessageId();
-                        Debug.WriteLine($"Send request - {pingRequest.GetType().Name} - {pingRequest.MessageId}");
 
-                        pingRequest.OnSend(writer);
-                        await Send(memory.ToArray(), pingRequest);
-                    }
+                    var pingSendTask = Send(pingRequest);
 
                     var pingTimeoutTask = Task.Delay(pingTimeoutMs);
-                    if (await Task.WhenAny(pingTimeoutTask, pingCompletionSource.Task) == pingTimeoutTask)
+                    if (await Task.WhenAny(pingTimeoutTask, pingSendTask) == pingTimeoutTask)
                     {
                         Debug.WriteLine($"Ping timed-out({pingTimeoutMs / 1000}s). Closing connection.");
                         transport.Dispose(); //  kill connection so that Listening thread could finish and break connection
@@ -220,7 +160,7 @@ namespace Telegram.Net.Core.Network
         }
 
         private readonly object sendMessagesSyncRoot = new object();
-        public async Task Send(MTProtoRequest request)
+        public async Task Send(MtProtoRequest request)
         {
             await SendPendingConfirmations();
 
@@ -249,7 +189,7 @@ namespace Telegram.Net.Core.Network
             runningRequests.Remove(request.MessageId);
         }
 
-        private async Task Send(byte[] packet, MTProtoRequest request)
+        private async Task Send(byte[] packet, MtProtoRequest request)
         {
             byte[] msgKey;
             byte[] ciphertext;
@@ -300,7 +240,11 @@ namespace Telegram.Net.Core.Network
                     break;
                 case 0x347773c5: // pong
                     Debug.WriteLine("Got Pong response from server.");
-                    pingCompletionSource.TrySetResult(true);
+                    var pong = TLObject.Read<Pong>(messageReader, 0x347773c5);
+                    if (runningRequests.ContainsKey(pong.messageId))
+                    {
+                        runningRequests[pong.messageId].Item2.TrySetResult(true);
+                    }
 
                     break;
                 case 0xae500895: // future_salts
@@ -403,7 +347,7 @@ namespace Telegram.Net.Core.Network
             var requestInfo = runningRequests[requestId];
             try
             {
-                MTProtoRequest request = requestInfo.Item1;
+                MtProtoRequest request = requestInfo.Item1;
                 request.ConfirmReceived = true;
 
                 uint innerCode = messageReader.ReadUInt32();
@@ -479,7 +423,7 @@ namespace Telegram.Net.Core.Network
         private void HandleBadMsgNotification(long messageId, int sequence, BinaryReader messageReader)
         {
             long badRequestId = messageReader.ReadInt64();
-            messageReader.ReadInt32(); // badRequestSequence
+            int badRequestSequence = messageReader.ReadInt32();
             int errorCode = messageReader.ReadInt32();
 
             if (runningRequests.ContainsKey(badRequestId))
@@ -511,8 +455,8 @@ namespace Telegram.Net.Core.Network
             var uniqueId = messageReader.ReadUInt64();
             var serverSalt = messageReader.ReadUInt64();
 
+            Debug.WriteLine("New server session created");
             session.salt = serverSalt;
-            session.id = uniqueId;
         }
 
         #endregion

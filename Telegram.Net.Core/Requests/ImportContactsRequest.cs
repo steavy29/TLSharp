@@ -5,7 +5,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class ImportContactsRequest : MTProtoRequest
+    public class ImportContactsRequest : MtProtoRequest
     {
         private readonly List<InputContact> contacts;
         private readonly bool replace;
@@ -38,7 +38,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class SaveFilePartRequest : MTProtoRequest
+    public class SaveFilePartRequest : MtProtoRequest
     {
         public readonly long fileId;
         public readonly int filePart;
@@ -44,7 +44,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

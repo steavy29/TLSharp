@@ -1,23 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using Telegram.Net.Core.MTProto;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Telegram.Net.Core.Utils;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetUpdatesStateRequest : MtProtoRequest
+    public class PingRequest : MtProtoRequest
     {
-        public UpdatesState updatesState { get; private set; }
+        public long pingId;
 
-        protected override uint requestCode => 0xedd4882a;
+        public PingRequest()
+        {
+            pingId = Helpers.GenerateRandomLong();
+        }
 
+        protected override uint requestCode => 0x7abe77ec;
         public override void OnSend(BinaryWriter writer)
         {
             writer.Write(requestCode);
+            writer.Write(pingId);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            updatesState = TLObject.Read<UpdatesState>(reader);
+            pingId = reader.ReadInt64();
         }
 
         public override void OnException(Exception exception)

@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class AuthSendCallRequest : MTProtoRequest
+    public class AuthSendCallRequest : MtProtoRequest
     {
         private readonly string phoneNumber;
         private readonly string phoneCodeHash;
@@ -37,7 +37,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

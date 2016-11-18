@@ -5,7 +5,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class AckRequestLong : MTProtoRequest
+    public class AckRequestLong : MtProtoRequest
     {
         private readonly List<long> messageIds;
 
@@ -30,7 +30,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => false;
+        public override bool isContentMessage => false;
         public override bool Responded { get; }
     }
 }

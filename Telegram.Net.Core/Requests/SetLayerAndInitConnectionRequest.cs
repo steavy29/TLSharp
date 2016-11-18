@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class SetLayerAndInitConnectionRequest : MTProtoRequest
+    public class SetLayerAndInitConnectionRequest : MtProtoRequest
     {
         private readonly int apiId;
         private readonly int layer;
@@ -48,6 +48,6 @@ namespace Telegram.Net.Core.Requests
         }
 
         public override bool Responded => true;
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
     }
 }

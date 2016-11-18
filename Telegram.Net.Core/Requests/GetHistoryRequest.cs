@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetHistoryRequest : MTProtoRequest
+    public class GetHistoryRequest : MtProtoRequest
     {
         public readonly InputPeer peer;
         public readonly int offset;
@@ -43,7 +43,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }

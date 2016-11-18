@@ -54,6 +54,7 @@ namespace Telegram.Net.Core
 
         public event EventHandler<ConnectionStateEventArgs> ConnectionStateChanged;
         public event EventHandler<Updates> UpdateMessage;
+        public event EventHandler AuthenticationCanceled;
 
         public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
         {
@@ -89,8 +90,11 @@ namespace Telegram.Net.Core
                 return false;
             }
         }
-        public async Task SendRpcRequest(MTProtoRequest request, bool throwOnError = true)
+        public async Task SendRpcRequest(MtProtoRequest request, bool throwOnError = true)
         {
+            if (isClosed)
+                throw new ObjectDisposedException("TelegramClient is closed");
+
             await protoSender.Send(request);
 
             // handle errors that can be fixed without user interaction
@@ -101,9 +105,10 @@ namespace Telegram.Net.Core
                 await protoSender.Send(request);
             }
 
-            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
+            if (request.Error == RpcRequestError.Unauthorized)
             {
-                // resync updates state
+                session.ResetAuth();
+                OnAuthenticationCanceled();
             }
 
             session.Save();
@@ -122,19 +127,9 @@ namespace Telegram.Net.Core
 
             session.Save();
         }
-
-        protected virtual void OnUpdateMessage(object sender, Updates e)
-        {
-            UpdateMessage?.Invoke(this, e);
-        }
-        protected virtual void OnProtoSenderBroken(object sender, EventArgs e)
+        private void OnProtoSenderBroken(object sender, EventArgs e)
         {
             StartReconnecting().IgnoreAwait(); // no await
-        }
-        protected virtual void OnConnectionStateChanged(ConnectionStateEventArgs e)
-        {
-            Debug.WriteLine($"Connection status: {(e.isConnected ? "connected" : "disconnected")}");
-            ConnectionStateChanged?.Invoke(this, e);
         }
 
         private async Task ReconnectImpl()
@@ -161,7 +156,6 @@ namespace Telegram.Net.Core
             dcOptions = new DcOptionsCollection(request.config.dcOptions);
             OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
         }
-
         private async Task StartReconnecting()
         {
             while (!isClosed)
@@ -200,8 +194,7 @@ namespace Telegram.Net.Core
             }
         }
 
-
-        private async Task SendRpcRequestInSeparateSession(int dcId, MTProtoRequest request)
+        private async Task SendRpcRequestInSeparateSession(int dcId, MtProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
 
@@ -704,6 +697,21 @@ namespace Telegram.Net.Core
 
         #endregion
 
+        private void OnUpdateMessage(object sender, Updates e)
+        {
+            UpdateMessage?.Invoke(this, e);
+        }
+        private void OnAuthenticationCanceled()
+        {
+            Debug.WriteLine("Authentication was canceled");
+            AuthenticationCanceled?.Invoke(this, EventArgs.Empty);
+        }
+        private void OnConnectionStateChanged(ConnectionStateEventArgs e)
+        {
+            Debug.WriteLine($"Connection status: {(e.isConnected ? "connected" : "disconnected")}");
+            ConnectionStateChanged?.Invoke(this, e);
+        }
+
         private async Task CloseProto()
         {
             DisposeProto();
@@ -727,5 +735,6 @@ namespace Telegram.Net.Core
             isClosed = true;
             DisposeProto();
         }
+
     }
 }

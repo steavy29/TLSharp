@@ -295,7 +295,8 @@ namespace Telegram.Net.Core.MTProto
             {0x5910cccb, typeof (DocumentAttributeVideoConstructor)},
             {0x051448e5, typeof (DocumentAttributeAudioConstructor)},
             {0x15590068, typeof (DocumentAttributeFilenameConstructor)},
-            {0xae636f24, typeof(DisabledFeature)}
+            {0xae636f24, typeof(DisabledFeature)},
+            {0x347773c5, typeof(Pong) }
         };
 
         public static bool ReadBool(BinaryReader reader)
@@ -678,7 +679,8 @@ namespace Telegram.Net.Core.MTProto
         DocumentAttributeVideo,
         DocumentAttributeAudio,
         DocumentAttributeFilename,
-        DisabledFeature
+        DisabledFeature,
+        Pong
     }
 
     // abstract types
@@ -12447,6 +12449,26 @@ namespace Telegram.Net.Core.MTProto
         {
             feature = Serializers.String.Read(reader);
             description = Serializers.String.Read(reader);
+        }
+    }
+
+    public class Pong : TLObject
+    {
+        public long messageId;
+        public long pingId;
+
+        public override Constructor constructor => Constructor.Pong;
+        public override void Write(BinaryWriter writer)
+        {
+            writer.Write(0x347773c5);
+            writer.Write(messageId);
+            writer.Write(pingId);
+        }
+
+        public override void Read(BinaryReader reader)
+        {
+            messageId = reader.ReadInt64();
+            pingId = reader.ReadInt64();
         }
     }
 

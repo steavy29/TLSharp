@@ -74,6 +74,7 @@
     <Compile Include="Requests\AuthSendSmsRequest.cs" />
     <Compile Include="Requests\AuthSignInRequest.cs" />
     <Compile Include="Requests\AuthSignUpRequest.cs" />
+    <Compile Include="Requests\PingRequest.cs" />
     <Compile Include="Requests\DeleteMessagesRequest.cs" />
     <Compile Include="Requests\GetUpdatesDifferenceRequest.cs" />
     <Compile Include="Requests\GetContactsRequest.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="Requests\ResolveUserNameRequest.cs" />
     <Compile Include="Requests\ImportContactsRequest.cs" />
     <Compile Include="Requests\SetLayerAndInitConnectionRequest.cs" />
-    <Compile Include="Requests\MTProtoRequest.cs" />
+    <Compile Include="Requests\MtProtoRequest.cs" />
     <Compile Include="Requests\SendMessageRequest.cs" />
     <Compile Include="Requests\SendMediaRequest.cs" />
     <Compile Include="Requests\SaveFilePartRequest.cs" />

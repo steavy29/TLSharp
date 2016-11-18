@@ -4,7 +4,7 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class SetTypingRequest : MTProtoRequest
+    public class SetTypingRequest : MtProtoRequest
     {
         private readonly InputPeer peer;
         private readonly SendMessageAction action;
@@ -36,7 +36,7 @@ namespace Telegram.Net.Core.Requests
             throw new NotImplementedException();
         }
 
-        public override bool Confirmed => true;
+        public override bool isContentMessage => true;
         public override bool Responded { get; }
     }
 }
