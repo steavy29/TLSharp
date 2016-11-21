@@ -99,6 +99,7 @@
     <Compile Include="TelegramReqestException.cs" />
     <Compile Include="Utils\BiDictionary.cs" />
     <Compile Include="Utils\Helpers.cs" />
+    <Compile Include="Utils\Uploader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

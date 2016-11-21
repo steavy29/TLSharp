@@ -21,6 +21,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnSend(BinaryWriter writer)
         {
+            writer.Write(requestCode);
             writer.Write(id);
             Serializers.Bytes.Write(writer, authKeyBytes);
         }

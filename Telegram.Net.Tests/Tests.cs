@@ -78,11 +78,27 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            var importedConacts = await client.ImportContactByPhoneNumber(numberToSendMessage, "Contact", "Contact");
+            //var importedConacts = await client.ImportContactByPhoneNumber("4368120709573", "Contact", "Contact");
 
-            Assert.IsNotNull(importedConacts);
-            Assert.AreEqual(1, importedConacts.importedContacts.Count);
-            Assert.AreEqual(1, importedConacts.users.Count);
+            int contactId = 275511166;
+            var history = (await client.GetHistoryForContact(contactId, 0, 50)).As<MessagesMessagesConstructor>();
+
+            var mediaMessages = history.messages.Select(m => m.Cast<MessageConstructor>()).Where(m => m.media.As<MessageMediaPhotoConstructor>() != null).ToList();
+
+            foreach (var m in mediaMessages)
+            {
+                var photoMedia = m.media.As<MessageMediaPhotoConstructor>();
+                var photoConstructor = photoMedia.photo.As<PhotoConstructor>();
+
+                var photoSize = photoConstructor.sizes.Last().As<PhotoSizeConstructor>();
+                var location = photoSize.location.As<FileLocationConstructor>();
+
+                var file = await client.GetFile(location, 0, 0);
+            }
+
+            //Assert.IsNotNull(importedConacts);
+            //Assert.AreEqual(1, importedConacts.importedContacts.Count);
+            //Assert.AreEqual(1, importedConacts.users.Count);
         }
 
         [TestMethod]

@@ -3,6 +3,8 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Telegram.Net.Core.MTProto.Crypto;
+using Telegram.Net.Core.Requests;
+
 #pragma warning disable 675
 
 namespace Telegram.Net.Core.Utils
@@ -99,6 +101,17 @@ namespace Telegram.Net.Core.Utils
         public static MemoryStream CreateMemoryStream(int len)
         {
             return new MemoryStream(new byte[len], 0, len, true, true);
+        }
+
+        public static byte[] Serialize(this MtProtoRequest request)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new BinaryWriter(memoryStream))
+            {
+                request.OnSend(writer);
+
+                return memoryStream.ToArray();
+            }
         }
 
         public static void IgnoreAwait(this Task task)

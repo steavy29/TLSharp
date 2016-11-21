@@ -15,8 +15,8 @@ namespace Telegram.Net.Core.Network
 {
     public class MtProtoSender : IDisposable
     {
-        private static int pingDelayMs = 60000;
-        private static int pingTimeoutMs = 10000;
+        private static int pingDelayMs = 990000;
+        private static int pingTimeoutMs = 990000;
 
         private bool isClosed;
         private Exception exceptionForClosedConnection => new Exception("Channel was closed.");

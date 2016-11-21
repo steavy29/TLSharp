@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Telegram.Net.Core.Requests;
+using Telegram.Net.Core.Utils;
+
 #pragma warning disable 675
 
 namespace Telegram.Net.Core.Network
@@ -19,6 +22,26 @@ namespace Telegram.Net.Core.Network
         {
             this.transport = transport;
             random = new Random();
+        }
+
+        public async Task Send(MtProtoRequest request)
+        {
+            var requestBody = request.Serialize();
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var binaryWriter = new BinaryWriter(memoryStream))
+                {
+                    binaryWriter.Write((long)0);
+                    binaryWriter.Write(GetNewMessageId());
+                    request.OnSend(binaryWriter);
+                    binaryWriter.Write(requestBody.Length);
+                    binaryWriter.Write(requestBody);
+
+                    byte[] packet = memoryStream.ToArray();
+
+                    await transport.Send(packet);
+                }
+            }
         }
 
         public async Task Send(byte[] data)

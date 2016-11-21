@@ -101,12 +101,25 @@ namespace Telegram.Net.Core
             if (request.Error == RpcRequestError.IncorrectServerSalt)
             {
                 // assuming that salt was already updated by underlying layer
+                Debug.WriteLine("IncorrectServerSalt. Resolving by resending message");
+
+                request.ResetError();
+                await protoSender.Send(request);
+            }
+
+            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
+            {
+                Debug.WriteLine("MessageSeqNoTooLow. Resoliving by resetting session and resending message");
+                session.Reset();
+
                 request.ResetError();
                 await protoSender.Send(request);
             }
 
             if (request.Error == RpcRequestError.Unauthorized)
             {
+                Debug.WriteLine("Invalid authorization");
+
                 session.ResetAuth();
                 OnAuthenticationCanceled();
             }
@@ -211,10 +224,30 @@ namespace Telegram.Net.Core
                     var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
 
                     var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
-                    //var auth = importAuthRequest.authorization.Cast<AuthAuthorizationConstructor>();
+                    //using (var tcpForAuthImport = new TcpTransport(dc.ipAddress, dc.port))
+                    {
+                        //var plainProto = new MtProtoPlainSender(tcpForAuthImport);
+
+
+                        //await plainProto.Send(importAuthRequest);
+                        //var response = await plainProto.Receive();
+
+                        using (var memoryStream = new MemoryStream(response))
+                        using (var reader = new BinaryReader(memoryStream))
+                        {
+                            importAuthRequest.OnResponse(reader);
+                        }
+
+
+                        //var authorization = importAuthRequest.authorization.Cast<AuthAuthorizationConstructor>();
+                    }
 
                     await proto.Send(importAuthRequest);
                 }
+
+
+                
+
 
                 await proto.Send(request);
                 request.ThrowIfHasError();
@@ -735,6 +768,5 @@ namespace Telegram.Net.Core
             isClosed = true;
             DisposeProto();
         }
-
     }
 }
