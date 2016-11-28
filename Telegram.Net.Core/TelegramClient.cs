@@ -244,6 +244,12 @@ namespace Telegram.Net.Core
                     var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
                     await proto.Send(importAuthRequest);
                 }
+                else
+                {
+                    newSession.authKey = session.authKey;
+                    newSession.salt = session.salt;
+                    newSession.timeOffset = session.timeOffset;
+                }
 
                 await proto.Send(request);
                 request.ThrowIfHasError();
