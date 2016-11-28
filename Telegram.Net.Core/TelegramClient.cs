@@ -231,8 +231,14 @@ namespace Telegram.Net.Core
         private async Task SendRpcRequestInSeparateSession(int dcId, MtProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
-
             var newSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
+            if (dc.ipAddress == protoSender.dcServerAddress) // same dc
+            {
+                newSession.authKey = session.authKey;
+                newSession.salt = session.salt;
+                newSession.timeOffset = session.timeOffset;
+            }
+
             using (var proto = await CreateProto(newSession))
             {
                 if (dc.ipAddress != protoSender.dcServerAddress)
@@ -243,12 +249,6 @@ namespace Telegram.Net.Core
 
                     var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
                     await proto.Send(importAuthRequest);
-                }
-                else
-                {
-                    newSession.authKey = session.authKey;
-                    newSession.salt = session.salt;
-                    newSession.timeOffset = session.timeOffset;
                 }
 
                 await proto.Send(request);
