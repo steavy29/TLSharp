@@ -201,7 +201,7 @@ namespace Telegram.Net.Tests
         public async Task AuthenticationWorks()
         {
             var authKey = await Authenticator.Authenticate("91.108.56.165", 443);
-            Assert.IsNotNull(authKey.AuthKey.Data);
+            Assert.IsNotNull(authKey.authKey.Data);
         }
 
         [TestMethod]

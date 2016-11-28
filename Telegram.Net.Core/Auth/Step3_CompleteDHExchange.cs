@@ -9,9 +9,9 @@ namespace Telegram.Net.Core.Auth
 {
     public class Step3_Response
     {
-        public AuthKey AuthKey { get; set; }
-        public int TimeOffset { get; set; }
-
+        public AuthKey authKey;
+        public int timeOffset;
+        public ulong serverSalt;
     }
 
     public class Step3_CompleteDHExchange
@@ -184,8 +184,8 @@ namespace Telegram.Net.Core.Auth
 
                         return new Step3_Response()
                         {
-                            AuthKey = authKey,
-                            TimeOffset = timeOffset
+                            authKey = authKey,
+                            timeOffset = timeOffset
                         };
                     }
                     else if (code == 0x46dc1fb9)

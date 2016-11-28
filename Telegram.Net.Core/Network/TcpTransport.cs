@@ -19,7 +19,7 @@ namespace Telegram.Net.Core.Network
         {
             tcpClient = new TcpClient
             {
-                LingerState = new LingerOption(true, 1),
+                LingerState = new LingerOption(true, 1)
             };
             tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 

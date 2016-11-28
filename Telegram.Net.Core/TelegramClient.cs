@@ -101,12 +101,25 @@ namespace Telegram.Net.Core
             if (request.Error == RpcRequestError.IncorrectServerSalt)
             {
                 // assuming that salt was already updated by underlying layer
+                Debug.WriteLine("IncorrectServerSalt. Resolving by resending message");
+
+                request.ResetError();
+                await protoSender.Send(request);
+            }
+
+            if (request.Error == RpcRequestError.MessageSeqNoTooLow)
+            {
+                Debug.WriteLine("MessageSeqNoTooLow. Resoliving by resetting session and resending message");
+                session.Reset();
+
                 request.ResetError();
                 await protoSender.Send(request);
             }
 
             if (request.Error == RpcRequestError.Unauthorized)
             {
+                Debug.WriteLine("Invalid authorization");
+
                 session.ResetAuth();
                 OnAuthenticationCanceled();
             }
@@ -141,8 +154,9 @@ namespace Telegram.Net.Core
             {
                 var result = await Authenticator.Authenticate(session.serverAddress, session.port);
 
-                session.authKey = result.AuthKey;
-                session.timeOffset = result.TimeOffset;
+                session.authKey = result.authKey;
+                session.timeOffset = result.timeOffset;
+                session.salt = result.serverSalt;
             }
 
             protoSender = new MtProtoSender(session);
@@ -194,25 +208,41 @@ namespace Telegram.Net.Core
             }
         }
 
+        private async Task<MtProtoSender> CreateProto(Session protoSession)
+        {
+            Debug.WriteLine("Creating new transport..");
+            if (protoSession.authKey == null)
+            {
+                var authResult = await Authenticator.Authenticate(protoSession.serverAddress, protoSession.port);
+
+                protoSession.authKey = authResult.authKey;
+                protoSession.timeOffset = authResult.timeOffset;
+                protoSession.salt = authResult.serverSalt;
+            }
+
+            var proto = new MtProtoSender(protoSession, true);
+
+            var initRequest = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
+            await proto.Send(initRequest);
+
+            return proto;
+        }
+
         private async Task SendRpcRequestInSeparateSession(int dcId, MtProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
 
             var newSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
-            newSession.authKey = session.authKey;
-            newSession.salt = session.salt;
 
-            using (var proto = new MtProtoSender(newSession, true))
+            var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
+            await SendRpcRequest(exportAuthRequest);
+            var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
+
+            using (var proto = await CreateProto(newSession))
             {
                 if (dc.ipAddress != protoSender.dcServerAddress)
                 {
-                    var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
-                    await SendRpcRequest(exportAuthRequest);
-                    var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
-
                     var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
-                    //var auth = importAuthRequest.authorization.Cast<AuthAuthorizationConstructor>();
-
                     await proto.Send(importAuthRequest);
                 }
 
@@ -735,6 +765,5 @@ namespace Telegram.Net.Core
             isClosed = true;
             DisposeProto();
         }
-
     }
 }
