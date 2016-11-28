@@ -12,6 +12,7 @@ namespace Telegram.Net.Core.Auth
         public AuthKey AuthKey { get; set; }
         public int TimeOffset { get; set; }
 
+        public ulong serverSalt;
     }
 
     public class Step3_CompleteDHExchange
@@ -182,7 +183,7 @@ namespace Telegram.Net.Core.Auth
                         //logger.info("saving time offset: {0}", timeOffset);
                         //TelegramSession.Instance.TimeOffset = timeOffset;
 
-                        return new Step3_Response()
+                        return new Step3_Response
                         {
                             AuthKey = authKey,
                             TimeOffset = timeOffset

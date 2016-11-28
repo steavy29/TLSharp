@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Telegram.Net.Core.Network;
 
 namespace Telegram.Net.Core.Auth
@@ -32,6 +33,8 @@ namespace Telegram.Net.Core.Auth
                     step2Response.EncryptedAnswer));
 
                 var step3Response = step3.FromBytes(await sender.Receive());
+
+                step3Response.serverSalt = BitConverter.ToUInt64(step2.newNonce, 0) ^ BitConverter.ToUInt64(step1Response.ServerNonce, 0);
 
                 return step3Response;
             }

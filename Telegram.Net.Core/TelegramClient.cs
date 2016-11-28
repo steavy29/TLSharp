@@ -156,6 +156,7 @@ namespace Telegram.Net.Core
 
                 session.authKey = result.AuthKey;
                 session.timeOffset = result.TimeOffset;
+                session.salt = result.serverSalt;
             }
 
             protoSender = new MtProtoSender(session);
@@ -207,47 +208,43 @@ namespace Telegram.Net.Core
             }
         }
 
+        private async Task<MtProtoSender> CreateProto(Session protoSession)
+        {
+            Debug.WriteLine("Creating new transport..");
+            if (protoSession.authKey == null)
+            {
+                var authResult = await Authenticator.Authenticate(protoSession.serverAddress, protoSession.port);
+
+                protoSession.authKey = authResult.AuthKey;
+                protoSession.timeOffset = authResult.TimeOffset;
+                protoSession.salt = authResult.serverSalt;
+            }
+
+            var proto = new MtProtoSender(protoSession, true);
+            
+            var initRequest = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
+            await proto.Send(initRequest);
+
+            return proto;
+        }
+
         private async Task SendRpcRequestInSeparateSession(int dcId, MtProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
 
             var newSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
-            newSession.authKey = session.authKey;
-            newSession.salt = session.salt;
 
-            using (var proto = new MtProtoSender(newSession, true))
+            var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
+            await SendRpcRequest(exportAuthRequest);
+            var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
+
+            using (var proto = await CreateProto(newSession))
             {
                 if (dc.ipAddress != protoSender.dcServerAddress)
                 {
-                    var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
-                    await SendRpcRequest(exportAuthRequest);
-                    var exportedAuth = exportAuthRequest.exportedAuthorization.Cast<AuthExportedAuthorizationConstructor>();
-
                     var importAuthRequest = new AuthImportAuthorizationRequest(exportedAuth.id, exportedAuth.bytes);
-                    //using (var tcpForAuthImport = new TcpTransport(dc.ipAddress, dc.port))
-                    {
-                        //var plainProto = new MtProtoPlainSender(tcpForAuthImport);
-
-
-                        //await plainProto.Send(importAuthRequest);
-                        //var response = await plainProto.Receive();
-
-                        using (var memoryStream = new MemoryStream(response))
-                        using (var reader = new BinaryReader(memoryStream))
-                        {
-                            importAuthRequest.OnResponse(reader);
-                        }
-
-
-                        //var authorization = importAuthRequest.authorization.Cast<AuthAuthorizationConstructor>();
-                    }
-
                     await proto.Send(importAuthRequest);
                 }
-
-
-                
-
 
                 await proto.Send(request);
                 request.ThrowIfHasError();

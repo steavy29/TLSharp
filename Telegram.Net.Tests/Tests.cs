@@ -78,7 +78,7 @@ namespace Telegram.Net.Tests
         {
             var client = await InitializeClient();
 
-            //var importedConacts = await client.ImportContactByPhoneNumber("4368120709573", "Contact", "Contact");
+            //var importedConacts = await client.ImportContactByPhoneNumber(numberToSendMessage, "Contact", "Contact");
 
             int contactId = 275511166;
             var history = (await client.GetHistoryForContact(contactId, 0, 50)).As<MessagesMessagesConstructor>();
