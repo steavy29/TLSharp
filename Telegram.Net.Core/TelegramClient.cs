@@ -72,11 +72,6 @@ namespace Telegram.Net.Core
             session = Session.TryLoadOrCreateNew(serverAddress, defaultServerPort, store);
         }
 
-        public async Task Connect()
-        {
-            await ReconnectImpl();
-        }
-
         public async Task<bool> Start()
         {
             try

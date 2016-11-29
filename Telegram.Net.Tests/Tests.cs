@@ -30,7 +30,7 @@ namespace Telegram.Net.Tests
         {
             var client = new TelegramClient(null, apiId, apiHash);
 
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
 
             var codeRequest = await client.SendCode(numberToAuthenticate, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -46,7 +46,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
 
             var codeRequest = await client.SendCode(notRegisteredNumberToSignUp, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             var hash = codeRequest.phoneCodeHash;
@@ -65,7 +65,7 @@ namespace Telegram.Net.Tests
         {
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
 
             var result = await client.CheckPhone(numberToAuthenticate);
 
@@ -194,7 +194,7 @@ namespace Telegram.Net.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
         }
 
         [TestMethod]
@@ -308,7 +308,7 @@ namespace Telegram.Net.Tests
             var store = new FakeSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
 
             var codeRequest = await client.SendCode(phoneForDc5, VerificationCodeDeliveryType.NumericCodeViaTelegram);
             Assert.IsFalse(string.IsNullOrEmpty(codeRequest.phoneCodeHash));
@@ -346,7 +346,7 @@ namespace Telegram.Net.Tests
             var store = new FileSessionStore();
             var client = new TelegramClient(store, apiId, apiHash);
 
-            await client.Connect();
+            Assert.IsTrue(await client.Start());
 
             if (!client.IsUserAuthorized())
             {
