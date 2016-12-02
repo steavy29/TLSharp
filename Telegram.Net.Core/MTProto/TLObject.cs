@@ -12252,16 +12252,6 @@ namespace Telegram.Net.Core.MTProto
                 var attributeElement = Read<DocumentAttribute>(reader);
                 attributes.Add(attributeElement);
             }
-
-            // stickers appear to have a superfluous 000 at the end of the stream;
-            // unclear if this matches the 3 DocumentAttributes or is always just 000,
-            // but there should be nothing after 'attributes' according to the spec.
-            // we've got all the data we need for this document, so keep reading
-            // until we locate the next constructor
-            while (reader.BaseStream.Length != reader.BaseStream.Position && reader.PeekChar() == 0)
-            {
-                reader.ReadChar();
-            }
         }
 
         public override string ToString()
