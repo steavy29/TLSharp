@@ -32,18 +32,36 @@ namespace Telegram.Net.Core
         }
     }
 
+    public class DeviceInfo
+    {
+        public readonly string deviceModel;
+        public readonly string systemVersion;
+        public readonly string appVersion;
+        public readonly string langCode;
+
+        public DeviceInfo(string deviceModel, string systemVersion, string appVersion, string langCode)
+        {
+            this.deviceModel = deviceModel;
+            this.systemVersion = systemVersion;
+            this.appVersion = appVersion;
+            this.langCode = langCode;
+        }
+    }
+
     public class TelegramClient : IDisposable
     {
-        private static int apiLayer = 23;
         private static int connectionReinitializationTimeoutSeconds = 8;
 
         private static readonly string defaultServerAddress = "149.154.167.51";
         private static readonly int defaultServerPort = 443;
 
-        private MtProtoSender protoSender;
+        //private MtProtoSender protoSender;
+        private readonly PersistentProto protoSender;
 
-        private readonly string apiHash;
         private readonly int apiId;
+        private readonly string apiHash;
+        private readonly DeviceInfo deviceInfo;
+
         private readonly Session session;
 
         private bool isClosed;
@@ -56,7 +74,7 @@ namespace Telegram.Net.Core
         public event EventHandler<Updates> UpdateMessage;
         public event EventHandler AuthenticationCanceled;
 
-        public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
+        public TelegramClient(ISessionStore store, int apiId, string apiHash, DeviceInfo deviceInfo, string serverAddress = null)
         {
             if (apiId == 0)
                 throw new ArgumentException("API_ID is invalid", nameof(apiId));
@@ -64,17 +82,21 @@ namespace Telegram.Net.Core
             if (string.IsNullOrEmpty(apiHash))
                 throw new ArgumentException("API_HASH is invalid", nameof(apiHash));
 
-            this.apiHash = apiHash;
             this.apiId = apiId;
+            this.apiHash = apiHash;
+            this.deviceInfo = deviceInfo;
 
             serverAddress = serverAddress ?? defaultServerAddress;
-
             session = Session.TryLoadOrCreateNew(serverAddress, defaultServerPort, store);
+
+            protoSender = new PersistentProto(session, apiId, deviceInfo);
         }
 
-        public async Task<bool> Start()
+        public Task<bool> Start()
         {
-            try
+            return protoSender.Start();
+
+            /*try
             {
                 await ReconnectImpl();
                 return true;
@@ -83,7 +105,7 @@ namespace Telegram.Net.Core
             {
                 StartReconnecting().IgnoreAwait();
                 return false;
-            }
+            }*/
         }
         public async Task SendRpcRequest(MtProtoRequest request, bool throwOnError = true)
         {
@@ -144,27 +166,18 @@ namespace Telegram.Net.Core
         {
             await CloseProto();
 
-            Debug.WriteLine("Creating new transport..");
-            if (session.authKey == null)
-            {
-                var result = await Authenticator.Authenticate(session.serverAddress, session.port);
-
-                session.authKey = result.authKey;
-                session.timeOffset = result.timeOffset;
-                session.salt = result.serverSalt;
-            }
-
-            protoSender = new MtProtoSender(session);
-
+            //protoSender = new MtProtoSender(session, TLObject.apiLayer, apiId, deviceInfo);
             Subscribe();
-            protoSender.Start();
 
-            var request = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
-            await SendRpcRequest(request);
+            await protoSender.Start();
 
-            dcOptions = new DcOptionsCollection(request.config.dcOptions);
+            var initializationRequest = new SetLayerAndInitConnectionQuery(TLObject.apiLayer, apiId, deviceInfo.deviceModel, deviceInfo.systemVersion, deviceInfo.appVersion, deviceInfo.langCode);
+            await SendRpcRequest(initializationRequest);
+
+            dcOptions = new DcOptionsCollection(initializationRequest.config.Cast<ConfigConstructor>().dcOptions);
             OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
         }
+
         private async Task StartReconnecting()
         {
             while (!isClosed)
@@ -203,26 +216,6 @@ namespace Telegram.Net.Core
             }
         }
 
-        private async Task<MtProtoSender> CreateProto(Session protoSession)
-        {
-            Debug.WriteLine("Creating new transport..");
-            if (protoSession.authKey == null)
-            {
-                var authResult = await Authenticator.Authenticate(protoSession.serverAddress, protoSession.port);
-
-                protoSession.authKey = authResult.authKey;
-                protoSession.timeOffset = authResult.timeOffset;
-                protoSession.salt = authResult.serverSalt;
-            }
-
-            var proto = new MtProtoSender(protoSession, true);
-
-            var initRequest = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
-            await proto.Send(initRequest);
-
-            return proto;
-        }
-
         private async Task SendRpcRequestInSeparateSession(int dcId, MtProtoRequest request)
         {
             var dc = dcOptions.GetDc(dcId);
@@ -234,8 +227,13 @@ namespace Telegram.Net.Core
                 newSession.timeOffset = session.timeOffset;
             }
 
-            using (var proto = await CreateProto(newSession))
+            using (var proto = new MtProtoSender(newSession, apiLayer, apiId, deviceInfo))
             {
+                await proto.Start();
+
+                // init proto
+                await proto.Send(new SetLayerAndInitConnectionQuery(apiLayer, apiId, deviceInfo.deviceModel, deviceInfo.systemVersion, deviceInfo.appVersion, deviceInfo.langCode));
+
                 if (dc.ipAddress != protoSender.dcServerAddress)
                 {
                     var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
@@ -742,7 +740,7 @@ namespace Telegram.Net.Core
             ConnectionStateChanged?.Invoke(this, e);
         }
 
-        private async Task CloseProto()
+        /*private async Task CloseProto()
         {
             DisposeProto();
             if (protoSender != null)
@@ -758,12 +756,13 @@ namespace Telegram.Net.Core
                 Unsubscribe();
                 protoSender.Dispose();
             }
-        }
+        }*/
 
         public void Dispose()
         {
             isClosed = true;
-            DisposeProto();
+            protoSender.Dispose();
+            //DisposeProto();
         }
     }
 }

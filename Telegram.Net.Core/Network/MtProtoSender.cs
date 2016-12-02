@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
+using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.MTProto.Crypto;
 using Telegram.Net.Core.Requests;
@@ -24,6 +25,10 @@ namespace Telegram.Net.Core.Network
         private readonly TcpTransport transport;
         private readonly Session session;
 
+        private readonly int apiLayer;
+        private readonly int apiId;
+        private readonly DeviceInfo deviceInfo;
+
         private readonly Dictionary<long, Tuple<MtProtoRequest, TaskCompletionSource<bool>>> runningRequests = new Dictionary<long, Tuple<MtProtoRequest, TaskCompletionSource<bool>>>();
         private List<long> needConfirmation = new List<long>();
 
@@ -31,30 +36,45 @@ namespace Telegram.Net.Core.Network
         public Task finishedListeningTask => finishedListening.Task;
 
         public readonly string dcServerAddress;
+        public ConfigConstructor config { get; private set; }
 
         public event EventHandler<Updates> UpdateMessage;
         public event EventHandler Broken;
 
-        public MtProtoSender(Session session, bool immediateStart = false)
+        public MtProtoSender(Session session, int apiLayer, int apiId, DeviceInfo deviceInfo)
         {
             dcServerAddress = session.serverAddress;
 
             this.session = session;
+            this.apiLayer = apiLayer;
+            this.apiId = apiId;
+            this.deviceInfo = deviceInfo;
 
             Debug.WriteLine($"Connecting to {session.serverAddress}:{session.port}..");
             transport = new TcpTransport(session.serverAddress, session.port);
             Debug.WriteLine($"Successfully connected to {session.serverAddress}:{session.port}");
-
-            if (immediateStart)
-            {
-                Start();
-            }
         }
 
-        public void Start()
+        public async Task Start()
         {
+            if (session.authKey == null)
+            {
+                var result = await Authenticator.Authenticate(session.serverAddress, session.port);
+
+                session.authKey = result.authKey;
+                session.timeOffset = result.timeOffset;
+                session.salt = result.serverSalt;
+            }
+
             StartListening();
+#if !DEBUG
             StartPingLoop();
+#endif
+
+            //var initializationRequest = new SetLayerAndInitConnectionQuery(apiLayer, apiId, deviceInfo.deviceModel, deviceInfo.systemVersion, deviceInfo.appVersion, deviceInfo.langCode);
+            //await Send(initializationRequest);
+            //
+            //config = initializationRequest.config;
         }
 
         private async void StartPingLoop()
@@ -332,7 +352,7 @@ namespace Telegram.Net.Core.Network
             Broken?.Invoke(this, EventArgs.Empty);
         }
 
-        #region Message Handlers
+#region Message Handlers
 
         private void HandleRpcResult(BinaryReader messageReader)
         {
@@ -458,7 +478,7 @@ namespace Telegram.Net.Core.Network
             session.salt = serverSalt;
         }
 
-        #endregion
+#endregion
 
         private void CleanupConnection()
         {

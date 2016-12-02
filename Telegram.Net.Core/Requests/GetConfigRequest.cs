@@ -3,11 +3,11 @@ using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class GetUpdatesStateRequest : MtProtoRequest
+    public class GetConfigRequest: MtProtoRequest
     {
-        public UpdatesState updatesState { get; private set; }
+        protected override uint requestCode => 0xc4f9186b;
 
-        protected override uint requestCode => 0xedd4882a;
+        public Config config { get; private set; }
 
         public override void OnSend(BinaryWriter writer)
         {
@@ -16,9 +16,7 @@ namespace Telegram.Net.Core.Requests
 
         public override void OnResponse(BinaryReader reader)
         {
-            updatesState = TLObject.Read<UpdatesState>(reader);
+            config = TLObject.Read<Config>(reader);
         }
-
-        public override bool isContentMessage => true;
     }
 }

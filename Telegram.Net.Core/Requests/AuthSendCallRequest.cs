@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
@@ -31,13 +30,7 @@ namespace Telegram.Net.Core.Requests
         {
             callSent = TLObject.ReadBool(reader);
         }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override bool isContentMessage => true;
-        public override bool Responded { get; }
     }
 }

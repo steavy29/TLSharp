@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Telegram.Net.Core.MTProto;
@@ -28,12 +27,6 @@ namespace Telegram.Net.Core.Requests
             deletedMessageIds = TLObject.ReadVector(reader, reader.ReadInt32);
         }
 
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool isContentMessage => true;
-        public override bool Responded { get; }
     }
 }

@@ -1,53 +1,100 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
 {
-    public class SetLayerAndInitConnectionRequest : MtProtoRequest
+    public abstract class QueryWrapper<TRequestType> : MtProtoRequest where TRequestType: MtProtoRequest
     {
-        private readonly int apiId;
+        public TRequestType innerRequest;
+
+        protected QueryWrapper(TRequestType innerRequest)
+        {
+            this.innerRequest = innerRequest;
+        }
+
+        public sealed override void OnSend(BinaryWriter writer)
+        {
+            writer.Write(requestCode);
+            SerializeRequest(writer);
+            innerRequest.OnSend(writer);
+        }
+        public sealed override void OnResponse(BinaryReader reader)
+        {
+            innerRequest.OnResponse(reader);
+        }
+
+        protected abstract void SerializeRequest(BinaryWriter writer);
+    }
+    public class InvokeWithLayerQueryWrapper<TRequestType> : QueryWrapper<TRequestType> where TRequestType : MtProtoRequest
+    {
         private readonly int layer;
 
-        public ConfigConstructor config { get; private set; }
+        public InvokeWithLayerQueryWrapper(int layer, TRequestType innerRequest) : base(innerRequest)
+        {
+            this.layer = layer;
+        }
 
-        public SetLayerAndInitConnectionRequest(int apiId, int layer)
+        protected override uint requestCode => 0xda9b0d0d;
+
+        protected override void SerializeRequest(BinaryWriter writer)
+        {
+            writer.Write(layer);
+        }
+    }
+
+    public class InitConnectionQueryWrapper<TRequestType> : QueryWrapper<TRequestType> where TRequestType : MtProtoRequest
+    {
+        private readonly int apiId;
+        private readonly string deviceModel;
+        private readonly string systemVersion;
+        private readonly string appVersion;
+        private readonly string langCode;
+
+        public InitConnectionQueryWrapper(int apiId, string deviceModel, string systemVersion, string appVersion, string langCode, TRequestType innerRequest) : base(innerRequest)
         {
             this.apiId = apiId;
-            this.layer = layer;
+            this.deviceModel = deviceModel;
+            this.systemVersion = systemVersion;
+            this.appVersion = appVersion;
+            this.langCode = langCode;
+        }
+
+        protected override uint requestCode => 0x69796de9;
+
+        protected override void SerializeRequest(BinaryWriter writer)
+        {
+            writer.Write(apiId);
+            Serializers.String.Write(writer, deviceModel);
+            Serializers.String.Write(writer, systemVersion);
+            Serializers.String.Write(writer, appVersion);
+            Serializers.String.Write(writer, langCode);
+        }
+    }
+
+    public class SetLayerAndInitConnectionQuery : MtProtoRequest
+    {
+        private readonly InvokeWithLayerQueryWrapper<InitConnectionQueryWrapper<GetConfigRequest>> wrappedQuery;
+
+        public ConfigConstructor config => wrappedQuery.innerRequest.innerRequest.config.Cast<ConfigConstructor>();
+
+        public SetLayerAndInitConnectionQuery(int layer, int apiId, string deviceModel, string systemVersion, string appVersion, string langCode)
+        {
+            wrappedQuery = new InvokeWithLayerQueryWrapper<InitConnectionQueryWrapper<GetConfigRequest>>(
+                layer, 
+                new InitConnectionQueryWrapper<GetConfigRequest>(apiId, deviceModel, systemVersion, appVersion, langCode,
+                new GetConfigRequest()));
         }
 
         protected override uint requestCode => 0;
 
         public override void OnSend(BinaryWriter writer)
         {
-            // invokeWithLayer request
-            writer.Write(0xda9b0d0d);
-            writer.Write(layer);
-
-            // initConnection request
-            writer.Write(0x69796de9); 
-            writer.Write(apiId); 
-            Serializers.String.Write(writer, "WinPhone Emulator"); // device model
-            Serializers.String.Write(writer, "WinPhone 8.0"); // system version
-            Serializers.String.Write(writer, "1.0-SNAPSHOT"); // app version
-            Serializers.String.Write(writer, "en"); // lang code
-
-            // getConfig request
-            writer.Write(0xc4f9186b); 
+            wrappedQuery.OnSend(writer);
         }
 
         public override void OnResponse(BinaryReader reader)
         {
-            config = TLObject.Read<Config>(reader) as ConfigConstructor;
+            wrappedQuery.OnResponse(reader);
         }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Responded => true;
-        public override bool isContentMessage => true;
     }
 }
