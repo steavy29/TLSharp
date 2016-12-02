@@ -7,6 +7,8 @@ namespace Telegram.Net.Core.MTProto
 {
     public abstract class TLObject
     {
+        public static readonly int apiLayer = 23;
+
         public static readonly uint boolFalse = 0xbc799737;
         public static readonly uint boolTrue = 0x997275b5;
         public static readonly uint vectorCode = 0x1cb5c415;
@@ -70,7 +72,7 @@ namespace Telegram.Net.Core.MTProto
             {0x200250ba, typeof (UserEmptyConstructor)},
             {0x720535EC, typeof (UserSelfConstructor)},
             {0x7007b451, typeof (UserSelfConstructor)},
-            {0xcab35e18, typeof (UserContactConstructor)}, //before signed as 0xf2fb8319
+            {0xcab35e18, typeof (UserContactConstructor)},
             {0x22e8ceb0, typeof (UserRequestConstructor)},
             {0x5214c89d, typeof (UserForeignConstructor)},
             {0xb29ad7cc, typeof (UserDeletedConstructor)},
@@ -11417,8 +11419,8 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            type = reader.ReadString();
-            message = reader.ReadString();
+            type = Serializers.String.Read(reader);
+            message = Serializers.String.Read(reader);
             media = Read<MessageMedia>(reader);
             popup = reader.ReadBoolean();
         }
@@ -11459,7 +11461,7 @@ namespace Telegram.Net.Core.MTProto
         public override void Read(BinaryReader reader)
         {
             userId = reader.ReadInt32();
-            phone = reader.ReadString();
+            phone = Serializers.String.Read(reader);
         }
 
         public override string ToString()
@@ -12417,7 +12419,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Read(BinaryReader reader)
         {
-            fileName = reader.ReadString();
+            fileName = Serializers.String.Read(reader);
         }
     }
 
