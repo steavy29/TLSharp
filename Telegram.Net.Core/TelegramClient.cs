@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Telegram.Net.Core.Auth;
 using Telegram.Net.Core.MTProto;
 using Telegram.Net.Core.Network;
 using Telegram.Net.Core.Requests;
