@@ -332,8 +332,7 @@ namespace Telegram.Net.Tests
 
         private async Task<TelegramClient> CreateClient()
         {
-            var client = new TelegramClient(null, apiId, apiHash);
-
+            var client = new TelegramClient(null, apiId, apiHash, new DeviceInfo("Telegram Test", "Telegram Test", "Telegram Test", "en"));
             Assert.IsTrue(await client.Start());
 
             return client;

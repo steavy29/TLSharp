@@ -42,6 +42,8 @@ namespace Telegram.Net.Core
 
         private MtProtoSender protoSender;
 
+        private readonly DeviceInfo deviceInfo;
+
         private readonly string apiHash;
         private readonly int apiId;
         private readonly Session session;
@@ -56,7 +58,7 @@ namespace Telegram.Net.Core
         public event EventHandler<Updates> UpdateMessage;
         public event EventHandler AuthenticationCanceled;
 
-        public TelegramClient(ISessionStore store, int apiId, string apiHash, string serverAddress = null)
+        public TelegramClient(ISessionStore store, int apiId, string apiHash, DeviceInfo deviceInfo, string serverAddress = null)
         {
             if (apiId == 0)
                 throw new ArgumentException("API_ID is invalid", nameof(apiId));
@@ -66,6 +68,7 @@ namespace Telegram.Net.Core
 
             this.apiHash = apiHash;
             this.apiId = apiId;
+            this.deviceInfo = deviceInfo;
 
             serverAddress = serverAddress ?? defaultServerAddress;
 
@@ -159,7 +162,7 @@ namespace Telegram.Net.Core
             Subscribe();
             protoSender.Start();
 
-            var request = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
+            var request = new InitConnectionAndGetConfigRequest(apiLayer, apiId, deviceInfo);
             await SendRpcRequest(request);
 
             dcOptions = new DcOptionsCollection(request.config.dcOptions);
@@ -217,7 +220,7 @@ namespace Telegram.Net.Core
 
             var proto = new MtProtoSender(protoSession, true);
 
-            var initRequest = new SetLayerAndInitConnectionRequest(apiId, apiLayer);
+            var initRequest = new InitConnectionAndGetConfigRequest(apiLayer, apiId, deviceInfo);
             await proto.Send(initRequest);
 
             return proto;

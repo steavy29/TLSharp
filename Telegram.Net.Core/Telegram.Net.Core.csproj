@@ -50,6 +50,7 @@
     <Compile Include="Auth\Step2_DHExchange.cs" />
     <Compile Include="Auth\Step3_CompleteDHExchange.cs" />
     <Compile Include="ConnectionStateEventArgs.cs" />
+    <Compile Include="DeviceInfo.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MTProto\Crypto\AES.cs" />
     <Compile Include="MTProto\Crypto\AuthKey.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Requests\AuthSendSmsRequest.cs" />
     <Compile Include="Requests\AuthSignInRequest.cs" />
     <Compile Include="Requests\AuthSignUpRequest.cs" />
+    <Compile Include="Requests\GetConfigRequest.cs" />
     <Compile Include="Requests\PingRequest.cs" />
     <Compile Include="Requests\DeleteMessagesRequest.cs" />
     <Compile Include="Requests\GetUpdatesDifferenceRequest.cs" />
