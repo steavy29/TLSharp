@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
@@ -41,13 +40,7 @@ namespace Telegram.Net.Core.Requests
         {
             config = TLObject.Read<Config>(reader) as ConfigConstructor;
         }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Responded => true;
+        
         public override bool isContentMessage => true;
     }
 }

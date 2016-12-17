@@ -35,17 +35,4 @@ namespace Telegram.Net.Tests
             }
         }
     }
-
-    public class FakeSessionStore : ISessionStore
-    {
-        public void Save(Session session)
-        {
-
-        }
-
-        public Session Load()
-        {
-            return null;
-        }
-    }
 }

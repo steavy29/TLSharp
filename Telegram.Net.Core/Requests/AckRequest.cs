@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
@@ -24,13 +23,7 @@ namespace Telegram.Net.Core.Requests
         }
 
         public override void OnResponse(BinaryReader reader) { }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override bool isContentMessage => false;
-        public override bool Responded { get; }
     }
 }

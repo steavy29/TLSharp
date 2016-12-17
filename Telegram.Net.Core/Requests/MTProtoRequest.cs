@@ -27,7 +27,6 @@ namespace Telegram.Net.Core.Requests
         public bool ConfirmReceived { get; set; }
         public abstract void OnSend(BinaryWriter writer);
         public abstract void OnResponse(BinaryReader reader);
-        public abstract void OnException(Exception exception);
         public virtual void OnError(int errorCode, string errorMessage)
         {
             Error = (RpcRequestError)errorCode;
@@ -35,7 +34,6 @@ namespace Telegram.Net.Core.Requests
         }
 
         public virtual bool isContentMessage => true;
-        public abstract bool Responded { get; }
 
         public virtual void OnSendSuccess()
         {

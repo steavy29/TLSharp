@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Telegram.Net.Core.MTProto;
 
@@ -33,12 +32,6 @@ namespace Telegram.Net.Core.Requests
             importedContacts = TLObject.Read<ContactsImportedContacts>(reader);
         }
 
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool isContentMessage => true;
-        public override bool Responded { get; }
     }
 }

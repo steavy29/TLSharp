@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Telegram.Net.Core.MTProto;
 
 namespace Telegram.Net.Core.Requests
@@ -27,13 +26,6 @@ namespace Telegram.Net.Core.Requests
         {
             userFull = TLObject.Read<UserFull>(reader);
         }
-
-        public override void OnException(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Responded { get; }
 
         public override bool isContentMessage => true;
     }
