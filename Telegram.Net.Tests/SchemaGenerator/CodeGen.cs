@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Telegram.Net.Tests.SchemaGenerator
 {
-    public class CodeGen
+    public static class CodeGen
     {
         public class SourceFile
         {
-            public readonly List<string> usingLibraries = new List<string>();
+            public readonly List<string> usingStatements = new List<string>();
             public readonly List<Class> classes = new List<Class>();
 
-            public void Serialize(TextWriter writer)
+            public void Write(TextWriter writer)
             {
-                foreach (var usingLibrary in usingLibraries)
+                foreach (var usingLibrary in usingStatements)
                 {
                     writer.WriteLine($"using {usingLibrary}");
                 }
@@ -25,14 +24,14 @@ namespace Telegram.Net.Tests.SchemaGenerator
                 {
                     foreach (var classItem in classes)
                     {
-                        Serialize(classItem, rootBlock);
+                        Write(classItem, rootBlock);
                     }
                 }
             }
 
-            private static void Serialize(Class classItem, Block container)
+            private static void Write(Class classItem, Block container)
             {
-                container.WriteLine($"{classItem.accessType} class {classItem.name}{(classItem.baseTypes.Count > 0 ? " : " + string.Join(", ", classItem.baseTypes) : "")}");
+                container.WriteLine($"{classItem.accessType}{(classItem.isStatic ? " static" : "")} class {classItem.name}{(classItem.baseTypes.Count > 0 ? " : " + string.Join(", ", classItem.baseTypes) : "")}");
                 using (var classBlock = container.CreateChild())
                 {
                     foreach (var field in classItem.fields)
@@ -42,12 +41,12 @@ namespace Telegram.Net.Tests.SchemaGenerator
 
                     foreach (var method in classItem.methods)
                     {
-                        Serialize(method, classBlock);
+                        Write(method, classBlock);
                     }
                 }
             }
 
-            private static void Serialize(Method methodItem, Block container)
+            private static void Write(Method methodItem, Block container)
             {
                 // Signature
                 container.WriteLine("");
@@ -75,7 +74,7 @@ namespace Telegram.Net.Tests.SchemaGenerator
                 // Body
                 using (var bodyContainer = container.CreateChild())
                 {
-                    
+
                 }
             }
 
@@ -140,9 +139,12 @@ namespace Telegram.Net.Tests.SchemaGenerator
             public readonly string name;
             public readonly List<string> baseTypes;
 
-            public Class(string name, params string[] baseTypes)
+            public readonly bool isStatic;
+
+            public Class(string name, bool isStatic = false, params string[] baseTypes)
             {
                 this.name = name;
+                this.isStatic = isStatic;
                 this.baseTypes = baseTypes.ToList();
             }
 
@@ -224,13 +226,15 @@ namespace Telegram.Net.Tests.SchemaGenerator
             public bool isReadonly;
             public string type;
             public string name;
+            public string defaultValue;
 
-            public Field(AccessType accessType, bool isReadonly, string type, string name)
+            public Field(AccessType accessType, bool isReadonly, string type, string name, string defaultValue = null)
             {
                 this.accessType = accessType;
                 this.isReadonly = isReadonly;
                 this.type = type;
                 this.name = name;
+                this.defaultValue = defaultValue;
             }
 
             public override string ToString()
@@ -260,6 +264,17 @@ namespace Telegram.Net.Tests.SchemaGenerator
 
         public class Constructor
         {
+        }
+
+        public static string Capitalize(this string value)
+        {
+            if (value.Length == 0)
+                return value;
+
+            var chars = value.ToCharArray();
+            chars[0] = char.ToUpperInvariant(chars[0]);
+
+            return new string(chars);
         }
     }
 }

@@ -10,21 +10,43 @@ namespace Telegram.Net.Tests.SchemaGenerator
             var content = File.ReadAllLines("schema.json");
             var schemaLine = content[0];
 
-            var schema = JsonConvert.DeserializeObject<Schema>(schemaLine);
-            
-            Directory.Delete("src", true);
+            var schema = JsonConvert.DeserializeObject<RawSchema.File>(schemaLine);
+
+            if (Directory.Exists("src"))
+                Directory.Delete("src", true);
 
             Directory.CreateDirectory("src");
             Directory.CreateDirectory("src/Constructors");
-            foreach (var constructorSchema in schema.constructors)
+
+            var constantsClass = new CodeGen.Class("TlConstants", true);
+            foreach (var constructorInfo in schema.constructors)
             {
-                using (var srcFileStream = File.CreateText($"src/Constructors/{constructorSchema.type}.cs"))
+                var tlType = new TLType(constructorInfo);
+
+                if (tlType.mapsToBuiltInType)
+                {
+                    if(tlType.typeName == "true") // redundand class
+                        continue;
+
+                    constantsClass.fields.Add(tlType.AsIdField());
+                    continue;
+                }
+
+                using (var srcFileStream = File.CreateText($"src/Constructors/{tlType.typeName}.cs"))
                 {
                     var srcFile = new CodeGen.SourceFile();
-                    srcFile.classes.Add(constructorSchema.Convert());
+                    srcFile.classes.Add(tlType.GetCodeClass());
 
-                    srcFile.Serialize(srcFileStream);
+                    srcFile.Write(srcFileStream);
                 }
+            }
+
+            using (var srcFileStream = File.CreateText($"src/{constantsClass.name}.cs"))
+            {
+                var srcFile = new CodeGen.SourceFile();
+                srcFile.classes.Add(constantsClass);
+
+                srcFile.Write(srcFileStream);
             }
 
             Directory.CreateDirectory("src/Methods");
