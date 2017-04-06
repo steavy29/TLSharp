@@ -117,7 +117,7 @@ namespace Telegram.Net.Core.MTProto
             {0x77bfb61b, typeof (PhotoSizeConstructor)},
             {0xe9a734fa, typeof (PhotoCachedSizeConstructor)},
             {0xc10658a8, typeof (VideoEmptyConstructor)},
-            {0x5a04a49f, typeof (VideoConstructor)},
+            {0x388fa391, typeof (VideoConstructor)},
             {0x1117dd5f, typeof (GeoPointEmptyConstructor)},
             {0x2049d70c, typeof (GeoPointConstructor)},
             {0xe300cc3b, typeof (AuthCheckedPhoneConstructor)},
@@ -4646,7 +4646,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x5a04a49f);
+            writer.Write(0x388fa391);
             writer.Write(id);
             writer.Write(accessHash);
             writer.Write(userId);
