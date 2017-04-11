@@ -62,7 +62,10 @@ namespace Telegram.Net.Core
                     writer.Write(0);
                 }
 
-                Serializers.Bytes.Write(writer, authKey.Data);
+                if (authKey?.Data != null)
+                {
+                    Serializers.Bytes.Write(writer, authKey.Data);
+                }
 
                 return stream.ToArray();
             }
