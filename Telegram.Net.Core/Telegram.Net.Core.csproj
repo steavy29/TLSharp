@@ -76,6 +76,7 @@
     <Compile Include="Requests\AuthSignInRequest.cs" />
     <Compile Include="Requests\AuthSignUpRequest.cs" />
     <Compile Include="Requests\GetConfigRequest.cs" />
+    <Compile Include="Requests\GetFullChatRequest.cs" />
     <Compile Include="Requests\PingRequest.cs" />
     <Compile Include="Requests\DeleteMessagesRequest.cs" />
     <Compile Include="Requests\GetUpdatesDifferenceRequest.cs" />

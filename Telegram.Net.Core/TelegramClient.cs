@@ -50,6 +50,7 @@ namespace Telegram.Net.Core
 
         private bool isClosed;
 
+        private ConfigConstructor configuration;
         private DcOptionsCollection dcOptions;
 
         public UserSelfConstructor authenticatedUser => session.user.As<UserSelfConstructor>();
@@ -165,7 +166,9 @@ namespace Telegram.Net.Core
             var request = new InitConnectionAndGetConfigRequest(apiLayer, apiId, deviceInfo);
             await SendRpcRequest(request);
 
+            configuration = request.config;
             dcOptions = new DcOptionsCollection(request.config.dcOptions);
+
             OnConnectionStateChanged(ConnectionStateEventArgs.Connected());
         }
         private async Task StartReconnecting()
@@ -230,7 +233,7 @@ namespace Telegram.Net.Core
         {
             var dc = dcOptions.GetDc(dcId);
             var newSession = Session.TryLoadOrCreateNew(dc.ipAddress, dc.port);
-            if (dc.ipAddress == protoSender.dcServerAddress) // same dc
+            if(dcId == configuration.thisDc) // same dc
             {
                 newSession.authKey = session.authKey;
                 newSession.salt = session.salt;
@@ -239,7 +242,7 @@ namespace Telegram.Net.Core
 
             using (var proto = await CreateProto(newSession))
             {
-                if (dc.ipAddress != protoSender.dcServerAddress)
+                if (dcId != configuration.thisDc)
                 {
                     var exportAuthRequest = new AuthExportAuthorizationRequest(dcId);
                     await SendRpcRequest(exportAuthRequest);
@@ -479,19 +482,24 @@ namespace Telegram.Net.Core
         }
 
         // messages.getHistory#92a1df2f peer:InputPeer offset:int max_id:int limit:int = messages.Messages;
-        public async Task<MessagesMessages> GetHistoryForContact(int userId, int offset, int limit, int maxId = -1)
+        public async Task<MessagesMessages> GetHistory(InputPeer inputPeer, int offset, int limit, int maxId = -1)
         {
-            var request = new GetHistoryRequest(new InputPeerContactConstructor(userId), offset, maxId, limit);
+            var request = new GetHistoryRequest(inputPeer, offset, maxId, limit);
             await SendRpcRequest(request);
 
             return request.messages;
         }
-        public async Task<MessagesMessages> GetHistoryForForeignContact(int userId, long accessHash, int offset, int limit, int maxId = -1)
+        public async Task<MessagesMessages> GetHistoryForContact(int userId, int offset = 0, int limit = int.MaxValue, int maxId = -1)
         {
-            var request = new GetHistoryRequest(new InputPeerForeignConstructor(userId, accessHash), offset, maxId, limit);
-            await SendRpcRequest(request);
-
-            return request.messages;
+            return await GetHistory(new InputPeerContactConstructor(userId), offset, limit, maxId);
+        }
+        public async Task<MessagesMessages> GetHistoryForForeignContact(int userId, long accessHash, int offset = 0, int limit = int.MaxValue, int maxId = -1)
+        {
+            return await GetHistory(new InputPeerForeignConstructor(userId, accessHash), offset, limit, maxId);
+        }
+        public async Task<MessagesMessages> GetHistoryForChat(int chatId, int offset = 0, int limit = int.MaxValue, int maxId = -1)
+        {
+            return await GetHistory(new InputPeerChatConstructor(chatId), offset, limit, maxId);
         }
 
         // messages.search#7e9f2ab peer:InputPeer q:string filter:MessagesFilter min_date:int max_date:int offset:int max_id:int limit:int = messages.Messages;
@@ -560,8 +568,18 @@ namespace Telegram.Net.Core
         // messages.reportSpam#cf1592db peer:InputPeer = Bool;
         // messages.hideReportSpam#a8f1709b peer:InputPeer = Bool;
         // messages.getPeerSettings#3672e09c peer:InputPeer = PeerSettings;
+        
         // messages.getChats#3c6aa187 id:Vector<int> = messages.Chats;
+        
         // messages.getFullChat#3b831c66 chat_id:int = messages.ChatFull;
+        public async Task<ChatFull> GetFullChat(int chatId)
+        {
+            var request = new GetFullChatRequest(chatId);
+
+            await SendRpcRequest(request);
+            return request.chatFull;
+        }
+
         // messages.editChatTitle#b4bc68b5 chat_id:int title:string = messages.StatedMessage;
         // messages.editChatPhoto#d881821d chat_id:int photo:InputChatPhoto = messages.StatedMessage;
 
