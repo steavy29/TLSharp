@@ -70,12 +70,11 @@ namespace Telegram.Net.Core.MTProto
             {0x7c596b46, typeof (FileLocationUnavailableConstructor)},
             {0x53d69076, typeof (FileLocationConstructor)},
             {0x200250ba, typeof (UserEmptyConstructor)},
-            {0x720535EC, typeof (UserSelfConstructor)},
             {0x7007b451, typeof (UserSelfConstructor)},
             {0xcab35e18, typeof (UserContactConstructor)},
-            {0x22e8ceb0, typeof (UserRequestConstructor)},
-            {0x5214c89d, typeof (UserForeignConstructor)},
-            {0xb29ad7cc, typeof (UserDeletedConstructor)},
+            {0xd9ccc4ef, typeof (UserRequestConstructor)},
+            {0x075cf7a8, typeof (UserForeignConstructor)},
+            {0xd6016d7a, typeof (UserDeletedConstructor)},
             {0x4f11bae1, typeof (UserProfilePhotoEmptyConstructor)},
             {0xd559d8c8, typeof (UserProfilePhotoConstructor)},
             {0x09d05049, typeof (UserStatusEmptyConstructor)},
@@ -289,8 +288,6 @@ namespace Telegram.Net.Core.MTProto
             {0x36f8c871, typeof (DocumentEmptyConstructor)},
             {0xf9a39f4f, typeof (DocumentConstructor)},
             {0xab3a99ac, typeof (DialogConstructor)},
-            {0xd9ccc4ef, typeof (UserRequestConstructor)},
-            {0x075cf7a8, typeof (UserForeignConstructor)},
             {0x6c37c15c, typeof (DocumentAttributeImageSizeConstructor)},
             {0x11b58939, typeof (DocumentAttributeAnimatedConstructor)},
             {0xfb0a5727, typeof (DocumentAttributeStickerConstructor)},
@@ -2763,7 +2760,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x720535ec);
+            writer.Write(0x7007b451);
             writer.Write(id);
             Serializers.String.Write(writer, firstName);
             Serializers.String.Write(writer, lastName);
@@ -2893,7 +2890,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x22e8ceb0);
+            writer.Write(0xd9ccc4ef);
             writer.Write(id);
             Serializers.String.Write(writer, firstName);
             Serializers.String.Write(writer, lastName);
@@ -2954,7 +2951,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0x5214c89d);
+            writer.Write(0x075cf7a8);
             writer.Write(id);
             Serializers.String.Write(writer, firstName);
             Serializers.String.Write(writer, lastName);
@@ -3007,7 +3004,7 @@ namespace Telegram.Net.Core.MTProto
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(0xb29ad7cc);
+            writer.Write(0xd6016d7a);
             writer.Write(id);
             Serializers.String.Write(writer, firstName);
             Serializers.String.Write(writer, lastName);
