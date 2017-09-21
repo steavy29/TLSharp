@@ -88,6 +88,7 @@
     <Compile Include="Requests\GetUpdatesStateRequest.cs" />
     <Compile Include="Requests\GetFullUserRequest.cs" />
     <Compile Include="Requests\GetUsersRequest.cs" />
+    <Compile Include="Requests\ReceivedMessagesRequest.cs" />
     <Compile Include="Requests\ResolveUserNameRequest.cs" />
     <Compile Include="Requests\ImportContactsRequest.cs" />
     <Compile Include="Requests\SetLayerAndInitConnectionRequest.cs" />
