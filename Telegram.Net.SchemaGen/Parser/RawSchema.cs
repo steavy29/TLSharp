@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Telegram.Net.Tests.SchemaGenerator
+namespace Telegram.Net.SchemaGen.Generator
 {
     static class RawSchema
     {
