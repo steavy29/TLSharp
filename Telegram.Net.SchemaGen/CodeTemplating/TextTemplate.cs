@@ -15,7 +15,7 @@ namespace Telegram.Net.SchemaGen.Generator
 
         private string ReplaceTemplate(string cursorName) => $"##{cursorName}##";
 
-        public void Apply(string cursorName, string value)
+        public void Replace(string cursorName, string value)
         {
             for (var i = 0; i < linedTemplate.Count; i++)
             {
@@ -23,7 +23,7 @@ namespace Telegram.Net.SchemaGen.Generator
             }
         }
 
-        public void Apply(string cursorName, List<string> multilineValue)
+        public void Replace(string cursorName, List<string> multilineValue)
         {
             if (multilineValue.Count == 0)
             {

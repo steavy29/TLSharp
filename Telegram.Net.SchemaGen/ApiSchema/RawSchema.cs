@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Telegram.Net.SchemaGen.Generator
+namespace Telegram.Net.SchemaGen.Parser
 {
-    static class RawSchema
+    public static class RawSchema
     {
         public class File
         {

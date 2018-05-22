@@ -11,6 +11,7 @@
     <AssemblyName>Telegram.Net.SchemaGen</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,13 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Generator\BinaryWriterApi.cs" />
-    <Compile Include="Generator\InlineCursor.cs" />
-    <Compile Include="Generator\RequestTypeBuilder.cs" />
-    <Compile Include="Generator\TextTemplate.cs" />
-    <Compile Include="Parser\RawSchema.cs" />
+    <Compile Include="ApiCodeGenerator.cs" />
+    <Compile Include="CodeTemplating\BinaryWriterApi.cs" />
+    <Compile Include="CodeTemplating\InlineCursor.cs" />
+    <Compile Include="CodeTemplating\RequestTypeBuilder.cs" />
+    <Compile Include="CodeTemplating\TextTemplate.cs" />
+    <Compile Include="ApiSchema\RawSchema.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

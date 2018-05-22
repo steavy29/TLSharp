@@ -13,7 +13,7 @@
 
         public void Build()
         {
-            textTemplate.Apply("ParamFieldsCursor", RequestName);
+            textTemplate.Replace("ParamFieldsCursor", RequestName);
         }
     }
 }

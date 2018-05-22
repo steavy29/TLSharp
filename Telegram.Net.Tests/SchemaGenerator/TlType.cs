@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using Telegram.Net.SchemaGen.Parser;
+
 namespace Telegram.Net.Tests.SchemaGenerator
 {
     class TLType

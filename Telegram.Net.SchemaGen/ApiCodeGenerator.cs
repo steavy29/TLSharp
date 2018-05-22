@@ -1,12 +1,14 @@
 ﻿using System.IO;
+
 using Newtonsoft.Json;
+
 using Telegram.Net.SchemaGen.Parser;
 
-namespace Telegram.Net.Tests.SchemaGenerator
+namespace Telegram.Net.SchemaGen
 {
-    public class Generator
+    class ApiCodeGenerator
     {
-        public static void GenerateSchema()
+        public static void Run()
         {
             var content = File.ReadAllLines("schema.json");
             var schemaLine = content[0];
@@ -19,14 +21,13 @@ namespace Telegram.Net.Tests.SchemaGenerator
             Directory.CreateDirectory("src");
             Directory.CreateDirectory("src/Constructors");
 
-            var constantsClass = new CodeGen.Class("TlConstants", true);
             foreach (var constructorInfo in schema.constructors)
             {
                 var tlType = new TLType(constructorInfo);
 
                 if (tlType.mapsToBuiltInType)
                 {
-                    if(tlType.typeName == "true") // redundand class
+                    if (tlType.typeName == "true") // redundand class
                         continue;
 
                     constantsClass.fields.Add(tlType.AsIdField());
