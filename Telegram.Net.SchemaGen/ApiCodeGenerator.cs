@@ -3,7 +3,6 @@
 using Newtonsoft.Json;
 
 using Telegram.Net.SchemaGen.CodeTemplating;
-using Telegram.Net.SchemaGen.Parser;
 
 namespace Telegram.Net.SchemaGen
 {
@@ -16,7 +15,7 @@ namespace Telegram.Net.SchemaGen
         {
             var content = File.ReadAllText("schema.json");
 
-            var schema = JsonConvert.DeserializeObject<RawSchema.File>(content);
+            var schema = JsonConvert.DeserializeObject<ApiSchema.File>(content);
 
             if (Directory.Exists("src"))
                 Directory.Delete("src", true);
@@ -28,7 +27,7 @@ namespace Telegram.Net.SchemaGen
             var constructorTemplate = File.ReadAllLines(ConstructorTemplateFileName);
             var requestTemplate = File.ReadAllLines(RequestTemplateFileName);
 
-            foreach (var constructorInfo in schema.constructors)
+            foreach (var constructorInfo in schema.Constructors)
             {
                 if (constructorInfo.IsSystemType)
                 {
@@ -55,7 +54,7 @@ namespace Telegram.Net.SchemaGen
                 srcFile.Write(srcFileStream);
             }*/
 
-            foreach (var methodInfo in schema.methods)
+            foreach (var methodInfo in schema.Methods)
             {
                 var template = new CodeTemplate(requestTemplate);
                 var requestTypeBuilder = new RequestTypeBuilder(template, methodInfo);

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
-using Telegram.Net.SchemaGen.Parser;
+using Telegram.Net.SchemaGen;
 
 namespace Telegram.Net.Tests.SchemaGenerator
 {
     class TLType
     {
-        private readonly RawSchema.ConstructorInfo constructorInfo;
+        private readonly ApiSchema.ConstructorInfo constructorInfo;
 
         private static readonly HashSet<string> builtInTypes = new HashSet<string> { "booltrue", "boolfalse", "true", "vector", "null" };
         public bool mapsToBuiltInType => builtInTypes.Contains(typeName.ToLowerInvariant());
@@ -17,24 +16,24 @@ namespace Telegram.Net.Tests.SchemaGenerator
         public string typeName;
         public string namespaceName;
 
-        public TLType(RawSchema.ConstructorInfo constructorInfo)
+        public TLType(ApiSchema.ConstructorInfo constructorInfo)
         {
             this.constructorInfo = constructorInfo;
-            id = constructorInfo.id;
-            baseTypeName = constructorInfo.type;
-            typeName = constructorInfo.predicate.Split('.').Last().Capitalize();
+            id = constructorInfo.Id;
+            baseTypeName = constructorInfo.Type;
+            typeName = constructorInfo.Predicate.Split('.').Last().Capitalize();
 
-            var splitted = constructorInfo.type.Split('.');
+            var splitted = constructorInfo.Type.Split('.');
             namespaceName = splitted.Length == 2 ? splitted.First() : null;
         }
 
         public CodeGen.Class GetCodeClass()
         {
-            var constructorClass = new CodeGen.Class(typeName, false, constructorInfo.type);
+            var constructorClass = new CodeGen.Class(typeName, false, constructorInfo.Type);
 
-            foreach (var parameter in constructorInfo.@params)
+            foreach (var parameter in constructorInfo.Params)
             {
-                var field = new CodeGen.Field(CodeGen.AccessType.Public(), true, parameter.type, parameter.name);
+                var field = new CodeGen.Field(CodeGen.AccessType.Public(), true, parameter.Type, parameter.Name);
                 constructorClass.fields.Add(field);
             }
 
@@ -63,15 +62,15 @@ namespace Telegram.Net.Tests.SchemaGenerator
 
     class TLRequest
     {
-        private readonly RawSchema.MethodInfo methodInfo;
+        private readonly ApiSchema.MethodInfo methodInfo;
 
-        public TLRequest(RawSchema.MethodInfo methodInfo)
+        public TLRequest(ApiSchema.MethodInfo methodInfo)
         {
             this.methodInfo = methodInfo;
         }
 
-        public string namespaceName => methodInfo.method.Split('.')[0];
-        public string requestName => methodInfo.method.Split('.')[1];
+        public string namespaceName => methodInfo.Method.Split('.')[0];
+        public string requestName => methodInfo.Method.Split('.')[1];
 
         public CodeGen.Class GetClass()
         {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
-using Telegram.Net.SchemaGen.Parser;
+using Telegram.Net.SchemaGen;
 
 namespace Telegram.Net.Tests.SchemaGenerator
 {
@@ -11,7 +11,7 @@ namespace Telegram.Net.Tests.SchemaGenerator
             var content = File.ReadAllLines("schema.json");
             var schemaLine = content[0];
 
-            var schema = JsonConvert.DeserializeObject<RawSchema.File>(schemaLine);
+            var schema = JsonConvert.DeserializeObject<ApiSchema.File>(schemaLine);
 
             if (Directory.Exists("src"))
                 Directory.Delete("src", true);
@@ -20,7 +20,7 @@ namespace Telegram.Net.Tests.SchemaGenerator
             Directory.CreateDirectory("src/Constructors");
 
             var constantsClass = new CodeGen.Class("TlConstants", true);
-            foreach (var constructorInfo in schema.constructors)
+            foreach (var constructorInfo in schema.Constructors)
             {
                 var tlType = new TLType(constructorInfo);
 
@@ -51,9 +51,9 @@ namespace Telegram.Net.Tests.SchemaGenerator
             }
 
             Directory.CreateDirectory("src/Methods");
-            foreach (var method in schema.methods)
+            foreach (var method in schema.Methods)
             {
-                using (var srcFile = File.CreateText($"src/Methods/{method.method}.cs"))
+                using (var srcFile = File.CreateText($"src/Methods/{method.Method}.cs"))
                 {
 
                 }

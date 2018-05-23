@@ -1,13 +1,11 @@
 ﻿using System.Linq;
 
-using Telegram.Net.SchemaGen.Parser;
-
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
     public class ConstructorTypeBuilder
     {
         private readonly CodeTemplate codeTemplate;
-        private readonly RawSchema.ConstructorInfo constructorInfo;
+        private readonly ApiSchema.ConstructorInfo constructorInfo;
 
         public string Id { get; private set; }
 
@@ -16,7 +14,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         public string NamespaceName { get; private set; }
         public string ClassName { get; private set; }
 
-        public ConstructorTypeBuilder(CodeTemplate codeTemplate, RawSchema.ConstructorInfo constructorInfo)
+        public ConstructorTypeBuilder(CodeTemplate codeTemplate, ApiSchema.ConstructorInfo constructorInfo)
         {
             this.codeTemplate = codeTemplate;
             this.constructorInfo = constructorInfo;
@@ -24,14 +22,14 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
         public void Build()
         {
-            Id = constructorInfo.id;
-            BaseTypeName = constructorInfo.type;
-            TypeName = constructorInfo.predicate.Split('.').Last().Capitalize();
+            Id = constructorInfo.Id;
+            BaseTypeName = constructorInfo.Type;
+            TypeName = constructorInfo.Predicate.Split('.').Last().Capitalize();
 
-            var typeFieldSplitted = constructorInfo.type.Split('.');
+            var typeFieldSplitted = constructorInfo.Type.Split('.');
             NamespaceName = typeFieldSplitted.Length == 2 ? typeFieldSplitted.First() : null;
 
-            ClassName = constructorInfo.predicate;
+            ClassName = constructorInfo.Predicate;
 
             codeTemplate.Replace("ParamFieldsCursor", ClassName);
         }

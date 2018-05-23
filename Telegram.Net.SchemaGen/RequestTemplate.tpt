@@ -13,7 +13,7 @@ namespace Telegram.Net.Core.Requests
 
         public ##RequestNameCursor##(##ConstructorParamsCursor##)
         {
-			##ParamsInitCursor##
+			##ParamFieldsInitCursor##
         }
 
         public override void OnSend(BinaryWriter writer)

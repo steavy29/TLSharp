@@ -50,7 +50,7 @@
     <Compile Include="CodeTemplating\InlineCursor.cs" />
     <Compile Include="CodeTemplating\RequestTypeBuilder.cs" />
     <Compile Include="CodeTemplating\CodeTemplate.cs" />
-    <Compile Include="ApiSchema\RawSchema.cs" />
+    <Compile Include="ApiSchema.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
