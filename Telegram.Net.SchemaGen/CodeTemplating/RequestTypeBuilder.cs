@@ -55,6 +55,10 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
             NamespaceName = methodFieldSplitted[0];
             RequestName = methodFieldSplitted[1];
 
+            var typeSplitted = methodInfo.type.Split('.');
+            var resultNamespace = typeSplitted[0];
+            var resultType = typeSplitted[1];
+
             codeTemplate.Replace("RequestNameCursor", RequestName);
 
             var paramFieldLines = new List<string>(methodInfo.@params.Count);
@@ -70,6 +74,13 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
                 paramFieldLines.Add(classField.ToString());
             }
+
+            var resultField = new CodeSnippets.ClassField
+            {
+                Access = CodeSnippets.Access.Public,
+                Type = resultType,
+                Name = resultType
+            };
 
             codeTemplate.Replace("ParamFieldsCursor", paramFieldLines);
         }
