@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Telegram.Net.SchemaGen.Generator
+namespace Telegram.Net.SchemaGen.CodeTemplating
 {
-    public class TextTemplate
+    public class CodeTemplate
     {
         private readonly List<string> linedTemplate;
 
-        public TextTemplate(string text)
+        public CodeTemplate(string [] linedTemplate)
         {
-            linedTemplate = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+            this.linedTemplate = linedTemplate.ToList();
         }
 
         private string ReplaceTemplate(string cursorName) => $"##{cursorName}##";

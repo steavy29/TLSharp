@@ -46,14 +46,25 @@
   <ItemGroup>
     <Compile Include="ApiCodeGenerator.cs" />
     <Compile Include="CodeTemplating\BinaryWriterApi.cs" />
+    <Compile Include="CodeTemplating\ConstructorTypeBuilder.cs" />
     <Compile Include="CodeTemplating\InlineCursor.cs" />
     <Compile Include="CodeTemplating\RequestTypeBuilder.cs" />
-    <Compile Include="CodeTemplating\TextTemplate.cs" />
+    <Compile Include="CodeTemplating\CodeTemplate.cs" />
     <Compile Include="ApiSchema\RawSchema.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ConstructorTemplate.tpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
+    <Content Include="RequestTemplate.tpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

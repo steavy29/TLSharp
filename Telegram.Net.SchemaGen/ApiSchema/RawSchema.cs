@@ -12,10 +12,19 @@ namespace Telegram.Net.SchemaGen.Parser
 
         public class ConstructorInfo
         {
+            public static HashSet<string> SystemTypes = new HashSet<string>
+            {
+                "Bool",
+                "True",
+                "Vector t"
+            };
+
             public string id;
             public string predicate;
             public List<ParameterInfo> @params;
             public string type;
+
+            public bool IsSystemType => SystemTypes.Contains(type);
         }
 
         public class MethodInfo

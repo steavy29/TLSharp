@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Telegram.Net.Tests.SchemaGenerator;
+
+using Telegram.Net.SchemaGen;
 
 namespace Telegram.Net.Tests
 {
@@ -9,7 +10,7 @@ namespace Telegram.Net.Tests
         [TestMethod]
         public void GenerateSchema()
         {
-            Generator.GenerateSchema();
+            ApiCodeGenerator.Run();
         }
     }
 }

@@ -2,61 +2,70 @@
 
 using Newtonsoft.Json;
 
+using Telegram.Net.SchemaGen.CodeTemplating;
 using Telegram.Net.SchemaGen.Parser;
 
 namespace Telegram.Net.SchemaGen
 {
-    class ApiCodeGenerator
+    public class ApiCodeGenerator
     {
+        private static readonly string ConstructorTemplateFileName = "ConstructorTemplate.tpt";
+        private static readonly string RequestTemplateFileName = "RequestTemplate.tpt";
+
         public static void Run()
         {
-            var content = File.ReadAllLines("schema.json");
-            var schemaLine = content[0];
+            var content = File.ReadAllText("schema.json");
 
-            var schema = JsonConvert.DeserializeObject<RawSchema.File>(schemaLine);
+            var schema = JsonConvert.DeserializeObject<RawSchema.File>(content);
 
             if (Directory.Exists("src"))
                 Directory.Delete("src", true);
 
             Directory.CreateDirectory("src");
             Directory.CreateDirectory("src/Constructors");
+            Directory.CreateDirectory("src/Methods");
+
+            var constructorTemplate = File.ReadAllLines(ConstructorTemplateFileName);
+            var requestTemplate = File.ReadAllLines(RequestTemplateFileName);
 
             foreach (var constructorInfo in schema.constructors)
             {
-                var tlType = new TLType(constructorInfo);
-
-                if (tlType.mapsToBuiltInType)
+                if (constructorInfo.IsSystemType)
                 {
-                    if (tlType.typeName == "true") // redundand class
-                        continue;
-
-                    constantsClass.fields.Add(tlType.AsIdField());
                     continue;
                 }
 
-                using (var srcFileStream = File.CreateText($"src/Constructors/{tlType.typeName}.cs"))
-                {
-                    var srcFile = new CodeGen.SourceFile();
-                    srcFile.classes.Add(tlType.GetCodeClass());
+                var template = new CodeTemplate(constructorTemplate);
+                var constructorTypeBuilder = new ConstructorTypeBuilder(template, constructorInfo);
 
-                    srcFile.Write(srcFileStream);
+                constructorTypeBuilder.Build();
+
+                var generatedCode = template.ToString();
+                using (var srcFileStream = File.CreateText($"src/Constructors/{constructorTypeBuilder.ClassName}.cs"))
+                {
+                    srcFileStream.Write(generatedCode);
                 }
             }
 
-            using (var srcFileStream = File.CreateText($"src/{constantsClass.name}.cs"))
+            /*using (var srcFileStream = File.CreateText($"src/{constantsClass.name}.cs"))
             {
                 var srcFile = new CodeGen.SourceFile();
                 srcFile.classes.Add(constantsClass);
 
                 srcFile.Write(srcFileStream);
-            }
+            }*/
 
-            Directory.CreateDirectory("src/Methods");
-            foreach (var method in schema.methods)
+            foreach (var methodInfo in schema.methods)
             {
-                using (var srcFile = File.CreateText($"src/Methods/{method.method}.cs"))
-                {
+                var template = new CodeTemplate(requestTemplate);
+                var requestTypeBuilder = new RequestTypeBuilder(template, methodInfo);
 
+                requestTypeBuilder.Build();
+
+                var generatedCode = template.ToString();
+                using (var srcFile = File.CreateText($"src/Methods/{requestTypeBuilder.RequestName}.cs"))
+                {
+                    srcFile.Write(generatedCode);
                 }
             }
         }
