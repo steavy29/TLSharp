@@ -24,9 +24,22 @@ namespace Telegram.Net.SchemaGen
             Directory.CreateDirectory("src/Constructors");
             Directory.CreateDirectory("src/Methods");
 
-            var constructorTemplate = File.ReadAllLines(ConstructorTemplateFileName);
             var requestTemplate = File.ReadAllLines(RequestTemplateFileName);
+            foreach (var methodInfo in schema.Methods)
+            {
+                var template = new CodeTemplate(requestTemplate);
+                var requestTypeBuilder = new RequestTypeBuilder(template, methodInfo);
 
+                requestTypeBuilder.Build();
+
+                var generatedCode = template.ToString();
+                using (var srcFile = File.CreateText($"src/Methods/{requestTypeBuilder.RequestName}.cs"))
+                {
+                    srcFile.Write(generatedCode);
+                }
+            }
+
+            var constructorTemplate = File.ReadAllLines(ConstructorTemplateFileName);
             foreach (var constructorInfo in schema.Constructors)
             {
                 if (constructorInfo.IsSystemType)
@@ -43,28 +56,6 @@ namespace Telegram.Net.SchemaGen
                 using (var srcFileStream = File.CreateText($"src/Constructors/{constructorTypeBuilder.ClassName}.cs"))
                 {
                     srcFileStream.Write(generatedCode);
-                }
-            }
-
-            /*using (var srcFileStream = File.CreateText($"src/{constantsClass.name}.cs"))
-            {
-                var srcFile = new CodeGen.SourceFile();
-                srcFile.classes.Add(constantsClass);
-
-                srcFile.Write(srcFileStream);
-            }*/
-
-            foreach (var methodInfo in schema.Methods)
-            {
-                var template = new CodeTemplate(requestTemplate);
-                var requestTypeBuilder = new RequestTypeBuilder(template, methodInfo);
-
-                requestTypeBuilder.Build();
-
-                var generatedCode = template.ToString();
-                using (var srcFile = File.CreateText($"src/Methods/{requestTypeBuilder.RequestName}.cs"))
-                {
-                    srcFile.Write(generatedCode);
                 }
             }
         }

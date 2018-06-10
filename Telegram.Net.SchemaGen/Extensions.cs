@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Telegram.Net.SchemaGen
 {
@@ -37,6 +38,11 @@ namespace Telegram.Net.SchemaGen
                 return (splitted[0], null);
 
             return (null, splitted[0]);
+        }
+
+        public static string CompressSpaces(string value)
+        {
+            return Regex.Replace(value, "\\s+", " ");
         }
     }
 }
