@@ -23,7 +23,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         public string NamespaceName { get; private set; }
         public string RequestName { get; private set; }
         public string ResultType { get; private set; }
-        public bool HasReturnType => ApiSchema.IsSkipItemType(ResultType);
+        public bool HasReturnType => !ApiSchema.IsSkipItemType(ResultType);
 
         public RequestTypeBuilder(CodeTemplate codeTemplate, ApiSchema.MethodInfo methodInfo)
         {
@@ -50,7 +50,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                     continue;
                 }
 
-                var isCustomType = ApiSchema.BasicTypes.Contains(paramField.Type);
+                var isCustomType = ApiSchema.ApiTypes.IsCustomType(paramField.Type);
                 var fieldType = CodeSnippets.Naming.CamelCase(paramField.Type, isCustomType);
                 var fieldName = CodeSnippets.Naming.CamelCase(paramField.Name, false);
 
@@ -83,7 +83,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
             (string, string) typeSplitted = Extensions.SplitToTuple(methodInfo.Type, '.', false);
             ResultType = typeSplitted.Item2;
 
-            if (HasReturnType)
+            if (!HasReturnType)
             {
                 codeTemplate.RemoveCursorFullLine(ResultsCursor, true);
                 return;
@@ -151,8 +151,8 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 codeTemplate.RemoveCursorFullLine(OnResponseCursor);
                 return;
             }
-            
-            var readStatement = ApiSchema.BasicTypes.Contains(methodInfo.Type) ?
+
+            var readStatement = ApiSchema.ApiTypes.IsBasicType(methodInfo.Type) ?
                     $"reader.Read({ResultFieldName});" :
                     $"{ResultFieldName} = TL.Parse<{ResultType}>(reader);";
 

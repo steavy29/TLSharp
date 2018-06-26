@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 
 using Newtonsoft.Json;
 
@@ -17,8 +19,7 @@ namespace Telegram.Net.SchemaGen
 
             var schema = JsonConvert.DeserializeObject<ApiSchema.File>(content);
 
-            if (Directory.Exists("src"))
-                Directory.Delete("src", true);
+            CleanUpDirectory("src");
 
             Directory.CreateDirectory("src");
             Directory.CreateDirectory("src/Constructors");
@@ -56,6 +57,27 @@ namespace Telegram.Net.SchemaGen
                 using (var srcFileStream = File.CreateText($"src/Constructors/{constructorTypeBuilder.ClassName}.cs"))
                 {
                     srcFileStream.Write(generatedCode);
+                }
+            }
+        }
+
+        private static void CleanUpDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                return;
+            }
+
+            var codeFilesPaths = Directory.GetFiles(directoryPath, "*.cs");
+            foreach (var codeFilePath in codeFilesPaths)
+            {
+                try
+                {
+                    File.Delete(codeFilePath);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Failed to remove file: {codeFilePath}, Exception: {e}");
                 }
             }
         }
