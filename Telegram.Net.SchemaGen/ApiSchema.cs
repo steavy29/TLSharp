@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Telegram.Net.SchemaGen.CodeTemplating;
 
@@ -22,7 +23,9 @@ namespace Telegram.Net.SchemaGen
 
             private static readonly Dictionary<string, string> typeMappings = new Dictionary<string, string>
             {
-
+                { "Bytes", "byte[]" },
+                { "Bool", "bool" },
+                { "Vector<string>", "string[]" },
             };
 
             public static string GetCSharpType(string apiType)

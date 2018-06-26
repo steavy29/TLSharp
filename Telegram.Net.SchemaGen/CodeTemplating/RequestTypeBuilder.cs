@@ -65,7 +65,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 classFields.Add(classField);
             }
 
-            codeTemplate.Replace(ParamFieldsCursor, classFields.Select(f => f.ToString()).ToList());
+            BuildParamFields(classFields);
 
             BuildResult();
             BuildConstructor(classFields);
@@ -76,6 +76,11 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         private void BuildCode()
         {
             codeTemplate.Replace(CodeCursor, methodInfo.Id);
+        }
+
+        private void BuildParamFields(List<CodeSnippets.ClassField> classFields)
+        {
+            codeTemplate.Replace(ParamFieldsCursor, classFields.Select(f => f.ToString()).ToList(), EmptyMultilineReplace.RemoveCursorLine);
         }
 
         private void BuildResult()
@@ -89,14 +94,18 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 return;
             }
 
-            var resultField = new CodeSnippets.ClassField
+            var resultProperty = new CodeSnippets.ClassProperty
             {
                 Access = CodeSnippets.Access.Public,
                 Type = ResultType,
-                Name = ResultFieldName
+                Name = ResultFieldName,
+                HasGet = true,
+                GetAccess = CodeSnippets.Access.Public,
+                HasSet = true,
+                SetAccess = CodeSnippets.Access.Private
             };
 
-            codeTemplate.Replace(ResultsCursor, resultField.ToString());
+            codeTemplate.Replace(ResultsCursor, resultProperty.ToString());
         }
 
         private void BuildConstructor(List<CodeSnippets.ClassField> classFields)
@@ -125,7 +134,8 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
             var constructorParamsCodeStr = CodeSnippets.ConcatMethodParams(constructorParams);
 
             codeTemplate.Replace(ConstructorParamsCursor, constructorParamsCodeStr);
-            codeTemplate.Replace(ParamFieldsInitCursor, fieldsAssignments.StringifyEnumerable().ToList());
+
+            codeTemplate.Replace(ParamFieldsInitCursor, fieldsAssignments.StringifyEnumerable().ToList(), EmptyMultilineReplace.RemoveCursorLine);
         }
 
         private void BuildOnSend(List<CodeSnippets.ClassField> classFields)

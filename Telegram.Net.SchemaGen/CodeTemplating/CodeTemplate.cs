@@ -6,6 +6,14 @@ using System.Text.RegularExpressions;
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
+    public enum EmptyMultilineReplace
+    {
+        None,
+        RemoveCursorOnly,
+        RemoveCursorLine,
+        RemoveCursorLineAndLineOneAfter
+    }
+
     public class CodeTemplate
     {
         private readonly List<string> linedTemplate;
@@ -61,10 +69,23 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
             }
         }
 
-        public void Replace(string cursorName, List<string> multilineValue)
+        public void Replace(string cursorName, List<string> multilineValue, EmptyMultilineReplace emptyBehaviour = EmptyMultilineReplace.None)
         {
             if (multilineValue.Count == 0)
             {
+                switch (emptyBehaviour)
+                {
+                    case EmptyMultilineReplace.RemoveCursorLine:
+                        RemoveCursorFullLine(cursorName);
+                        break;
+                    case EmptyMultilineReplace.RemoveCursorLineAndLineOneAfter:
+                        RemoveCursorFullLine(cursorName, true);
+                        break;
+                    case EmptyMultilineReplace.RemoveCursorOnly:
+                        Replace(cursorName, string.Empty);
+                        break;
+                }
+
                 return;
             }
 

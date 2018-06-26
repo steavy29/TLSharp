@@ -6,10 +6,95 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 {
     public static class CodeSnippets
     {
-        public enum Access
+        public class StringValue
         {
-            Private,
-            Public
+            public readonly string Value;
+
+            public StringValue(string value)
+            {
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return Value;
+            }
+
+            protected bool Equals(StringValue other)
+            {
+                return string.Equals(Value, other.Value);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+
+                return Equals((StringValue)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return Value != null ? Value.GetHashCode() : 0;
+            }
+        }
+
+        public class Access : StringValue
+        {
+            public static Access Private = new Access("private");
+
+            public static Access Public = new Access("public");
+
+            public Access(string value)
+                : base(value)
+            {
+            }
+
+            public static string ToStringIfNot(Access value, Access ifNot)
+            {
+                if (value == null)
+                {
+                    return string.Empty;
+                }
+
+                if (value.Equals(ifNot))
+                {
+                    return string.Empty;
+                }
+
+                return value.ToString();
+            }
+        }
+
+        public class ClassProperty
+        {
+            public string Type;
+            public string Name;
+            public string DefaultValue;
+            public Access Access;
+
+            public bool HasGet;
+            public Access GetAccess;
+            public bool HasSet;
+            public Access SetAccess;
+
+            public bool IsStatic;
+
+            public override string ToString()
+            {
+                var result = $"{Access.ToString().ToLower()} {(IsStatic ? "static" : "")} {Type} {Name} " +
+                             $"{{ {(HasGet ? Access.ToStringIfNot(GetAccess, Access.Public) + " get; " : "")}" +
+                             $"{(HasSet ? Access.ToStringIfNot(SetAccess, Access.Public) + " set; " : "")} }}";
+
+                result = Extensions.CompressSpaces(result);
+
+                if (DefaultValue != null)
+                {
+                    result += $" {DefaultValue}";
+                }
+                return result + ";";
+            }
         }
 
         public class ClassField
