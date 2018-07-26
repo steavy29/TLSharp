@@ -1,4 +1,4 @@
-﻿namespace Telegram.Net.SchemaGen.Generator
+﻿namespace Telegram.Net.SchemaGen.CodeTemplating
 {
     public class InlineCursor
     {

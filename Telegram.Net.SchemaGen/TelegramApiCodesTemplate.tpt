@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+
+namespace Telegram.Net.Core.MTProto
+{
+    public static partial class TelegramApi
+    {
+        public static class Codes
+        {
+            public static readonly Dictionary<uint, Type> Constructors = new Dictionary<uint, Type>
+            {
+                ##CodeDeclarationsCursor##
+            };
+        }
+    }
+}

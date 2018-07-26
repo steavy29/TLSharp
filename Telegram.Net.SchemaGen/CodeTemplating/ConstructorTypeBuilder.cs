@@ -2,9 +2,8 @@
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
-    public class ConstructorTypeBuilder
+    public class ConstructorTypeBuilder : CodeBuilder
     {
-        private readonly CodeTemplate codeTemplate;
         private readonly ApiSchema.ConstructorInfo constructorInfo;
 
         public string Id { get; private set; }
@@ -14,13 +13,13 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         public string NamespaceName { get; private set; }
         public string ClassName { get; private set; }
 
-        public ConstructorTypeBuilder(CodeTemplate codeTemplate, ApiSchema.ConstructorInfo constructorInfo)
+        public ConstructorTypeBuilder(CodeTemplateInstance codeTemplate, ApiSchema.ConstructorInfo constructorInfo)
+            : base(codeTemplate)
         {
-            this.codeTemplate = codeTemplate;
             this.constructorInfo = constructorInfo;
         }
 
-        public void Build()
+        public override void Build()
         {
             Id = constructorInfo.Id;
             BaseTypeName = constructorInfo.Type;
@@ -31,7 +30,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
             ClassName = constructorInfo.Predicate;
 
-            codeTemplate.Replace("ParamFieldsCursor", ClassName);
+            CodeTemplate.Replace("ParamFieldsCursor", ClassName);
         }
     }
 }

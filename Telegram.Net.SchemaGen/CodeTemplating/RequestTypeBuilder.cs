@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
-    public class RequestTypeBuilder
+    public class RequestTypeBuilder : CodeBuilder
     {
         private readonly string RequestNameCursor = "RequestNameCursor";
         private readonly string CodeCursor = "CodeCursor";
@@ -17,7 +17,6 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         private readonly string CodeFieldName = "Code";
         private readonly string ResultFieldName = "Result";
 
-        private readonly CodeTemplate codeTemplate;
         private readonly ApiSchema.MethodInfo methodInfo;
 
         public string NamespaceName { get; private set; }
@@ -25,20 +24,19 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
         public string ResultType { get; private set; }
         public bool HasReturnType => !ApiSchema.IsSkipItemType(ResultType);
 
-        public RequestTypeBuilder(CodeTemplate codeTemplate, ApiSchema.MethodInfo methodInfo)
+        public RequestTypeBuilder(CodeTemplateInstance codeTemplate, ApiSchema.MethodInfo methodInfo) : base(codeTemplate)
         {
-            this.codeTemplate = codeTemplate;
             this.methodInfo = methodInfo;
         }
 
-        public void Build()
+        public override void Build()
         {
             (string, string) methodFieldSplitted = Extensions.SplitToTuple(methodInfo.Method, '.', false);
 
             NamespaceName = methodFieldSplitted.Item1;
             RequestName = CodeSnippets.Naming.CamelCase(methodFieldSplitted.Item2, true);
 
-            codeTemplate.Replace(RequestNameCursor, RequestName);
+            CodeTemplate.Replace(RequestNameCursor, RequestName);
 
             BuildCode();
 
@@ -75,12 +73,12 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
         private void BuildCode()
         {
-            codeTemplate.Replace(CodeCursor, methodInfo.Id);
+            CodeTemplate.Replace(CodeCursor, methodInfo.Id);
         }
 
         private void BuildParamFields(List<CodeSnippets.ClassField> classFields)
         {
-            codeTemplate.Replace(ParamFieldsCursor, classFields.Select(f => f.ToString()).ToList(), EmptyMultilineReplace.RemoveCursorLine);
+            CodeTemplate.Replace(ParamFieldsCursor, classFields.Select(f => f.ToString()).ToList(), EmptyMultilineReplace.RemoveCursorLine);
         }
 
         private void BuildResult()
@@ -90,7 +88,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
             if (!HasReturnType)
             {
-                codeTemplate.RemoveCursorFullLine(ResultsCursor, true);
+                CodeTemplate.RemoveCursorFullLine(ResultsCursor, true);
                 return;
             }
 
@@ -105,7 +103,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 SetAccess = CodeSnippets.Access.Private
             };
 
-            codeTemplate.Replace(ResultsCursor, resultProperty.ToString());
+            CodeTemplate.Replace(ResultsCursor, resultProperty.ToString());
         }
 
         private void BuildConstructor(List<CodeSnippets.ClassField> classFields)
@@ -133,9 +131,9 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
             var constructorParamsCodeStr = CodeSnippets.ConcatMethodParams(constructorParams);
 
-            codeTemplate.Replace(ConstructorParamsCursor, constructorParamsCodeStr);
+            CodeTemplate.Replace(ConstructorParamsCursor, constructorParamsCodeStr);
 
-            codeTemplate.Replace(ParamFieldsInitCursor, fieldsAssignments.StringifyEnumerable().ToList(), EmptyMultilineReplace.RemoveCursorLine);
+            CodeTemplate.Replace(ParamFieldsInitCursor, fieldsAssignments.StringifyEnumerable().ToList(), EmptyMultilineReplace.RemoveCursorLine);
         }
 
         private void BuildOnSend(List<CodeSnippets.ClassField> classFields)
@@ -151,14 +149,14 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 onSendSection.Add($"writer.Write({field.Name});");
             }
 
-            codeTemplate.Replace(OnSendBodyCursor, onSendSection);
+            CodeTemplate.Replace(OnSendBodyCursor, onSendSection);
         }
 
         private void BuildOnResponse()
         {
             if (!HasReturnType)
             {
-                codeTemplate.RemoveCursorFullLine(OnResponseCursor);
+                CodeTemplate.RemoveCursorFullLine(OnResponseCursor);
                 return;
             }
 
@@ -166,7 +164,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                     $"reader.Read({ResultFieldName});" :
                     $"{ResultFieldName} = TL.Parse<{ResultType}>(reader);";
 
-            codeTemplate.Replace(OnResponseCursor, readStatement);
+            CodeTemplate.Replace(OnResponseCursor, readStatement);
         }
     }
 }

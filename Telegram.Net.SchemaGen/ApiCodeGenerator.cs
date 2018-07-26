@@ -12,6 +12,7 @@ namespace Telegram.Net.SchemaGen
     {
         private static readonly string ConstructorTemplateFileName = "ConstructorTemplate.tpt";
         private static readonly string RequestTemplateFileName = "RequestTemplate.tpt";
+        private static readonly string TelegramApiCodesTemplate = "TelegramApiCodesTemplate.tpt";
 
         public static void Run()
         {
@@ -25,10 +26,10 @@ namespace Telegram.Net.SchemaGen
             Directory.CreateDirectory("src/Constructors");
             Directory.CreateDirectory("src/Methods");
 
-            var requestTemplate = File.ReadAllLines(RequestTemplateFileName);
+            var requestTemplateSchema = CodeTemplateSchema.ReadFromFile(RequestTemplateFileName);
             foreach (var methodInfo in schema.Methods)
             {
-                var template = new CodeTemplate(requestTemplate);
+                var template = requestTemplateSchema.CreateInstance();
                 var requestTypeBuilder = new RequestTypeBuilder(template, methodInfo);
 
                 requestTypeBuilder.Build();
@@ -40,7 +41,10 @@ namespace Telegram.Net.SchemaGen
                 }
             }
 
-            var constructorTemplate = File.ReadAllLines(ConstructorTemplateFileName);
+            var apiCodesRegistryTemplate = CodeTemplateSchema.ReadFromFile(TelegramApiCodesTemplate).CreateInstance();
+            var apiCodesRegistryBuilder = new ApiCodesRegistryBuilder(apiCodesRegistryTemplate);
+
+            var constructorTemplateSchema = CodeTemplateSchema.ReadFromFile(ConstructorTemplateFileName);
             foreach (var constructorInfo in schema.Constructors)
             {
                 if (constructorInfo.IsSystemType)
@@ -48,16 +52,24 @@ namespace Telegram.Net.SchemaGen
                     continue;
                 }
 
-                var template = new CodeTemplate(constructorTemplate);
+                var template = constructorTemplateSchema.CreateInstance();
                 var constructorTypeBuilder = new ConstructorTypeBuilder(template, constructorInfo);
 
                 constructorTypeBuilder.Build();
+
+                apiCodesRegistryBuilder.RegisterType(constructorTypeBuilder.Id, constructorTypeBuilder.TypeName);
 
                 var generatedCode = template.ToString();
                 using (var srcFileStream = File.CreateText($"src/Constructors/{constructorTypeBuilder.ClassName}.cs"))
                 {
                     srcFileStream.Write(generatedCode);
                 }
+            }
+
+            using (var srcFileStream = File.CreateText("src/TelegramApi.Codes.cs"))
+            {
+                var generatedCode = apiCodesRegistryTemplate.ToString();
+                srcFileStream.Write(generatedCode);
             }
         }
 
@@ -68,7 +80,7 @@ namespace Telegram.Net.SchemaGen
                 return;
             }
 
-            var codeFilesPaths = Directory.GetFiles(directoryPath, "*.cs");
+            var codeFilesPaths = Directory.GetFiles(directoryPath, "*.cs", SearchOption.AllDirectories);
             foreach (var codeFilePath in codeFilesPaths)
             {
                 try

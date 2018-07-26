@@ -45,11 +45,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiCodeGenerator.cs" />
+    <Compile Include="CodeTemplating\ApiCodesRegistryBuilder.cs" />
+    <Compile Include="CodeTemplating\CodeBuilder.cs" />
     <Compile Include="CodeTemplating\CodeSnippets.cs" />
+    <Compile Include="CodeTemplating\CodeTemplateSchema.cs" />
     <Compile Include="CodeTemplating\ConstructorTypeBuilder.cs" />
+    <Compile Include="CodeTemplating\EmptyMultilineReplace.cs" />
     <Compile Include="CodeTemplating\InlineCursor.cs" />
     <Compile Include="CodeTemplating\RequestTypeBuilder.cs" />
-    <Compile Include="CodeTemplating\CodeTemplate.cs" />
+    <Compile Include="CodeTemplating\CodeTemplateInstance.cs" />
     <Compile Include="ApiSchema.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +69,7 @@
     <Content Include="schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="TelegramApiCodesTemplate.tpt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -6,21 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
-    public enum EmptyMultilineReplace
-    {
-        None,
-        RemoveCursorOnly,
-        RemoveCursorLine,
-        RemoveCursorLineAndLineOneAfter
-    }
-
-    public class CodeTemplate
+    public class CodeTemplateInstance
     {
         private readonly List<string> linedTemplate;
 
-        public CodeTemplate(string[] linedTemplate)
+        public CodeTemplateInstance(List<string> linedTemplate)
         {
-            this.linedTemplate = linedTemplate.ToList();
+            this.linedTemplate = linedTemplate;
         }
 
         private string FullCursorStr(string cursorName) => $"##{cursorName}##";
