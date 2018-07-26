@@ -2,13 +2,13 @@
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
 {
-    public class ApiCodesRegistryBuilder : CodeBuilder
+    public class TelegramProtocolCodesBuilder : CodeBuilder
     {
         private readonly string CodeDeclarationsCursor = "CodeDeclarationsCursor";
 
         private readonly List<(string, string)> types = new List<(string, string)>();
 
-        public ApiCodesRegistryBuilder(CodeTemplateInstance codeTemplateInstance)
+        public TelegramProtocolCodesBuilder(CodeTemplateInstance codeTemplateInstance)
             : base(codeTemplateInstance)
         {
         }

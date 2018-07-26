@@ -49,6 +49,7 @@
     <Compile Include="Auth\Step1_PQRequest.cs" />
     <Compile Include="Auth\Step2_DHExchange.cs" />
     <Compile Include="Auth\Step3_CompleteDHExchange.cs" />
+    <Compile Include="MTProto\TelegramProtocol.Codes.cs" />
     <Compile Include="MTProto\Crypto\AES.cs" />
     <Compile Include="MTProto\Crypto\AuthKey.cs" />
     <Compile Include="MTProto\Crypto\BigInteger.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="MTProto\Crypto\RSA.cs" />
     <Compile Include="MTProto\Crypto\Salt.cs" />
     <Compile Include="MTProto\Serializers.cs" />
+    <Compile Include="MTProto\TelegramProtocol.cs" />
     <Compile Include="MTProto\TL.cs" />
     <Compile Include="Network\MtProtoSender.cs" />
     <Compile Include="Network\MtProtoPlainSender.cs" />

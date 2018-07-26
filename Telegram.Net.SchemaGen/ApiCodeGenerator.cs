@@ -12,7 +12,7 @@ namespace Telegram.Net.SchemaGen
     {
         private static readonly string ConstructorTemplateFileName = "ConstructorTemplate.tpt";
         private static readonly string RequestTemplateFileName = "RequestTemplate.tpt";
-        private static readonly string TelegramApiCodesTemplate = "TelegramApiCodesTemplate.tpt";
+        private static readonly string TelegramProtocolCodesTemplateFileName = "TelegramProtocolCodesTemplate.tpt";
 
         public static void Run()
         {
@@ -41,8 +41,8 @@ namespace Telegram.Net.SchemaGen
                 }
             }
 
-            var apiCodesRegistryTemplate = CodeTemplateSchema.ReadFromFile(TelegramApiCodesTemplate).CreateInstance();
-            var apiCodesRegistryBuilder = new ApiCodesRegistryBuilder(apiCodesRegistryTemplate);
+            var tlProtocolCodesRegistryTemplate = CodeTemplateSchema.ReadFromFile(TelegramProtocolCodesTemplateFileName).CreateInstance();
+            var tlProtocolCodesRegistryBuilder = new TelegramProtocolCodesBuilder(tlProtocolCodesRegistryTemplate);
 
             var constructorTemplateSchema = CodeTemplateSchema.ReadFromFile(ConstructorTemplateFileName);
             foreach (var constructorInfo in schema.Constructors)
@@ -57,7 +57,7 @@ namespace Telegram.Net.SchemaGen
 
                 constructorTypeBuilder.Build();
 
-                apiCodesRegistryBuilder.RegisterType(constructorTypeBuilder.Id, constructorTypeBuilder.TypeName);
+                tlProtocolCodesRegistryBuilder.RegisterType(constructorTypeBuilder.Id, constructorTypeBuilder.TypeName);
 
                 var generatedCode = template.ToString();
                 using (var srcFileStream = File.CreateText($"src/Constructors/{constructorTypeBuilder.ClassName}.cs"))
@@ -68,7 +68,7 @@ namespace Telegram.Net.SchemaGen
 
             using (var srcFileStream = File.CreateText("src/TelegramApi.Codes.cs"))
             {
-                var generatedCode = apiCodesRegistryTemplate.ToString();
+                var generatedCode = tlProtocolCodesRegistryTemplate.ToString();
                 srcFileStream.Write(generatedCode);
             }
         }

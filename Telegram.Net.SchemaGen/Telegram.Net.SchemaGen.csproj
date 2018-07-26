@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiCodeGenerator.cs" />
-    <Compile Include="CodeTemplating\ApiCodesRegistryBuilder.cs" />
+    <Compile Include="CodeTemplating\TelegramProtocolCodesBuilder.cs" />
     <Compile Include="CodeTemplating\CodeBuilder.cs" />
     <Compile Include="CodeTemplating\CodeSnippets.cs" />
     <Compile Include="CodeTemplating\CodeTemplateSchema.cs" />
@@ -69,7 +69,7 @@
     <Content Include="schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="TelegramApiCodesTemplate.tpt" />
+    <None Include="TelegramProtocolCodesTemplate.tpt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

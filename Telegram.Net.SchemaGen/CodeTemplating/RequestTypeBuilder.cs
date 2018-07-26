@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Telegram.Net.SchemaGen.CodeTemplating
@@ -146,7 +147,7 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
 
             foreach (var field in classFields)
             {
-                onSendSection.Add($"writer.Write({field.Name});");
+                onSendSection.Add($"TelegramProtocol.Write({field.Name}, writer);");
             }
 
             CodeTemplate.Replace(OnSendBodyCursor, onSendSection);
@@ -160,6 +161,8 @@ namespace Telegram.Net.SchemaGen.CodeTemplating
                 return;
             }
 
+            //var readStatement = $"TelegramProtocol.Read<ResultType>({ResultFieldName}, writer);";
+            
             var readStatement = ApiSchema.ApiTypes.IsBasicType(methodInfo.Type) ?
                     $"reader.Read({ResultFieldName});" :
                     $"{ResultFieldName} = TL.Parse<{ResultType}>(reader);";
